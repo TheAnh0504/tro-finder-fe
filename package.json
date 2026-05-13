@@ -5,9 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "serve:ssr:tro-finder-fe": "node dist/tro-finder-fe/server/server.mjs"
+    "build:prod": "ng build --configuration production"
   },
   "private": true,
   "packageManager": "npm@11.13.0",
