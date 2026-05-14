@@ -4,6 +4,7 @@ import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { TokenService } from '../services/token.service';
+import { InfoUser } from '../models/info-user.model';
 
 export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -14,7 +15,14 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401) {
         return authService.refreshToken().pipe(
           switchMap((res: any) => {
-            tokenService.setTokens(res.access_token, res.refresh_token);
+            const currentUser: InfoUser = {
+              role: res.role,
+              name: res.name,
+              email: res.email,
+              phoneNumber: res.phoneNumber,
+              urlImage: res.urlImage,
+            };
+            tokenService.setTokens(res.access_token, res.listPermission, currentUser);
 
             const clonedReq = req.clone({
               setHeaders: {

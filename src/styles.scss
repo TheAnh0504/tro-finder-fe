@@ -1,1 +1,33 @@
-/* You can add global styles to this file, and also import other style files */
+/* Bạn nên import font vào file styles.scss chung này luôn để dùng cho toàn app */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Bỏ viền trắng và thanh kéo mặc định của trình duyệt */
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden; /* Cấm cuộn trang ở cấp độ cao nhất */
+
+  /* --- CÀI ĐẶT KIỂU CHỮ & CỠ CHỮ MẶC ĐỊNH --- */
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 16px; /* 16px là tiêu chuẩn vàng cho độ đọc dễ trên web */
+  line-height: 1.5; /* Khoảng cách giữa các dòng cho dễ đọc */
+  color: #1f2937; /* Màu đen xám, dịu mắt hơn màu đen tuyền #000000 */
+
+  /* Giúp chữ hiển thị cực kỳ mượt mà và sắc nét trên các màn hình hiện đại */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Đảm bảo root chiếm full màn hình (như mình đã đề cập ở bước trước) */
+app-root {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

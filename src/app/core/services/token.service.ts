@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { EPermission } from '../../enum/EPermission.enum';
+import { InfoUser } from '../models/info-user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -7,10 +8,26 @@ import { EPermission } from '../../enum/EPermission.enum';
 export class TokenService {
   private ACCESS_TOKEN = 'access_token';
   private LIST_PERMISSION = 'list_permission';
+  private INFO_USER = 'info_user';
 
-  setTokens(access: string, permissions: string[]) {
+  setTokens(access: string, permissions: string[], userInfo: InfoUser) {
     this.setAccessToken(access);
     this.setListPermission(permissions);
+    this.setUserInfo(userInfo);
+    console.log(access, permissions, userInfo);
+  }
+
+  setUserInfo(userInfo: InfoUser) {
+    sessionStorage.setItem(this.INFO_USER, JSON.stringify(userInfo));
+  }
+
+  getUserInfo(): InfoUser | null {
+    const userInfo = sessionStorage.getItem(this.INFO_USER);
+    if (!userInfo) {
+      return null;
+    }
+
+    return JSON.parse(userInfo) as InfoUser;
   }
 
   setAccessToken(access: string) {

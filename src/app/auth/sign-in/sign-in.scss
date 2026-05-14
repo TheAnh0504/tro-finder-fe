@@ -1,38 +1,565 @@
-.login-container {
-  height: 100vh;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.login-wrapper {
   display: flex;
-  justify-content: center;
   align-items: center;
-  background: #f4f7fb;
+  justify-content: center;
+  // Sử dụng 100vh để chiếm hết chiều cao màn hình, kết hợp với overflow: hidden ở body
+  // sẽ đảm bảo hình nền tràn viền và không có thanh kéo.
+  height: 100vh;
+  width: 100vw;
 
-  form {
-    width: 350px;
-    padding: 32px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  /* Hình nền căn hộ cao cấp tạo cảm giác tin cậy cho dự án phòng trọ */
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)),
+    url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=2000&auto=format&fit=crop')
+      center/cover no-repeat;
 
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  // Nếu màn hình quá nhỏ (ví dụ điện thoại xoay ngang), cho phép scroll bên trong wrapper này
+  overflow-y: auto;
+  padding: 20px; // Thêm chút padding để card không dính sát mép khi màn hình nhỏ
+  box-sizing: border-box;
+}
+
+.login-card {
+  /* Tông màu nền trắng với độ trong suốt thấp hơn một chút để hiệu ứng kính rõ hơn */
+  background: rgba(255, 255, 255, 0.8);
+  width: 100%;
+  max-width: 420px;
+  // Padding trong card giữ nguyên
+  padding: 40px 30px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+
+  /* Thêm -webkit- để hỗ trợ Safari và iOS cho hiệu ứng mờ kính */
+  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+
+  // Thêm viền mỏng trong suốt để làm nổi bật hiệu ứng Glassmorphism
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  animation: slideUp 0.5s ease-out;
+
+  // --- CÁC PHẦN CSS BÊN TRONG GIỮ NGUYÊN NHƯ CŨ CỦA BẠN ---
+  .login-header {
+    text-align: center;
+    margin-bottom: 30px;
+
+    .logo-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+      line-height: 1;
+    }
 
     h1 {
-      text-align: center;
+      color: #1f2937;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 8px;
     }
 
-    input {
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+    p {
+      color: #6b7280;
+      font-size: 14px;
+      margin: 0;
+    }
+  }
+
+  .login-form {
+    .form-group {
+      margin-bottom: 20px;
+
+      label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+      }
+
+      .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: #f3f4f6;
+        border: 2px solid transparent;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+
+        .icon {
+          padding-left: 14px;
+          font-style: normal;
+          color: #9ca3af;
+        }
+
+        input {
+          flex: 1;
+          width: 100%;
+          padding: 12px 14px;
+          background: transparent;
+          border: none;
+          outline: none;
+          font-size: 15px;
+          color: #1f2937;
+
+          &::placeholder {
+            color: #9ca3af;
+          }
+        }
+
+        /* Hiệu ứng khi focus */
+        &:focus-within {
+          background: #ffffff;
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Hiệu ứng khi có lỗi */
+        &.has-error {
+          background: #fef2f2;
+          border-color: #ef4444;
+
+          .icon {
+            color: #ef4444;
+          }
+        }
+      }
+
+      .error-feedback {
+        margin-top: 6px;
+        color: #ef4444;
+        font-size: 12px;
+        font-weight: 500;
+        animation: fadeIn 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        // Đảm bảo tin nhắn lỗi không làm scroll card
+        min-height: 16px;
+      }
     }
 
-    button {
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background: #1976d2;
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      font-size: 14px;
+
+      .remember-me {
+        color: #4b5563;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+
+        input {
+          accent-color: #3b82f6;
+          cursor: pointer;
+          margin: 0; // Reset margin mặc định của checkbox
+        }
+      }
+
+      .forgot-password {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+
+        &:hover {
+          color: #2563eb;
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: #3b82f6;
       color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+
+      &:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 24px 0;
+      color: #6b7280;
+      font-size: 13px;
+
+      &::before,
+      &::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid rgba(156, 163, 175, 0.3); // Đường kẻ mờ
+      }
+
+      span {
+        padding: 0 12px;
+      }
+    }
+
+    .sso-options {
+      display: flex;
+      gap: 12px;
+
+      .btn-sso {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(209, 213, 219, 0.5);
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: inherit; // Kế thừa font Inter
+
+        .sso-icon {
+          width: 20px;
+          height: 20px;
+        }
+
+        &:hover {
+          background: #ffffff;
+          border-color: #9ca3af;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+
+        text-decoration: none; /* Thêm dòng này để bỏ gạch chân của thẻ a */
+        color: #374151; /* Đảm bảo màu chữ không bị biến thành màu xanh của link */
+      }
+    }
+
+    .register-prompt {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: #4b5563;
+
+      a {
+        color: #3b82f6;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s ease;
+        margin-left: 4px;
+
+        &:hover {
+          color: #2563eb;
+          text-decoration: underline;
+        }
+      }
     }
   }
 }
+
+/* Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* --- CSS CHO LOADING TOÀN TRANG --- */
+.full-page-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+  z-index: 9999;
+
+  display: flex;
+  /* Thêm 2 dòng này để icon và chữ xếp dọc, cách nhau 16px */
+  flex-direction: column;
+  gap: 16px;
+
+  align-items: center;
+  justify-content: center;
+
+  .spinner-large {
+    animation: rotate 2s linear infinite;
+    width: 64px;
+    height: 64px;
+
+    .path {
+      stroke: #3b82f6;
+      stroke-linecap: round;
+      animation: dash 1.5s ease-in-out infinite;
+    }
+  }
+
+  /* Định dạng cho chữ thêm phần chuyên nghiệp */
+  .loading-text {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    animation: pulse 1.5s ease-in-out infinite; /* Hiệu ứng nhấp nháy */
+  }
+}
+
+/* --- CÁC ANIMATION KEYFRAMES --- */
+
+/* Keyframes cho Spinner của bạn */
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+/* Thêm Keyframes mới cho chữ nhấp nháy */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* --- CSS CHO LOADING TOÀN TRANG --- */
+
+/* --- CSS CHO NÚT KHI ĐANG LOADING --- */
+.btn-submit {
+  /* ... code cũ của bạn ... */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:disabled {
+    background: #60a5fa; /* Màu xanh nhạt đi khi bị khóa */
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .spinner {
+    animation: rotate 2s linear infinite;
+    width: 20px;
+    height: 20px;
+
+    .path {
+      stroke: #ffffff;
+      stroke-linecap: round;
+      animation: dash 1.5s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+/* --- CSS CHO NÚT KHI ĐANG LOADING --- */
+
+/* --- CSS CHO POPUP XÁC THỰC OTP --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  /* Làm mờ nhẹ nền đằng sau */
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+
+  .modal-content {
+    background: #ffffff;
+    width: 100%;
+    max-width: 480px;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: slideUp 0.3s ease-out;
+
+    h2 {
+      color: #1e3a8a; /* Màu xanh đen sang trọng như ảnh */
+      font-size: 22px;
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+
+    p {
+      color: #4b5563;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .radio-group {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 20px;
+
+      .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #374151;
+        cursor: pointer;
+
+        input[type='radio'] {
+          accent-color: #3b82f6; /* Nút radio màu xanh */
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+
+    .otp-input-group {
+      margin-bottom: 24px;
+      text-align: left;
+
+      input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+
+        &:focus {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        &.has-error {
+          border-color: #ef4444;
+          background: #fef2f2;
+        }
+      }
+
+      .error-text {
+        color: #ef4444;
+        font-size: 12px;
+        margin-top: 6px;
+      }
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+
+      button {
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: 'Inter', sans-serif;
+      }
+
+      .btn-confirm {
+        background: #3b82f6;
+        color: white;
+        border: none;
+
+        &:hover {
+          background: #2563eb;
+        }
+      }
+
+      .btn-cancel {
+        background: white;
+        color: #6b7280;
+        border: 1px solid #d1d5db;
+
+        &:hover {
+          background: #f3f4f6;
+          color: #374151;
+        }
+      }
+    }
+  }
+}
+/* --- CSS CHO POPUP XÁC THỰC OTP --- */
