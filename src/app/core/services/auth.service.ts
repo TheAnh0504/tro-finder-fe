@@ -14,6 +14,14 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/api/auth/sign-in`, data);
   }
 
+  sendVerifyCode(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/api/auth/send-verify-code`, data);
+  }
+
+  confirmLogin(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/api/auth/confirm-login`, data);
+  }
+
   refreshToken() {
     return this.http.post(
       `${this.apiUrl}/api/auth/refresh`,

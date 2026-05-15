@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { EPermission } from '../../enum/EPermission.enum';
 import { InfoUser } from '../models/info-user.model';
 
@@ -14,7 +14,6 @@ export class TokenService {
     this.setAccessToken(access);
     this.setListPermission(permissions);
     this.setUserInfo(userInfo);
-    console.log(access, permissions, userInfo);
   }
 
   setUserInfo(userInfo: InfoUser) {
@@ -68,6 +67,6 @@ export class TokenService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getAccessToken();
+    return !!this.getAccessToken() && !!this.getUserInfo();
   }
 }

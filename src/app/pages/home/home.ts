@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TokenService } from '../../core/services/token.service';
 import { AuthService } from '../../core/services/auth.service';
 import { InfoUser } from '../../core/models/info-user.model';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-home',
@@ -15,6 +16,7 @@ export class Home implements OnInit {
   private router = inject(Router);
   private authService = inject(AuthService);
   private tokenService = inject(TokenService);
+  private toast = inject(ToastrService);
 
   ngOnInit(): void {
     // Lắng nghe sự thay đổi của query parameters
@@ -38,6 +40,13 @@ export class Home implements OnInit {
 
             this.router.navigate(['/home'], {
               replaceUrl: true,
+            });
+          },
+          error: (err) => {
+            this.toast.error(err.error?.message, 'Lỗi', {
+              timeOut: 3000,
+              progressBar: true,
+              positionClass: 'toast-top-right',
             });
           },
         });
