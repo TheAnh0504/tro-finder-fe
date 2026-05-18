@@ -107,12 +107,12 @@ export class SignUp implements OnInit, OnDestroy {
     }
   }
 
-  // 3. Lắng nghe ô nhập OTP 6 số (Nằm trong Modal 2)
-  @ViewChild('otpInput') set otpInput(el: ElementRef<HTMLInputElement>) {
-    if (el) {
-      setTimeout(() => el.nativeElement.focus(), 150); // Chờ animation modal trượt lên
-    }
-  }
+  // // 3. Lắng nghe ô nhập OTP 6 số (Nằm trong Modal 2)
+  // @ViewChild('otpInput') set otpInput(el: ElementRef<HTMLInputElement>) {
+  //   if (el) {
+  //     setTimeout(() => el.nativeElement.focus(), 150); // Chờ animation modal trượt lên
+  //   }
+  // }
 
   // Hàm custom validator kiểm tra khớp pass
   passwordMatchValidator(g: AbstractControl) {

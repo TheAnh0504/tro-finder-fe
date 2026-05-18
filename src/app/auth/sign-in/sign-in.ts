@@ -73,19 +73,19 @@ export class SignIn implements OnInit, OnDestroy {
     this.showPassword.set(!this.showPassword());
   }
 
-  // 2. Lắng nghe ô nhập Phương thức (Nằm trong Modal 1)
-  @ViewChild('targetValueInput') set targetValueInput(el: ElementRef<HTMLInputElement>) {
-    if (el) {
-      setTimeout(() => el.nativeElement.focus(), 150); // Chờ animation modal trượt lên
-    }
-  }
+  // // 2. Lắng nghe ô nhập Phương thức (Nằm trong Modal 1)
+  // @ViewChild('targetValueInput') set targetValueInput(el: ElementRef<HTMLInputElement>) {
+  //   if (el) {
+  //     setTimeout(() => el.nativeElement.focus(), 150); // Chờ animation modal trượt lên
+  //   }
+  // }
 
-  // 3. Lắng nghe ô nhập OTP 6 số (Nằm trong Modal 2)
-  @ViewChild('otpInput') set otpInput(el: ElementRef<HTMLInputElement>) {
-    if (el) {
-      setTimeout(() => el.nativeElement.focus(), 150); // Chờ animation modal trượt lên
-    }
-  }
+  // // 3. Lắng nghe ô nhập OTP 6 số (Nằm trong Modal 2)
+  // @ViewChild('otpInput') set otpInput(el: ElementRef<HTMLInputElement>) {
+  //   if (el) {
+  //     setTimeout(() => el.nativeElement.focus(), 150); // Chờ animation modal trượt lên
+  //   }
+  // }
 
   ngOnInit(): void {
     if (this.tokenService.isLoggedIn()) {

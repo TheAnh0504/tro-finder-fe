@@ -212,6 +212,7 @@
         <div class="form-group otp-input-group">
           <input
             #targetValueInput
+            autofocus
             type="text"
             formControlName="targetValue"
             [class.has-error]="s['targetValue'].invalid && s['targetValue'].touched"
@@ -297,6 +298,7 @@
             autocomplete="one-time-code"
             #otpInput
             aria-label="Nhập mã OTP 6 chữ số"
+            autofocus
           />
           <div class="otp-boxes">
             @for (item of [0, 1, 2, 3, 4, 5]; track $index) {
