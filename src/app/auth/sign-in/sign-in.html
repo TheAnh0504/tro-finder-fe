@@ -355,7 +355,11 @@
           <button type="button" class="btn-cancel" (click)="closeConfirmLoginModal()">
             Hủy bỏ
           </button>
-          <button type="submit" class="btn-confirm" [disabled]="otpVerifyForm.invalid">
+          <button
+            type="submit"
+            class="btn-confirm"
+            [disabled]="otpVerifyForm.invalid || totalSeconds <= 0"
+          >
             Xác nhận
           </button>
         </div>

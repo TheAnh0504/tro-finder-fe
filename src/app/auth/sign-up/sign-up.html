@@ -1,1 +1,367 @@
-<p>sign-up works!</p>
+@if (isLoading()) {
+  <div class="full-page-loader">
+    <!-- Icon SVG xoay của bạn -->
+    <svg class="spinner-large" viewBox="0 0 50 50">
+      <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+    </svg>
+    <!-- Thêm dòng chữ này -->
+    <div class="loading-text">Đang xử lý...</div>
+  </div>
+}
+
+<div class="auth-wrapper">
+  <div class="auth-card register-card">
+    <div class="auth-header">
+      <div class="logo-icon">🏡</div>
+      <h1>TroFinder</h1>
+      <p>Đăng ký tài khoản hệ thống</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group role-selector-group">
+        <label>Bạn là ai?</label>
+        <div class="role-group">
+          @for (role of listRole; track role.roleCode) {
+            <label class="role-label">
+              <input type="radio" formControlName="role" [value]="role.roleCode" />
+              <span>{{ role.roleName }}</span>
+            </label>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="username">Tên đăng nhập</label>
+          <div
+            class="input-wrapper"
+            [class.has-error]="f['username'].invalid && f['username'].touched"
+          >
+            <i class="icon">👤</i>
+            <input
+              type="text"
+              id="username"
+              formControlName="username"
+              placeholder="Nhập ID đăng nhập"
+              autofocus
+            />
+          </div>
+          @if (f['username'].invalid && f['username'].touched) {
+            <div class="error-feedback">Độ dài tối thiểu 4 ký tự</div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="name">Họ và tên</label>
+          <div class="input-wrapper" [class.has-error]="f['name'].invalid && f['name'].touched">
+            <i class="icon">📛</i>
+            <input type="text" id="name" formControlName="name" placeholder="VD: Hoàng Thế Anh" />
+          </div>
+          @if (f['name'].invalid && f['name'].touched) {
+            <div class="error-feedback">Vui lòng nhập họ tên hợp lệ</div>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <div class="input-wrapper" [class.has-error]="f['email'].invalid && f['email'].touched">
+            <i class="icon">✉️</i>
+            <input
+              type="email"
+              id="email"
+              formControlName="email"
+              placeholder="VD: abc@gmail.com"
+            />
+          </div>
+          @if (f['email'].invalid && f['email'].touched) {
+            <div class="error-feedback">
+              {{ f['email'].errors?.['required'] ? 'Không được để trống' : 'Email sai định dạng' }}
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="phoneNumber">Số điện thoại</label>
+          <div
+            class="input-wrapper"
+            [class.has-error]="f['phoneNumber'].invalid && f['phoneNumber'].touched"
+          >
+            <i class="icon">📞</i>
+            <input
+              type="text"
+              id="phoneNumber"
+              formControlName="phoneNumber"
+              placeholder="VD: 0904172308"
+            />
+          </div>
+          @if (f['phoneNumber'].invalid && f['phoneNumber'].touched) {
+            <div class="error-feedback">
+              {{
+                f['phoneNumber'].errors?.['required'] ? 'Không được để trống' : 'SĐT không hợp lệ'
+              }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">Mật khẩu</label>
+          <div
+            class="input-wrapper"
+            [class.has-error]="f['password'].invalid && f['password'].touched"
+          >
+            <i class="icon">🔒</i>
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              id="password"
+              formControlName="password"
+              placeholder="Mật khẩu bảo mật"
+            />
+
+            <button
+              type="button"
+              class="toggle-password-btn"
+              (click)="togglePasswordVisibility()"
+              tabindex="-1"
+            >
+              @if (showPassword()) {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              } @else {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                  <path
+                    d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
+                  ></path>
+                  <path
+                    d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
+                  ></path>
+                  <line x1="2" y1="2" x2="22" y2="22"></line>
+                </svg>
+              }
+            </button>
+          </div>
+          @if (f['password'].invalid && f['password'].touched) {
+            <div class="error-feedback">Mật khẩu phải có ít nhất 6 ký tự</div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Nhập lại mật khẩu</label>
+          <div
+            class="input-wrapper"
+            [class.has-error]="
+              (f['confirmPassword'].invalid && f['confirmPassword'].touched) ||
+              (f['confirmPassword'].touched && registerForm.hasError('mismatch'))
+            "
+          >
+            <i class="icon">🔐</i>
+            <input
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              placeholder="Nhập lại mật khẩu"
+            />
+
+            <button
+              type="button"
+              class="toggle-password-btn"
+              (click)="toggleConfirmPasswordVisibility()"
+              tabindex="-1"
+            >
+              @if (showConfirmPassword()) {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              } @else {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                  <path
+                    d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
+                  ></path>
+                  <path
+                    d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
+                  ></path>
+                  <line x1="2" y1="2" x2="22" y2="22"></line>
+                </svg>
+              }
+            </button>
+          </div>
+
+          @if (
+            (f['confirmPassword'].invalid && f['confirmPassword'].touched) ||
+            (f['confirmPassword'].touched && registerForm.hasError('mismatch'))
+          ) {
+            <div class="error-feedback">
+              {{
+                f['confirmPassword'].errors?.['required']
+                  ? 'Không được để trống'
+                  : 'Mật khẩu không khớp'
+              }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">Đăng Ký Tài Khoản</button>
+
+      <div class="redirect-prompt">
+        Đã có tài khoản?
+        <a href="javascript:void(0)" (click)="goToLogin()">Đăng nhập ngay</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+@if (showOtpModal()) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          <path d="m9 12 2 2 4-4"></path>
+        </svg>
+      </div>
+
+      <h2>Xác thực OTP</h2>
+      <p>
+        Vui lòng nhập mã OTP đã được gửi tới email <br />
+        <strong>{{ f['email'].value }}</strong>
+      </p>
+
+      <form [formGroup]="otpVerifyForm" (ngSubmit)="confirmLogin()">
+        <div class="otp-container">
+          <input
+            type="text"
+            class="hidden-input"
+            (input)="onOtpInput($event)"
+            maxlength="6"
+            autocomplete="one-time-code"
+            #otpInput
+            aria-label="Nhập mã OTP 6 chữ số"
+          />
+          <div class="otp-boxes">
+            @for (item of [0, 1, 2, 3, 4, 5]; track $index) {
+              <div
+                class="otp-box"
+                [class.active]="(o['otpCode'].value || '').length === $index"
+                [class.filled]="(o['otpCode'].value || '').length > $index"
+              >
+                {{ (o['otpCode'].value || '')[$index] || '' }}
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="otp-info">
+          <div
+            class="resend-link"
+            (click)="totalSecondSendOtp > 0 && countSendOtpCode() > 0 ? sendVerifyCode() : null"
+            [class.disabled]="totalSecondSendOtp <= 0 || countSendOtpCode() <= 0"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            Gửi lại mã OTP
+          </div>
+
+          <div class="timer">
+            @if (totalSeconds() > 0) {
+              Hết hạn sau <span class="time-count">{{ countdownDisplay() }}</span>
+            } @else {
+              <span class="time-count">OTP hết hạn</span>
+            }
+          </div>
+        </div>
+
+        <div class="limit-info">
+          Còn lại <strong>{{ countSendOtpCode() }}</strong> lần gửi / {{ countdownSendOtp() }} phút
+        </div>
+
+        @if (o['otpCode'].invalid && o['otpCode'].touched) {
+          <div class="error-text">Vui lòng nhập đủ 6 ký tự mã OTP</div>
+        }
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="closeConfirmLoginModal()">
+            Hủy bỏ
+          </button>
+          <button
+            type="submit"
+            class="btn-confirm"
+            [disabled]="otpVerifyForm.invalid || totalSeconds() <= 0"
+          >
+            Xác nhận
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

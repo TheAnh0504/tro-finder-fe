@@ -89,7 +89,6 @@ export class SignIn implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.tokenService.isLoggedIn()) {
-      console.log(this.tokenService.getUserInfo());
       this.router.navigate(['/home']);
     }
 
@@ -278,7 +277,7 @@ export class SignIn implements OnInit, OnDestroy {
 
   confirmLogin() {
     if (this.otpVerifyForm.invalid) {
-      this.form.markAllAsTouched();
+      this.otpVerifyForm.markAllAsTouched();
       return;
     }
 

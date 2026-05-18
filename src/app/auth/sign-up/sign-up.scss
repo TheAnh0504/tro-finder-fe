@@ -1,0 +1,602 @@
+.auth-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // Sử dụng 100vh để chiếm hết chiều cao màn hình, kết hợp với overflow: hidden ở body
+  // sẽ đảm bảo hình nền tràn viền và không có thanh kéo.
+  height: 100vh;
+  width: 100vw;
+
+  /* Hình nền căn hộ cao cấp tạo cảm giác tin cậy cho dự án phòng trọ */
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)),
+    url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=2000&auto=format&fit=crop')
+      center/cover no-repeat;
+
+  // Nếu màn hình quá nhỏ (ví dụ điện thoại xoay ngang), cho phép scroll bên trong wrapper này
+  overflow-y: auto;
+  padding: 20px; // Thêm chút padding để card không dính sát mép khi màn hình nhỏ
+  box-sizing: border-box;
+}
+
+.auth-card.register-card {
+  background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 680px; /* To hơn form login một chút để chứa 2 cột */
+  padding: 48px 40px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 32px;
+
+    .logo-icon {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 28px;
+      color: #0f172a;
+      margin: 0 0 4px 0;
+      font-weight: 700;
+    }
+    p {
+      color: #64748b;
+      margin: 0;
+      font-size: 15px;
+    }
+  }
+
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    /* Chia 2 cột cho các thiết bị màn hình rộng */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      /* Thiết kế riêng cho chọn Role (Lồng lộn) */
+      &.role-selector-group {
+        margin-bottom: 8px;
+
+        .role-group {
+          display: flex;
+          background: #f1f5f9;
+          padding: 6px;
+          border-radius: 12px;
+          gap: 0;
+
+          .role-label {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+
+            input[type='radio'] {
+              display: none;
+            }
+
+            &:has(input[type='radio']:checked) {
+              background: #ffffff;
+              color: #3b82f6;
+              box-shadow:
+                0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+
+            &:hover:not(:has(input[type='radio']:checked)) {
+              color: #1e293b;
+            }
+          }
+        }
+      }
+
+      /* Style cho Input (Kế thừa từ Login) */
+      .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        .icon {
+          position: absolute;
+          left: 14px;
+          font-size: 18px;
+          /* Thêm dòng này để ép các Emoji đứng thẳng lại */
+          font-style: normal !important;
+        }
+
+        input {
+          width: 100%;
+          padding: 14px 40px 14px 44px; /* Trừ hao 2 bên cho icon */
+          background: #f8fafc;
+          border: 2px solid transparent;
+          border-radius: 12px;
+          font-size: 15px;
+          color: #0f172a;
+          outline: none;
+          transition: all 0.2s ease;
+
+          &::placeholder {
+            color: #94a3b8;
+          }
+          &:focus {
+            background: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+          }
+        }
+
+        &.has-error input {
+          border-color: #ef4444;
+          background: #fef2f2;
+          &:focus {
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+          }
+        }
+
+        /* Nút ẩn hiện mật khẩu */
+        .toggle-password-btn {
+          position: absolute;
+          right: 12px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: #94a3b8;
+          display: flex;
+          padding: 4px;
+          transition: color 0.2s ease;
+          &:hover {
+            color: #3b82f6;
+          }
+          &:focus {
+            outline: none;
+          }
+        }
+      }
+
+      .error-feedback {
+        color: #ef4444;
+        font-size: 12px;
+        font-weight: 500;
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        &::before {
+          content: '⚠';
+        }
+      }
+    }
+
+    /* Nút Submit */
+    .btn-submit {
+      margin-top: 10px;
+      padding: 16px;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.4);
+      }
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    .redirect-prompt {
+      text-align: center;
+      font-size: 14px;
+      color: #64748b;
+      margin-top: 8px;
+
+      a {
+        color: #3b82f6;
+        font-weight: 600;
+        text-decoration: none;
+        margin-left: 4px;
+        transition: color 0.2s;
+        &:hover {
+          text-decoration: underline;
+          color: #2563eb;
+        }
+      }
+    }
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.6); /* Nền tối sang trọng hơn */
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.4s ease-out forwards;
+  font-family: 'Inter', sans-serif;
+
+  .modal-content {
+    position: relative;
+    background: #ffffff;
+    width: 100%;
+    max-width: 440px; /* Thu gọn lại một chút nhìn sẽ tinh tế hơn */
+    padding: 40px 32px;
+    border-radius: 20px; /* Bo góc tròn trịa hơn */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    animation: slideUpBounce 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    overflow: hidden;
+
+    /* Dải màu Gradient chuẩn nhận diện thương hiệu TroFinder */
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(90deg, #0ea5e9, #3b82f6, #4f46e5);
+    }
+
+    /* Icon trang trí (Bạn có thể thêm HTML ở dưới) */
+    .modal-icon {
+      width: 56px;
+      height: 56px;
+      background: #eff6ff;
+      color: #3b82f6;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 24px;
+      box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.1);
+    }
+
+    h2 {
+      color: #0f172a;
+      font-size: 24px;
+      font-weight: 700;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #64748b;
+      font-size: 14px;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    /* Đổi Radio Group thành dạng Segmented Control */
+    .radio-group {
+      display: flex;
+      background: #f1f5f9;
+      padding: 6px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      gap: 0;
+
+      .radio-label {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 12px 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: #64748b;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        /* Ẩn dấu chấm radio mặc định */
+        input[type='radio'] {
+          display: none;
+        }
+
+        /* Hiệu ứng khi được chọn (Sử dụng CSS :has hiện đại) */
+        &:has(input[type='radio']:checked) {
+          background: #ffffff;
+          color: #3b82f6;
+          font-weight: 600;
+          box-shadow:
+            0 4px 6px -1px rgba(0, 0, 0, 0.1),
+            0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        &:hover:not(:has(input[type='radio']:checked)) {
+          color: #1e293b;
+        }
+      }
+    }
+
+    .otp-input-group {
+      margin-bottom: 32px;
+      text-align: left;
+
+      input {
+        width: 100%;
+        padding: 14px 16px;
+        background: #f8fafc;
+        border: 2px solid transparent;
+        border-radius: 12px;
+        font-size: 15px;
+        font-family: inherit;
+        color: #0f172a;
+        outline: none;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+
+        &::placeholder {
+          color: #94a3b8;
+        }
+
+        &:focus {
+          background: #ffffff;
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+
+        &.has-error {
+          border-color: #ef4444;
+          background: #fef2f2;
+          &:focus {
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+          }
+        }
+      }
+
+      .error-text {
+        color: #ef4444;
+        font-size: 13px;
+        font-weight: 500;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        &::before {
+          content: '⚠';
+          font-size: 12px;
+        }
+      }
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+
+      button {
+        flex: 1; /* Cho 2 nút bằng nhau */
+        padding: 14px 24px;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: inherit;
+      }
+
+      .btn-cancel {
+        background: #f1f5f9;
+        color: #475569;
+        border: none;
+
+        &:hover {
+          background: #e2e8f0;
+          color: #0f172a;
+        }
+      }
+
+      .btn-confirm {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 16px rgba(37, 99, 235, 0.4);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
+
+    /* --- OTP Input Style --- */
+    .otp-container {
+      position: relative;
+      margin-bottom: 24px;
+
+      .hidden-input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: default;
+        z-index: 2;
+      }
+
+      .otp-boxes {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+
+        .otp-box {
+          width: 50px;
+          height: 60px;
+          border: 2px solid #e2e8f0;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
+          font-weight: 700;
+          color: #0f172a;
+          transition: all 0.2s;
+          background: #f8fafc;
+
+          &.active {
+            border-color: #3b82f6;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+          }
+
+          &.filled {
+            border-color: #3b82f6;
+            color: #3b82f6;
+          }
+        }
+      }
+    }
+
+    .otp-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 14px;
+
+      .resend-link {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #3b82f6; /* Màu xanh sáng mặc định */
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        /* Hiệu ứng khi hover (chỉ khi nút còn hoạt động) */
+        &:hover:not(.disabled) {
+          color: #2563eb;
+          text-decoration: underline;
+        }
+
+        /* TRẠNG THÁI HẾT LƯỢT (DISABLED) */
+        &.disabled {
+          color: #94a3b8; /* Chuyển màu xám nhạt */
+          cursor: not-allowed; /* Biểu tượng chuột cấm 🚫 */
+          opacity: 0.6;
+        }
+      }
+
+      .timer {
+        color: #64748b;
+        .time-count {
+          color: #ef4444;
+          font-weight: 700;
+        }
+      }
+    }
+
+    .limit-info {
+      text-align: left;
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 24px;
+
+      strong {
+        color: #0f172a;
+      }
+    }
+
+    .error-text {
+      color: #ef4444;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+
+      button {
+        flex: 1;
+        padding: 14px;
+        border-radius: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+
+      .btn-cancel {
+        background: #f1f5f9;
+        color: #475569;
+        border: none;
+        &:hover {
+          background: #e2e8f0;
+        }
+      }
+
+      .btn-confirm {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: #fff;
+        border: none;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+
+        &:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+        }
+
+        &:disabled {
+          background: #cbd5e1;
+          box-shadow: none;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+}
+/* --- CSS CHO POPUP XÁC THỰC OTP --- */
