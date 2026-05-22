@@ -42,12 +42,22 @@
               type="text"
               id="username"
               formControlName="username"
-              placeholder="Nhập ID đăng nhập"
+              placeholder="Nhập tên đăng nhập"
               autofocus
             />
           </div>
           @if (f['username'].invalid && f['username'].touched) {
-            <div class="error-feedback">Độ dài tối thiểu 4 ký tự</div>
+            <div class="error-feedback">
+              @if (f['username'].errors?.['required']) {
+                <span>Tên đăng nhập không được để trống.</span>
+              }
+              @if (f['username'].errors?.['minlength']) {
+                <span>Tên đăng nhập phải lớn hơn 2 ký tự.</span>
+              }
+              @if (f['username'].errors?.['maxlength']) {
+                <span>Tên đăng nhập phải nhỏ hơn 50 ký tự.</span>
+              }
+            </div>
           }
         </div>
 
@@ -167,7 +177,17 @@
             </button>
           </div>
           @if (f['password'].invalid && f['password'].touched) {
-            <div class="error-feedback">Mật khẩu phải có ít nhất 6 ký tự</div>
+            <div class="error-feedback">
+              @if (f['password'].errors?.['required']) {
+                <span>Mật khẩu không được để trống.</span>
+              }
+              @if (f['password'].errors?.['minlength']) {
+                <span>Mật khẩu phải lớn hơn 6 ký tự.</span>
+              }
+              @if (f['password'].errors?.['maxlength']) {
+                <span>Mật khẩu phải nhỏ hơn 255 ký tự.</span>
+              }
+            </div>
           }
         </div>
 

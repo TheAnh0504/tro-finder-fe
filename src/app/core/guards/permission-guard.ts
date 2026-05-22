@@ -4,6 +4,7 @@ import { ActivatedRouteSnapshot, CanActivateFn, Router } from '@angular/router';
 
 import { PermissionService } from '../services/permission.service';
 import { TokenService } from '../services/token.service';
+import { EPermission } from '../../enum/EPermission.enum';
 
 export const permissionGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state) => {
   const permissionService = inject(PermissionService);
@@ -11,7 +12,7 @@ export const permissionGuard: CanActivateFn = (route: ActivatedRouteSnapshot, st
 
   const router = inject(Router);
 
-  const requiredPermission = tokenService.convertToListPermission(route.data['permission']);
+  const requiredPermission: EPermission[] = route.data['permission'];
 
   if (permissionService.hasAnyPermission(requiredPermission)) {
     return true;

@@ -62,8 +62,8 @@ export class SignUp implements OnInit, OnDestroy {
         name: ['', [Validators.required, Validators.minLength(3)]],
         phoneNumber: ['', [Validators.required, Validators.pattern(/^(03|05|07|08|09)\d{8}$/)]],
         email: ['', [Validators.required, Validators.email]],
-        username: ['', [Validators.required, Validators.minLength(4)]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
+        username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(49)]],
+        password: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(254)]],
         // Thêm trường nhập lại mật khẩu
         confirmPassword: ['', [Validators.required]],
         role: [this.listRole[0].roleCode, Validators.required], // Mặc định chọn role đầu tiên

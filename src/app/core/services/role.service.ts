@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -8,31 +7,30 @@ import { Observable } from 'rxjs';
 })
 export class RoleService {
   private http = inject(HttpClient);
-  private apiUrl = environment.apiUrl;
 
   findRole(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/api/role/find`, data);
+    return this.http.post(`/api/role/find`, data);
   }
 
   addRole(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/api/role/add`, data);
+    return this.http.post(`/api/role/add`, data);
   }
 
   updateRole(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/api/role/update`, data);
+    return this.http.post(`/api/role/update`, data);
   }
 
   deleteRole(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/api/role/delete`, data);
+    return this.http.post(`/api/role/delete`, data);
   }
 
   getRole(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/api/role/get`, data);
+    return this.http.post(`/api/role/get`, data);
   }
 
   // public
 
   findRolePublic(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/api/role/public/find`, data);
+    return this.http.post(`/api/role/public/find`, data);
   }
 }

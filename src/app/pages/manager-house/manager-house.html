@@ -1,1 +1,796 @@
-<p>manager-house works!</p>
+@if (isLoading()) {
+  <div class="full-page-loader">
+    <!-- Icon SVG xoay của bạn -->
+    <svg class="spinner-large" viewBox="0 0 50 50">
+      <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+    </svg>
+    <!-- Thêm dòng chữ này -->
+    <div class="loading-text">Đang xử lý...</div>
+  </div>
+}
+
+<div class="dashboard-wrapper">
+  @if (viewMode() === 'LIST') {
+    <div class="dashboard-card list-view">
+      <div class="header-actions">
+        <div>
+          <h1>Quản lý phòng trọ</h1>
+          <p>Danh sách các bất động sản bạn đang quản lý</p>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center">
+          <button
+            class="btn-outline filter-toggle-btn"
+            [class.active]="isFilterExpanded()"
+            (click)="isFilterExpanded.set(!isFilterExpanded())"
+          >
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+              ></path>
+            </svg>
+            {{ isFilterExpanded() ? 'Đóng bộ lọc' : 'Bộ lọc tìm kiếm' }}
+          </button>
+
+          <button class="btn-primary" (click)="openAddForm()">+ Thêm Nhà Trọ Mới</button>
+        </div>
+      </div>
+
+      @if (isFilterExpanded()) {
+        <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="filter-section mb-4">
+          <div class="filter-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Tỉnh/Thành phố</mat-label>
+              <input
+                type="text"
+                matInput
+                placeholder="Tất cả"
+                [(ngModel)]="filterProvinceText"
+                [ngModelOptions]="{ standalone: true }"
+                [matAutocomplete]="autoFilterProvince"
+              />
+              <mat-autocomplete #autoFilterProvince="matAutocomplete">
+                @for (p of filteredSearchProvinces(); track p.provinceCode) {
+                  <mat-option [value]="p.name" (onSelectionChange)="selectFilterProvince(p)">{{
+                    p.name
+                  }}</mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Phường/Xã</mat-label>
+              <input
+                type="text"
+                matInput
+                placeholder="Tất cả"
+                [(ngModel)]="filterCommuneText"
+                [ngModelOptions]="{ standalone: true }"
+                [matAutocomplete]="autoFilterCommune"
+                [disabled]="!searchForm.get('province')?.value"
+              />
+              <mat-autocomplete #autoFilterCommune="matAutocomplete">
+                @for (c of filteredSearchCommunes(); track c.communeCode) {
+                  <mat-option [value]="c.name" (onSelectionChange)="selectFilterCommune(c)">{{
+                    c.name
+                  }}</mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Giá phòng/tháng từ (VNĐ)</mat-label>
+              <input
+                type="text"
+                matInput
+                formControlName="minPriceRoom"
+                mask="separator.0"
+                thousandSeparator=","
+                placeholder="VD: 1,000,000"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Đến giá phòng/tháng (VNĐ)</mat-label>
+              <input
+                type="text"
+                matInput
+                formControlName="maxPriceRoom"
+                mask="separator.0"
+                thousandSeparator=","
+                placeholder="VD: 5,000,000"
+              />
+            </mat-form-field>
+          </div>
+
+          <div class="filter-grid" style="margin-top: 8px">
+            <mat-form-field appearance="outline">
+              <mat-label>Diện tích từ (m2)</mat-label>
+              <input type="number" matInput formControlName="minArea" placeholder="VD: 20" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Đến diện tích (m2)</mat-label>
+              <input type="number" matInput formControlName="maxArea" placeholder="VD: 50" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Số giường</mat-label>
+              <input type="number" matInput formControlName="bed" placeholder="VD: 1" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Số đệm</mat-label>
+              <input type="number" matInput formControlName="mattress" placeholder="VD: 1" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Tủ quần áo</mat-label>
+              <input type="number" matInput formControlName="wardrobe" placeholder="VD: 1" />
+            </mat-form-field>
+          </div>
+
+          <div class="filter-amenities">
+            <div class="filter-amenities chips-container">
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('parkingArea')?.value === true"
+                [class.state-false]="searchForm.get('parkingArea')?.value === false"
+                (click)="toggleFilterState('parkingArea')"
+              >
+                Chỗ để xe
+                @if (searchForm.get('parkingArea')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('parkingArea')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('elevator')?.value === true"
+                [class.state-false]="searchForm.get('elevator')?.value === false"
+                (click)="toggleFilterState('elevator')"
+              >
+                Thang máy
+                @if (searchForm.get('elevator')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('elevator')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('securityCamera')?.value === true"
+                [class.state-false]="searchForm.get('securityCamera')?.value === false"
+                (click)="toggleFilterState('securityCamera')"
+              >
+                Camera
+                @if (searchForm.get('securityCamera')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('securityCamera')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('security24_7')?.value === true"
+                [class.state-false]="searchForm.get('security24_7')?.value === false"
+                (click)="toggleFilterState('security24_7')"
+              >
+                Bảo vệ 24/7
+                @if (searchForm.get('security24_7')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('security24_7')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('privateBathroom')?.value === true"
+                [class.state-false]="searchForm.get('privateBathroom')?.value === false"
+                (click)="toggleFilterState('privateBathroom')"
+              >
+                VS khép kín
+                @if (searchForm.get('privateBathroom')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('privateBathroom')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('airConditioner')?.value === true"
+                [class.state-false]="searchForm.get('airConditioner')?.value === false"
+                (click)="toggleFilterState('airConditioner')"
+              >
+                Điều hòa
+                @if (searchForm.get('airConditioner')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('airConditioner')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('waterHeater')?.value === true"
+                [class.state-false]="searchForm.get('waterHeater')?.value === false"
+                (click)="toggleFilterState('waterHeater')"
+              >
+                Nóng lạnh
+                @if (searchForm.get('waterHeater')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('waterHeater')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('tableAndChairs')?.value === true"
+                [class.state-false]="searchForm.get('tableAndChairs')?.value === false"
+                (click)="toggleFilterState('tableAndChairs')"
+              >
+                Bàn ghế
+                @if (searchForm.get('tableAndChairs')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('tableAndChairs')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('sharedLaundryArea')?.value === true"
+                [class.state-false]="searchForm.get('sharedLaundryArea')?.value === false"
+                (click)="toggleFilterState('sharedLaundryArea')"
+              >
+                Khu giặt chung
+                @if (searchForm.get('sharedLaundryArea')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('sharedLaundryArea')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('sharedDryingArea')?.value === true"
+                [class.state-false]="searchForm.get('sharedDryingArea')?.value === false"
+                (click)="toggleFilterState('sharedDryingArea')"
+              >
+                Khu phơi chung
+                @if (searchForm.get('sharedDryingArea')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('sharedDryingArea')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('dishwashingArea')?.value === true"
+                [class.state-false]="searchForm.get('dishwashingArea')?.value === false"
+                (click)="toggleFilterState('dishwashingArea')"
+              >
+                Khu rửa bát
+                @if (searchForm.get('dishwashingArea')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('dishwashingArea')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('washingMachine')?.value === true"
+                [class.state-false]="searchForm.get('washingMachine')?.value === false"
+                (click)="toggleFilterState('washingMachine')"
+              >
+                Máy giặt riêng
+                @if (searchForm.get('washingMachine')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('washingMachine')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('hasPet')?.value === true"
+                [class.state-false]="searchForm.get('hasPet')?.value === false"
+                (click)="toggleFilterState('hasPet')"
+              >
+                Cho phép Pet
+                @if (searchForm.get('hasPet')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('hasPet')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('hasRent')?.value === true"
+                [class.state-false]="searchForm.get('hasRent')?.value === false"
+                (click)="toggleFilterState('hasRent')"
+              >
+                Đã cho thuê
+                @if (searchForm.get('hasRent')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('hasRent')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+
+              <button
+                type="button"
+                class="filter-chip"
+                [class.state-true]="searchForm.get('hasHost')?.value === true"
+                [class.state-false]="searchForm.get('hasHost')?.value === false"
+                (click)="toggleFilterState('hasHost')"
+              >
+                Chung chủ
+                @if (searchForm.get('hasHost')?.value === true) {
+                  <span class="icon">✓</span>
+                }
+                @if (searchForm.get('hasHost')?.value === false) {
+                  <span class="icon">✕</span>
+                }
+              </button>
+            </div>
+          </div>
+
+          <div class="filter-actions">
+            <button type="button" class="btn-outline" (click)="onResetSearch()">Xóa bộ lọc</button>
+            <button type="submit" class="btn-primary">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
+              </svg>
+              Tìm kiếm
+            </button>
+          </div>
+        </form>
+      }
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Tên nhà trọ</th>
+              <th>Tên phòng trọ</th>
+              <th>Tỉnh/Thành phố</th>
+              <th>Phường/Xã</th>
+              <th>Địa chỉ</th>
+              <th>Đã cho thuê</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (room of listRooms(); track room.id) {
+              <tr>
+                <td class="font-bold" [matTooltip]="room.houseSet.name">
+                  {{ room.houseSet.name }}
+                </td>
+                <td [matTooltip]="room.name">
+                  {{ room.name }}
+                </td>
+                <td [matTooltip]="room.houseSet.province.name">
+                  {{ room.houseSet.province.name }}
+                </td>
+                <td [matTooltip]="room.houseSet.commune.name">
+                  {{ room.houseSet.commune.name }}
+                </td>
+                <td [matTooltip]="room.houseSet.address">
+                  {{ room.houseSet.address }}
+                </td>
+
+                <td>
+                  @if (room.hasRent) {
+                    <span class="badge badge-success">
+                      <svg
+                        class="status-icon"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2.5"
+                          d="M5 13l4 4L19 7"
+                        ></path>
+                      </svg>
+                      Đã thuê
+                    </span>
+                  } @else {
+                    <span class="badge badge-danger">
+                      <svg
+                        class="status-icon"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2.5"
+                          d="M6 18L18 6M6 6l12 12"
+                        ></path>
+                      </svg>
+                      Trống
+                    </span>
+                  }
+                </td>
+                <td class="actions">
+                  <button class="btn-icon edit" (click)="openUpdateForm(room)" title="Cập nhật">
+                    ✏️
+                  </button>
+                  <!-- <button class="btn-icon delete" (click)="deleteHouse(room.id)" title="Xóa">
+                    🗑️
+                  </button> -->
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="empty-state">Chưa có dữ liệu phòng trọ.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pagination-wrapper">
+          <span class="page-info"
+            >Hiển thị tổng số <strong>{{ totalElements() }}</strong> kết quả</span
+          >
+          <div class="pagination-controls">
+            <button
+              class="btn-page"
+              [disabled]="pageNumber() === 0"
+              (click)="changePage(pageNumber() - 1)"
+            >
+              &laquo; Trước
+            </button>
+            <span class="page-current">Trang {{ pageNumber() + 1 }} / {{ totalPages() }}</span>
+            <button
+              class="btn-page"
+              [disabled]="pageNumber() >= totalPages() - 1"
+              (click)="changePage(pageNumber() + 1)"
+            >
+              Sau &raquo;
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (viewMode() === 'FORM') {
+    <div class="dashboard-card form-view">
+      <div class="header-actions">
+        <h1>{{ isUpdateMode() ? 'Cập nhật thông tin nhà trọ' : 'Thêm nhà trọ mới' }}</h1>
+        <button class="btn-outline" (click)="viewMode.set('LIST')">Quay lại</button>
+      </div>
+
+      <form [formGroup]="houseForm" (ngSubmit)="onSubmit()" class="complex-form">
+        <div class="section-block">
+          <h3>Thông tin cơ bản nhà trọ</h3>
+          <div class="form-grid-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Tỉnh/Thành phố*</mat-label>
+              <input
+                type="text"
+                matInput
+                placeholder="VD: Hà Nội"
+                [(ngModel)]="searchProvinceText"
+                [ngModelOptions]="{ standalone: true }"
+                [matAutocomplete]="autoProvince"
+              />
+
+              <mat-autocomplete #autoProvince="matAutocomplete">
+                @for (p of filteredProvinces(); track p.provinceCode) {
+                  <mat-option [value]="p.name" (onSelectionChange)="selectProvince(p)">
+                    {{ p.name }}
+                  </mat-option>
+                }
+              </mat-autocomplete>
+
+              @if (houseForm.get('province')?.invalid && houseForm.get('province')?.touched) {
+                <mat-error>Vui lòng chọn Tỉnh/Thành phố</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Phường/Xã*</mat-label>
+              <input
+                type="text"
+                matInput
+                placeholder="VD: Phường Bến Nghé"
+                [(ngModel)]="searchCommuneText"
+                [ngModelOptions]="{ standalone: true }"
+                [matAutocomplete]="autoCommune"
+              />
+
+              <mat-autocomplete #autoCommune="matAutocomplete">
+                @for (c of filteredCommunes(); track c.communeCode) {
+                  <mat-option [value]="c.name" (onSelectionChange)="selectCommune(c)">
+                    {{ c.name }}
+                  </mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Địa chỉ chi tiết</mat-label>
+              <input
+                type="text"
+                matInput
+                formControlName="address"
+                placeholder="VD: Số nhà, ngõ, đường..."
+              />
+
+              @if (houseForm.get('address')?.invalid && houseForm.get('address')?.touched) {
+                <mat-error>Vui lòng nhập địa chỉ chi tiết</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Tên nhà trọ</mat-label>
+              <input
+                type="text"
+                matInput
+                formControlName="name"
+                placeholder="VD: Nhà trọ Thế Anh..."
+              />
+
+              @if (houseForm.get('name')?.invalid && houseForm.get('name')?.touched) {
+                <mat-error>Vui lòng nhập tên nhà trọ</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="section-block room-section">
+          <div class="room-header">
+            <h3>Danh sách phòng ({{ rooms.length }})</h3>
+            <button type="button" class="btn-secondary" (click)="addRoom()">
+              + Thêm Phòng Mới
+            </button>
+          </div>
+
+          <div formArrayName="room" class="room-list">
+            @for (roomCtrl of rooms.controls; track roomCtrl; let numberRoom = $index) {
+              <div class="room-card" [formGroupName]="numberRoom">
+                <div class="room-card-header">
+                  <h4>Phòng trọ số {{ numberRoom + 1 }}</h4>
+                  @if (rooms.length > 1) {
+                    <button type="button" class="btn-remove" (click)="removeRoom(numberRoom)">
+                      Xóa phòng này
+                    </button>
+                  }
+                </div>
+
+                <div class="form-grid-3 mb-4">
+                  <div class="form-group">
+                    <label>Tên phòng <span class="text-danger">*</span></label>
+                    <input
+                      type="text"
+                      formControlName="name"
+                      class="form-control"
+                      placeholder="VD: P.101, Phòng Master..."
+                    />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label>Mô tả phòng</label>
+                    <textarea
+                      formControlName="describe_room"
+                      class="form-control"
+                      rows="10"
+                      placeholder="VD: Phòng có ban công hướng Đông, yên tĩnh, view mặt đường..."
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div class="form-group mb-4">
+                  <label [for]="'room_' + numberRoom"
+                    >Upload hình ảnh Phòng {{ numberRoom + 1 }}
+
+                    @if (isLoadingRoom(numberRoom)) {
+                      <span class="inline-loader">
+                        <svg class="spinner-small" viewBox="0 0 50 50">
+                          <circle
+                            class="path"
+                            cx="25"
+                            cy="25"
+                            r="20"
+                            fill="none"
+                            stroke-width="4"
+                          ></circle>
+                        </svg>
+                        Đang xử lý ảnh...
+                      </span>
+                    }
+                  </label>
+                  <input
+                    [id]="'room_' + numberRoom"
+                    type="file"
+                    multiple
+                    class="file-input"
+                    accept="image/*"
+                    (change)="onFileSelected($event, numberRoom)"
+                    aria-label="Chọn hình ảnh cho phòng"
+                  />
+                  <small class="hint">Ảnh sẽ tự động nén và đổi tên khi lưu.</small>
+                </div>
+
+                <div class="image-preview-grid">
+                  @for (oldImg of existingRoomImages[numberRoom]; track oldImg.id; let i = $index) {
+                    <div class="preview-card">
+                      <img [src]="oldImg.url" alt="Ảnh cũ" />
+                      <div class="card-overlay">
+                        <span class="badge-old">Ảnh hiện tại</span>
+                        <div class="overlay-actions">
+                          <button
+                            type="button"
+                            class="btn-view-img"
+                            (click)="viewFullImage(oldImg.url)"
+                            title="Xem to"
+                          >
+                            🔍
+                          </button>
+                          <button
+                            type="button"
+                            class="btn-remove-img"
+                            (click)="removeExistingImage(numberRoom, i)"
+                            title="Xóa ảnh"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  @for (newImg of roomImages[numberRoom]; track newImg.previewUrl; let i = $index) {
+                    <div class="preview-card new-image">
+                      <img [src]="newImg.previewUrl" alt="Ảnh mới" />
+                      <div class="card-overlay">
+                        <span class="badge-new">Mới tải lên</span>
+                        <div class="overlay-actions">
+                          <button
+                            type="button"
+                            class="btn-view-img"
+                            (click)="viewFullImage(newImg.previewUrl)"
+                            title="Xem to"
+                          >
+                            🔍
+                          </button>
+                          <button
+                            type="button"
+                            class="btn-remove-img"
+                            (click)="removeNewImage(numberRoom, i)"
+                            title="Hủy ảnh"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <div class="form-grid-4">
+                  <div class="form-group">
+                    <label>Diện tích (m2)</label>
+                    <input
+                      aria-label="Nhập diện tích phòng"
+                      type="text"
+                      formControlName="area"
+                      class="form-control"
+                      mask="separator.0"
+                      thousandSeparator=","
+                    />
+                  </div>
+                  @for (field of priceFields; track field.key) {
+                    <div class="form-group">
+                      <label>{{ field.label }} (VNĐ)</label>
+                      <input
+                        aria-label="Nhập giá {{ field.label }}"
+                        type="text"
+                        [formControlName]="field.key"
+                        class="form-control"
+                        mask="separator.0"
+                        thousandSeparator=","
+                      />
+                    </div>
+                  }
+                  @for (field of qtyFields; track field.key) {
+                    <div class="form-group">
+                      <label>{{ field.label }}</label>
+                      <input
+                        aria-label="Nhập số lượng {{ field.label }}"
+                        type="text"
+                        [formControlName]="field.key"
+                        class="form-control"
+                        mask="separator.0"
+                        thousandSeparator=","
+                      />
+                    </div>
+                  }
+                </div>
+
+                <div class="amenities-grid">
+                  @for (amenity of amenityFields; track amenity.key) {
+                    <label class="toggle-switch">
+                      <input
+                        aria-label="Chọn tiện nghi {{ amenity.label }}"
+                        type="checkbox"
+                        [formControlName]="amenity.key"
+                      />
+                      <span class="slider"></span>
+                      <span class="label-text">{{ amenity.label }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="viewMode.set('LIST')">Hủy bỏ</button>
+          <button type="submit" class="btn-submit">
+            {{ isUpdateMode() ? 'Lưu Cập Nhật' : 'Tạo Nhà Trọ' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>
+
+@if (selectedImageToView()) {
+  <div class="image-modal-overlay" (click)="closeFullImage()">
+    <div class="image-modal-content" (click)="$event.stopPropagation()">
+      <button type="button" class="btn-close-modal" (click)="closeFullImage()">✕</button>
+      <img [src]="selectedImageToView()" alt="Xem ảnh phóng to" />
+    </div>
+  </div>
+}

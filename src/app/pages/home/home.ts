@@ -25,7 +25,7 @@ export class Home implements OnInit {
       const token = params['token'];
 
       if (token === 'refresh_token') {
-        // TODO: chạy api refresh token ở đây, sau đó điều hướng về home
+        // chạy api refresh token, sau đó điều hướng về home
         this.authService.refreshToken().subscribe({
           next: (res: any) => {
             console.log('Refresh token thành công:', res);
@@ -50,6 +50,10 @@ export class Home implements OnInit {
             });
           },
         });
+      } else {
+        if (!this.tokenService.isLoggedIn()) {
+          this.router.navigate(['/auth/sign-in']);
+        }
       }
     });
   }
