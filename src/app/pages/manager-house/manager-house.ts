@@ -60,7 +60,7 @@ export class ManagerHouse implements OnInit {
   roomImages: { file: File; previewUrl: string }[][] = [];
 
   // 2. Mảng lưu ảnh cũ tải về từ API
-  existingRoomImages: { id: string; url: string }[][] = [];
+  existingRoomImages: { id: string; url: string; urlImage: string }[][] = [];
 
   deletedRoomIds: string[] = [];
   deletedImagePaths: string[] = [];
@@ -168,10 +168,10 @@ export class ManagerHouse implements OnInit {
     this.searchForm = this.fb.group({
       province: [null],
       commune: [null],
-      minArea: [null],
-      maxArea: [null],
-      minPriceRoom: [null],
-      maxPriceRoom: [null],
+      min_area: [null],
+      max_area: [null],
+      min_price_room: [null],
+      max_price_room: [null],
 
       // Thêm nhóm Số lượng nội thất
       bed: [null],
@@ -179,21 +179,21 @@ export class ManagerHouse implements OnInit {
       wardrobe: [null],
 
       // Thêm toàn bộ nhóm Tiện ích (Boolean)
-      parkingArea: [null],
+      parking_area: [null],
       elevator: [null],
-      securityCamera: [null],
-      security24_7: [null],
-      sharedLaundryArea: [null],
-      sharedDryingArea: [null],
-      dishwashingArea: [null],
-      tableAndChairs: [null],
-      airConditioner: [null],
-      waterHeater: [null],
-      washingMachine: [null],
-      privateBathroom: [null],
-      hasRent: [null],
-      hasHost: [null],
-      hasPet: [null],
+      security_camera: [null],
+      security_24_7: [null],
+      shared_laundry_area: [null],
+      shared_drying_area: [null],
+      dishwashing_area: [null],
+      table_and_chairs: [null],
+      air_conditioner: [null],
+      water_heater: [null],
+      washing_machine: [null],
+      private_bathroom: [null],
+      has_rent: [null],
+      has_host: [null],
+      has_pet: [null],
     });
   }
 
@@ -318,12 +318,13 @@ export class ManagerHouse implements OnInit {
 
   removeRoom(index: number) {
     const roomId = this.rooms.at(index).get('id')?.value;
+    console.log('Attempting to remove room at index:', index, 'with ID:', roomId);
     if (roomId) {
       this.deletedRoomIds.push(roomId);
     }
 
     if (this.existingRoomImages[index] && this.existingRoomImages[index].length > 0) {
-      this.deletedImagePaths.push(...this.existingRoomImages[index].map((img) => img.url));
+      this.deletedImagePaths.push(...this.existingRoomImages[index].map((img) => img.urlImage));
     }
 
     this.rooms.removeAt(index);
@@ -485,7 +486,8 @@ export class ManagerHouse implements OnInit {
       this.houseService.updateHouse(formData).subscribe({
         next: (res: any) => {
           this.isLoading.set(false);
-          this.comebackToList();
+          // this.comebackToList();
+          this.getListHouse();
 
           this.toast.success('Cập nhật thông tin nhà trọ thành công!', 'Thành công', {
             timeOut: 3000,
@@ -675,7 +677,11 @@ export class ManagerHouse implements OnInit {
                   count++;
 
                   const objectUrl = URL.createObjectURL(blob);
-                  this.existingRoomImages[index].push({ id: imgUrl, url: objectUrl });
+                  this.existingRoomImages[index].push({
+                    id: imgUrl,
+                    url: objectUrl,
+                    urlImage: imgUrl,
+                  });
                   if (count === roomData.listImage.split(',').length) {
                     this.roomImageLoadingState.update((state) => ({ ...state, [index]: false }));
                     this.cdr.detectChanges();
@@ -709,9 +715,39 @@ export class ManagerHouse implements OnInit {
     });
   }
 
-  deleteHouse(houseId: string) {
-    if (confirm('Bạn có chắc chắn muốn xóa nhà trọ này?')) {
-      console.log('Call API DELETE', { id: houseId, room_id: [] });
+  deleteHouse(houseId: string | null) {
+    console.log('Attempting to delete house with ID:', houseId);
+    if (!houseId) return;
+
+    if (
+      confirm(
+        'Bạn có chắc chắn muốn xóa toàn bộ thông tin nhà trọ này cùng các phòng bên trong? Hành động này không thể hoàn tác!',
+      )
+    ) {
+      this.isLoading.set(true);
+
+      const payload = { id: houseId }; // Tạo payload theo API của bạn
+
+      this.houseService.deleteHouse(payload).subscribe({
+        next: (res: any) => {
+          this.isLoading.set(false);
+          this.toast.success('Đã xóa nhà trọ thành công!', 'Thành công', {
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+          });
+          // Xóa xong thì tự động quay về danh sách
+          this.comebackToList();
+        },
+        error: (err: any) => {
+          this.isLoading.set(false);
+          this.toast.error(err.error?.message, 'Lỗi', {
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+          });
+        },
+      });
     }
   }
 

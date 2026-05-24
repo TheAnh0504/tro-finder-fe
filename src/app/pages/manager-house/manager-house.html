@@ -85,7 +85,7 @@
               <input
                 type="text"
                 matInput
-                formControlName="minPriceRoom"
+                formControlName="min_price_room"
                 mask="separator.0"
                 thousandSeparator=","
                 placeholder="VD: 1,000,000"
@@ -96,7 +96,7 @@
               <input
                 type="text"
                 matInput
-                formControlName="maxPriceRoom"
+                formControlName="max_price_room"
                 mask="separator.0"
                 thousandSeparator=","
                 placeholder="VD: 5,000,000"
@@ -107,11 +107,11 @@
           <div class="filter-grid" style="margin-top: 8px">
             <mat-form-field appearance="outline">
               <mat-label>Diện tích từ (m2)</mat-label>
-              <input type="number" matInput formControlName="minArea" placeholder="VD: 20" />
+              <input type="number" matInput formControlName="min_area" placeholder="VD: 20" />
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Đến diện tích (m2)</mat-label>
-              <input type="number" matInput formControlName="maxArea" placeholder="VD: 50" />
+              <input type="number" matInput formControlName="max_area" placeholder="VD: 50" />
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Số giường</mat-label>
@@ -132,15 +132,15 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('parkingArea')?.value === true"
-                [class.state-false]="searchForm.get('parkingArea')?.value === false"
-                (click)="toggleFilterState('parkingArea')"
+                [class.state-true]="searchForm.get('parking_area')?.value === true"
+                [class.state-false]="searchForm.get('parking_area')?.value === false"
+                (click)="toggleFilterState('parking_area')"
               >
                 Chỗ để xe
-                @if (searchForm.get('parkingArea')?.value === true) {
+                @if (searchForm.get('parking_area')?.value === true) {
                   <span class="icon">✓</span>
                 }
-                @if (searchForm.get('parkingArea')?.value === false) {
+                @if (searchForm.get('parking_area')?.value === false) {
                   <span class="icon">✕</span>
                 }
               </button>
@@ -164,15 +164,15 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('securityCamera')?.value === true"
-                [class.state-false]="searchForm.get('securityCamera')?.value === false"
-                (click)="toggleFilterState('securityCamera')"
+                [class.state-true]="searchForm.get('security_camera')?.value === true"
+                [class.state-false]="searchForm.get('security_camera')?.value === false"
+                (click)="toggleFilterState('security_camera')"
               >
                 Camera
-                @if (searchForm.get('securityCamera')?.value === true) {
+                @if (searchForm.get('security_camera')?.value === true) {
                   <span class="icon">✓</span>
                 }
-                @if (searchForm.get('securityCamera')?.value === false) {
+                @if (searchForm.get('security_camera')?.value === false) {
                   <span class="icon">✕</span>
                 }
               </button>
@@ -180,12 +180,12 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('security24_7')?.value === true"
-                [class.state-false]="searchForm.get('security24_7')?.value === false"
-                (click)="toggleFilterState('security24_7')"
+                [class.state-true]="searchForm.get('security_24_7')?.value === true"
+                [class.state-false]="searchForm.get('security_24_7')?.value === false"
+                (click)="toggleFilterState('security_24_7')"
               >
                 Bảo vệ 24/7
-                @if (searchForm.get('security24_7')?.value === true) {
+                @if (searchForm.get('security_24_7')?.value === true) {
                   <span class="icon">✓</span>
                 }
                 @if (searchForm.get('security24_7')?.value === false) {
@@ -196,15 +196,15 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('privateBathroom')?.value === true"
-                [class.state-false]="searchForm.get('privateBathroom')?.value === false"
-                (click)="toggleFilterState('privateBathroom')"
+                [class.state-true]="searchForm.get('private_bathroom')?.value === true"
+                [class.state-false]="searchForm.get('private_bathroom')?.value === false"
+                (click)="toggleFilterState('private_bathroom')"
               >
                 VS khép kín
-                @if (searchForm.get('privateBathroom')?.value === true) {
+                @if (searchForm.get('private_bathroom')?.value === true) {
                   <span class="icon">✓</span>
                 }
-                @if (searchForm.get('privateBathroom')?.value === false) {
+                @if (searchForm.get('private_bathroom')?.value === false) {
                   <span class="icon">✕</span>
                 }
               </button>
@@ -212,15 +212,15 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('airConditioner')?.value === true"
-                [class.state-false]="searchForm.get('airConditioner')?.value === false"
-                (click)="toggleFilterState('airConditioner')"
+                [class.state-true]="searchForm.get('air_conditioner')?.value === true"
+                [class.state-false]="searchForm.get('air_conditioner')?.value === false"
+                (click)="toggleFilterState('air_conditioner')"
               >
                 Điều hòa
-                @if (searchForm.get('airConditioner')?.value === true) {
+                @if (searchForm.get('air_conditioner')?.value === true) {
                   <span class="icon">✓</span>
                 }
-                @if (searchForm.get('airConditioner')?.value === false) {
+                @if (searchForm.get('air_conditioner')?.value === false) {
                   <span class="icon">✕</span>
                 }
               </button>
@@ -228,15 +228,15 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('waterHeater')?.value === true"
-                [class.state-false]="searchForm.get('waterHeater')?.value === false"
-                (click)="toggleFilterState('waterHeater')"
+                [class.state-true]="searchForm.get('water_heater')?.value === true"
+                [class.state-false]="searchForm.get('water_heater')?.value === false"
+                (click)="toggleFilterState('water_heater')"
               >
                 Nóng lạnh
-                @if (searchForm.get('waterHeater')?.value === true) {
+                @if (searchForm.get('water_heater')?.value === true) {
                   <span class="icon">✓</span>
                 }
-                @if (searchForm.get('waterHeater')?.value === false) {
+                @if (searchForm.get('water_heater')?.value === false) {
                   <span class="icon">✕</span>
                 }
               </button>
@@ -244,15 +244,15 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('tableAndChairs')?.value === true"
-                [class.state-false]="searchForm.get('tableAndChairs')?.value === false"
-                (click)="toggleFilterState('tableAndChairs')"
+                [class.state-true]="searchForm.get('table_and_chairs')?.value === true"
+                [class.state-false]="searchForm.get('table_and_chairs')?.value === false"
+                (click)="toggleFilterState('table_and_chairs')"
               >
                 Bàn ghế
-                @if (searchForm.get('tableAndChairs')?.value === true) {
+                @if (searchForm.get('table_and_chairs')?.value === true) {
                   <span class="icon">✓</span>
                 }
-                @if (searchForm.get('tableAndChairs')?.value === false) {
+                @if (searchForm.get('table_and_chairs')?.value === false) {
                   <span class="icon">✕</span>
                 }
               </button>
@@ -260,15 +260,15 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('sharedLaundryArea')?.value === true"
-                [class.state-false]="searchForm.get('sharedLaundryArea')?.value === false"
-                (click)="toggleFilterState('sharedLaundryArea')"
+                [class.state-true]="searchForm.get('shared_laundry_area')?.value === true"
+                [class.state-false]="searchForm.get('shared_laundry_area')?.value === false"
+                (click)="toggleFilterState('shared_laundry_area')"
               >
                 Khu giặt chung
-                @if (searchForm.get('sharedLaundryArea')?.value === true) {
+                @if (searchForm.get('shared_laundry_area')?.value === true) {
                   <span class="icon">✓</span>
                 }
-                @if (searchForm.get('sharedLaundryArea')?.value === false) {
+                @if (searchForm.get('shared_laundry_area')?.value === false) {
                   <span class="icon">✕</span>
                 }
               </button>
@@ -276,15 +276,15 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('sharedDryingArea')?.value === true"
-                [class.state-false]="searchForm.get('sharedDryingArea')?.value === false"
-                (click)="toggleFilterState('sharedDryingArea')"
+                [class.state-true]="searchForm.get('shared_drying_area')?.value === true"
+                [class.state-false]="searchForm.get('shared_drying_area')?.value === false"
+                (click)="toggleFilterState('shared_drying_area')"
               >
                 Khu phơi chung
-                @if (searchForm.get('sharedDryingArea')?.value === true) {
+                @if (searchForm.get('shared_drying_area')?.value === true) {
                   <span class="icon">✓</span>
                 }
-                @if (searchForm.get('sharedDryingArea')?.value === false) {
+                @if (searchForm.get('shared_drying_area')?.value === false) {
                   <span class="icon">✕</span>
                 }
               </button>
@@ -292,15 +292,15 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('dishwashingArea')?.value === true"
-                [class.state-false]="searchForm.get('dishwashingArea')?.value === false"
-                (click)="toggleFilterState('dishwashingArea')"
+                [class.state-true]="searchForm.get('dishwashing_area')?.value === true"
+                [class.state-false]="searchForm.get('dishwashing_area')?.value === false"
+                (click)="toggleFilterState('dishwashing_area')"
               >
                 Khu rửa bát
-                @if (searchForm.get('dishwashingArea')?.value === true) {
+                @if (searchForm.get('dishwashing_area')?.value === true) {
                   <span class="icon">✓</span>
                 }
-                @if (searchForm.get('dishwashingArea')?.value === false) {
+                @if (searchForm.get('dishwashing_area')?.value === false) {
                   <span class="icon">✕</span>
                 }
               </button>
@@ -308,15 +308,15 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('washingMachine')?.value === true"
-                [class.state-false]="searchForm.get('washingMachine')?.value === false"
-                (click)="toggleFilterState('washingMachine')"
+                [class.state-true]="searchForm.get('washing_machine')?.value === true"
+                [class.state-false]="searchForm.get('washing_machine')?.value === false"
+                (click)="toggleFilterState('washing_machine')"
               >
                 Máy giặt riêng
-                @if (searchForm.get('washingMachine')?.value === true) {
+                @if (searchForm.get('washing_machine')?.value === true) {
                   <span class="icon">✓</span>
                 }
-                @if (searchForm.get('washingMachine')?.value === false) {
+                @if (searchForm.get('washing_machine')?.value === false) {
                   <span class="icon">✕</span>
                 }
               </button>
@@ -324,15 +324,15 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('hasPet')?.value === true"
-                [class.state-false]="searchForm.get('hasPet')?.value === false"
-                (click)="toggleFilterState('hasPet')"
+                [class.state-true]="searchForm.get('has_pet')?.value === true"
+                [class.state-false]="searchForm.get('has_pet')?.value === false"
+                (click)="toggleFilterState('has_pet')"
               >
-                Cho phép Pet
-                @if (searchForm.get('hasPet')?.value === true) {
+                Nuôi thú cưng
+                @if (searchForm.get('has_pet')?.value === true) {
                   <span class="icon">✓</span>
                 }
-                @if (searchForm.get('hasPet')?.value === false) {
+                @if (searchForm.get('has_pet')?.value === false) {
                   <span class="icon">✕</span>
                 }
               </button>
@@ -340,15 +340,15 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('hasRent')?.value === true"
-                [class.state-false]="searchForm.get('hasRent')?.value === false"
-                (click)="toggleFilterState('hasRent')"
+                [class.state-true]="searchForm.get('has_rent')?.value === true"
+                [class.state-false]="searchForm.get('has_rent')?.value === false"
+                (click)="toggleFilterState('has_rent')"
               >
                 Đã cho thuê
-                @if (searchForm.get('hasRent')?.value === true) {
+                @if (searchForm.get('has_rent')?.value === true) {
                   <span class="icon">✓</span>
                 }
-                @if (searchForm.get('hasRent')?.value === false) {
+                @if (searchForm.get('has_rent')?.value === false) {
                   <span class="icon">✕</span>
                 }
               </button>
@@ -356,15 +356,15 @@
               <button
                 type="button"
                 class="filter-chip"
-                [class.state-true]="searchForm.get('hasHost')?.value === true"
-                [class.state-false]="searchForm.get('hasHost')?.value === false"
-                (click)="toggleFilterState('hasHost')"
+                [class.state-true]="searchForm.get('has_host')?.value === true"
+                [class.state-false]="searchForm.get('has_host')?.value === false"
+                (click)="toggleFilterState('has_host')"
               >
                 Chung chủ
-                @if (searchForm.get('hasHost')?.value === true) {
+                @if (searchForm.get('has_host')?.value === true) {
                   <span class="icon">✓</span>
                 }
-                @if (searchForm.get('hasHost')?.value === false) {
+                @if (searchForm.get('has_host')?.value === false) {
                   <span class="icon">✕</span>
                 }
               </button>
@@ -631,7 +631,7 @@
 
                 <div class="form-group mb-4">
                   <label [for]="'room_' + numberRoom"
-                    >Upload hình ảnh Phòng {{ numberRoom + 1 }}
+                    >Upload hình ảnh Phòng trọ số {{ numberRoom + 1 }}
 
                     @if (isLoadingRoom(numberRoom)) {
                       <span class="inline-loader">
@@ -777,6 +777,30 @@
 
         <div class="form-actions">
           <button type="button" class="btn-cancel" (click)="viewMode.set('LIST')">Hủy bỏ</button>
+          @if (isUpdateMode()) {
+            <button
+              type="button"
+              class="btn-delete-house"
+              (click)="deleteHouse(houseForm.get('id')?.value)"
+            >
+              <svg
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style="margin-right: 6px"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                ></path>
+              </svg>
+              Xóa nhà trọ
+            </button>
+          }
           <button type="submit" class="btn-submit">
             {{ isUpdateMode() ? 'Lưu Cập Nhật' : 'Tạo Nhà Trọ' }}
           </button>
