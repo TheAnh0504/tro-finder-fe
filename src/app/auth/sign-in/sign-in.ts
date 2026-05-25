@@ -113,6 +113,10 @@ export class SignIn implements OnInit, OnDestroy {
     });
   }
 
+  navigateTo(path: string) {
+    this.router.navigate([path]);
+  }
+
   get f() {
     return this.form.controls;
   }

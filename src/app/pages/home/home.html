@@ -7,101 +7,6 @@
   </div>
 }
 
-@if (isAdminOrHost) {
-  <div class="admin-topbar">
-    <div class="admin-brand">
-      <span class="pulse-dot"></span>
-      <strong>Khu vực Quản trị</strong>
-    </div>
-
-    <div class="admin-topbar-right">
-      <div class="admin-actions">
-        @if (canManageHouses) {
-          <button class="nav-link" (click)="navigateTo('/manager-house')">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-              ></path>
-            </svg>
-            Quản lý Nhà Trọ
-          </button>
-        }
-        @if (canManageUsers) {
-          <button class="nav-link" (click)="navigateTo('/sys-user')">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              ></path>
-            </svg>
-            Quản lý Người Dùng
-          </button>
-        }
-        @if (canManageRoles) {
-          <button class="nav-link" (click)="navigateTo('/sys-role')">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.956 11.956 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-              ></path>
-            </svg>
-            Phân Quyền
-          </button>
-        }
-      </div>
-
-      <div class="topbar-divider"></div>
-
-      <div
-        class="user-profile-container"
-        (mouseenter)="isDropdownOpen.set(true)"
-        (mouseleave)="isDropdownOpen.set(false)"
-      >
-        <div class="user-trigger">
-          <img [src]="currentUser().avatar" alt="Avatar" class="user-avatar" />
-          <span class="user-name">{{ currentUser().name }}</span>
-          <svg
-            width="16"
-            height="16"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            [class.rotated]="isDropdownOpen()"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 9l-7 7-7-7"
-            ></path>
-          </svg>
-        </div>
-
-        @if (isDropdownOpen()) {
-          <div class="user-dropdown-menu">
-            <div class="dropdown-header">
-              <p class="name">{{ currentUser().name }}</p>
-              <p class="role">{{ currentUser().role }}</p>
-            </div>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" (click)="navigateTo('/home'); isDropdownOpen.set(false)"
-              >Trang chủ</a
-            >
-            <a class="dropdown-item text-danger" (click)="logout()">Đăng xuất</a>
-          </div>
-        }
-      </div>
-    </div>
-  </div>
-}
-
 <section class="hero-section" [class.expanded-hero]="isAdvancedSearchOpen()">
   <div class="hero-overlay"></div>
   <div class="hero-content">
@@ -188,43 +93,52 @@
           <div class="search-advanced-row">
             <div class="advanced-divider"></div>
 
-            <div class="advanced-grid">
-              <mat-form-field appearance="outline"
-                ><mat-label>Giá phòng/tháng từ (VNĐ)</mat-label
-                ><input
-                  type="text"
-                  matInput
-                  formControlName="min_price_room"
-                  mask="separator.0"
-                  thousandSeparator=","
-                  placeholder="VD: 1,000,000"
-              /></mat-form-field>
-              <mat-form-field appearance="outline"
-                ><mat-label>Đến giá phòng/tháng (VNĐ)</mat-label
-                ><input
-                  type="text"
-                  matInput
-                  formControlName="max_price_room"
-                  mask="separator.0"
-                  thousandSeparator=","
-                  placeholder="VD: 5,000,000"
-              /></mat-form-field>
-              <mat-form-field appearance="outline"
-                ><mat-label>Diện tích từ (m2)</mat-label
-                ><input type="number" matInput formControlName="min_area" placeholder="VD: 20"
-              /></mat-form-field>
-              <mat-form-field appearance="outline"
-                ><mat-label>Đến diện tích (m2)</mat-label
-                ><input type="number" matInput formControlName="max_area" placeholder="VD: 50"
-              /></mat-form-field>
-              <mat-form-field appearance="outline"
-                ><mat-label>Số giường</mat-label
-                ><input type="number" matInput formControlName="bed" placeholder="VD: 1"
-              /></mat-form-field>
-              <mat-form-field appearance="outline"
-                ><mat-label>Tủ quần áo</mat-label
-                ><input type="number" matInput formControlName="wardrobe" placeholder="VD: 1"
-              /></mat-form-field>
+            <div class="advanced-container">
+              <div class="price-row">
+                <mat-form-field appearance="outline"
+                  ><mat-label>Giá phòng/tháng từ (VNĐ)</mat-label
+                  ><input
+                    type="text"
+                    matInput
+                    formControlName="min_price_room"
+                    mask="separator.0"
+                    thousandSeparator=","
+                    placeholder="VD: 1,000,000"
+                /></mat-form-field>
+                <mat-form-field appearance="outline"
+                  ><mat-label>Đến giá phòng/tháng (VNĐ)</mat-label
+                  ><input
+                    type="text"
+                    matInput
+                    formControlName="max_price_room"
+                    mask="separator.0"
+                    thousandSeparator=","
+                    placeholder="VD: 5,000,000"
+                /></mat-form-field>
+              </div>
+
+              <div class="specs-row">
+                <mat-form-field appearance="outline"
+                  ><mat-label>Diện tích từ (m2)</mat-label
+                  ><input type="number" matInput formControlName="min_area" placeholder="VD: 20"
+                /></mat-form-field>
+                <mat-form-field appearance="outline"
+                  ><mat-label>Đến diện tích (m2)</mat-label
+                  ><input type="number" matInput formControlName="max_area" placeholder="VD: 50"
+                /></mat-form-field>
+                <mat-form-field appearance="outline"
+                  ><mat-label>Số giường</mat-label
+                  ><input type="number" matInput formControlName="bed" placeholder="VD: 1"
+                /></mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Số đệm</mat-label>
+                  <input type="number" matInput formControlName="mattress" placeholder="VD: 1" />
+                </mat-form-field>
+                <mat-form-field appearance="outline"
+                  ><mat-label>Tủ quần áo</mat-label
+                  ><input type="number" matInput formControlName="wardrobe" placeholder="VD: 1"
+                /></mat-form-field>
+              </div>
             </div>
 
             <div class="filter-amenities chips-container custom-home-chips">
@@ -303,7 +217,10 @@
             }
           </div>
         </div>
-        <div class="card-footer"><button class="btn-detail">Xem chi tiết</button></div>
+        <div class="card-footer">
+          <button class="btn-detail">Lưu lại</button>
+          <button class="btn-detail">Xem chi tiết</button>
+        </div>
       </div>
     } @empty {
       <div class="empty-state">

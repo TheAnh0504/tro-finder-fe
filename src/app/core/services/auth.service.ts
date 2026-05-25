@@ -27,7 +27,7 @@ export class AuthService {
   }
 
   getImageFace(): Observable<any> {
-    return this.http.get(`/api/auth/image-face`);
+    return this.http.get(`/api/auth/image-face`, { responseType: 'blob' });
   }
 
   forgetPassword(data: any): Observable<any> {
@@ -50,7 +50,17 @@ export class AuthService {
 
   refreshToken() {
     return this.http.post(
-      `/api/auth/refresh`,
+      `/api/auth/cookie/refresh`,
+      {},
+      {
+        withCredentials: true,
+      },
+    );
+  }
+
+  logout() {
+    return this.http.post(
+      `/api/auth/cookie/logout`,
       {},
       {
         withCredentials: true,

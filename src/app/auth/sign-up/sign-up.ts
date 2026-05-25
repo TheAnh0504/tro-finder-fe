@@ -44,7 +44,7 @@ export class SignUp implements OnInit, OnDestroy {
   listRole: Role[] = [
     { id: '', roleCode: 'ROLE_ROOMER', roleName: 'Người thuê trọ', listPermission: [] },
     { id: '', roleCode: 'ROLE_HOST', roleName: 'Chủ nhà trọ', listPermission: [] },
-    { id: '', roleCode: 'ROLE_USER', roleName: 'Cả hai', listPermission: [] },
+    { id: '', roleCode: 'ROLE_USER', roleName: 'Chủ trọ & Người thuê', listPermission: [] },
   ];
 
   constructor(
@@ -139,6 +139,10 @@ export class SignUp implements OnInit, OnDestroy {
 
   goToLogin() {
     this.router.navigate(['/auth/sign-in']);
+  }
+
+  navigateTo(path: string) {
+    this.router.navigate([path]);
   }
 
   onSubmit() {
