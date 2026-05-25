@@ -6,6 +6,14 @@ import { TokenService } from './token.service';
   providedIn: 'root',
 })
 export class PermissionService {
+  hasPermission(permission: EPermission): boolean {
+    const tokenService = inject(TokenService);
+
+    const userPermissions = tokenService.getListPermission();
+
+    return userPermissions.some((p) => p === permission);
+  }
+
   hasAnyPermission(permissionPage: EPermission[]): boolean {
     const tokenService = inject(TokenService);
 
