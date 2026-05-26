@@ -42,4 +42,16 @@ export class HouseRoomManagementService {
   getImageRoom(data: any): Observable<any> {
     return this.http.post(`/api/house/image-room`, data, { responseType: 'blob' });
   }
+
+  findSavedRoom(data: any): Observable<any> {
+    return this.http.post(`/api/house/saved-room/find`, data);
+  }
+
+  addSavedRoom(data: any): Observable<any> {
+    return this.http.post(`/api/house/saved-room/add`, data);
+  }
+
+  deleteSavedRoom(data: any): Observable<any> {
+    return this.http.post(`/api/house/saved-room/delete`, data);
+  }
 }

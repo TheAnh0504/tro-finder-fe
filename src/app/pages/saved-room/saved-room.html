@@ -1,1 +1,365 @@
-<p>saved-room works!</p>
+@if (isLoading()) {
+  <div class="full-page-loader">
+    <svg class="spinner-large" viewBox="0 0 50 50">
+      <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+    </svg>
+    <div class="loading-text">Đang tải danh sách...</div>
+  </div>
+}
+
+<div class="saved-page-wrapper">
+  <section class="results-section" id="results-section">
+    <div class="section-header">
+      <h2>Phòng Trọ Đã Lưu ❤️</h2>
+      <p>Danh sách các phòng trọ bạn đã yêu thích và lưu lại</p>
+    </div>
+
+    <div class="room-grid">
+      @for (room of listRooms(); track room.id; let indexRoom = $index) {
+        <div class="room-card">
+          <div
+            class="card-image"
+            [ngClass]="
+              !existingRoomImages[indexRoom] || existingRoomImages[indexRoom].length <= 1
+                ? 'layout-1'
+                : existingRoomImages[indexRoom].length === 2
+                  ? 'layout-2'
+                  : 'layout-3-plus'
+            "
+          >
+            @if (!existingRoomImages[indexRoom] || existingRoomImages[indexRoom].length === 0) {
+              <div class="img-wrapper"><img src="/images/room-default.jpg" alt="Room Image" /></div>
+            } @else {
+              @for (
+                img of existingRoomImages[indexRoom] | slice: 0 : 3;
+                track img.id;
+                let i = $index
+              ) {
+                <div
+                  class="img-wrapper pointer"
+                  (click)="openGallery(existingRoomImages[indexRoom], i, $event)"
+                >
+                  <img [src]="img.url" alt="Room Image" />
+                  @if (existingRoomImages[indexRoom].length > 3 && i === 2) {
+                    <div class="more-overlay">+{{ existingRoomImages[indexRoom].length - 3 }}</div>
+                  }
+                </div>
+              }
+            }
+
+            <div class="badge-status" [class.rented]="room.hasRent">
+              {{ room.hasRent ? 'Đã Thuê' : 'Trống' }}
+            </div>
+            <div class="price-tag">{{ room.priceRoom | number: '1.0-0' }} đ/tháng</div>
+          </div>
+
+          <div class="card-content pointer" (click)="openRoomDetail(room, indexRoom)">
+            <h3 class="room-title">{{ room.name }} - {{ room.houseSet?.name }}</h3>
+            <p class="room-address">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                ></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
+              </svg>
+              {{ room.houseSet?.address }}, {{ room.houseSet?.commune?.name }},
+              {{ room.houseSet?.province?.name }}
+            </p>
+            <div class="room-features">
+              <span>🔲 {{ room.area }} m²</span>
+              @if (room.priceElectricity) {
+                <span>⚡ Điện: {{ room.priceElectricity | number: '1.0-0' }}đ/số</span>
+              }
+              @if (room.priceWater) {
+                <span
+                  >💧 Nước: {{ room.priceWater | number: '1.0-0' }}đ/{{
+                    room.priceWater > 100000 ? 'người' : 'khối'
+                  }}</span
+                >
+              }
+              @if (room.priceInternet) {
+                <span>🌐 Mạng: {{ room.priceInternet | number: '1.0-0' }}đ/người</span>
+              }
+
+              @if (room.bed) {
+                <span>🛏️ {{ room.bed }} Giường</span>
+              }
+              @if (room.wardrobe) {
+                <span>🚪 {{ room.wardrobe }} Tủ</span>
+              }
+              @if (room.tableAndChairs) {
+                <span>🪑 Bàn ghế</span>
+              }
+
+              @if (room.airConditioner) {
+                <span>❄️ Điều hòa</span>
+              }
+              @if (room.waterHeater) {
+                <span>♨️ Nóng lạnh</span>
+              }
+              @if (room.privateBathroom) {
+                <span>🚿 VS Khép kín</span>
+              }
+              @if (room.washingMachine) {
+                <span>🧺 Máy giặt riêng</span>
+              }
+
+              @if (room.elevator) {
+                <span>🛗 Thang máy</span>
+              }
+              @if (room.parkingArea) {
+                <span>🏍️ Chỗ để xe</span>
+              }
+
+              @if (room.security24_7 || room.securityCamera) {
+                <span>🛡️ An ninh tốt</span>
+              }
+
+              @if (!room.hasHost) {
+                <span>🔑 Không chung chủ</span>
+              }
+              @if (room.hasPet) {
+                <span>🐈 Cho phép Pet</span>
+              }
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <button
+              class="btn-action btn-save"
+              [class.saved]="listIdSavedRoom().includes(room.id)"
+              (click)="toggleSaveRoom(room, $event)"
+            >
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                ></path>
+              </svg>
+              {{ listIdSavedRoom().includes(room.id) ? 'Đã lưu' : 'Lưu lại' }}
+            </button>
+            <button class="btn-action btn-rent" (click)="$event.stopPropagation()">
+              📞 Thuê ngay
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <h3>Bạn chưa lưu phòng trọ nào</h3>
+          <p>Hãy dạo quanh trang chủ và thả tim những phòng bạn thích nhé!</p>
+        </div>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination-wrapper">
+        <span class="page-info"
+          >Hiển thị tổng số <strong>{{ totalElements() }}</strong> kết quả</span
+        >
+        <div class="pagination-controls">
+          <button
+            class="btn-page"
+            [disabled]="pageNumber() === 0"
+            (click)="changePage(pageNumber() - 1)"
+          >
+            &laquo; Trước
+          </button>
+          <span class="page-current">Trang {{ pageNumber() + 1 }} / {{ totalPages() }}</span>
+          <button
+            class="btn-page"
+            [disabled]="pageNumber() >= totalPages() - 1"
+            (click)="changePage(pageNumber() + 1)"
+          >
+            Sau &raquo;
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+</div>
+
+@if (isGalleryOpen()) {
+  <div class="gallery-modal-overlay" (click)="closeGallery()">
+    <button class="btn-close-gallery" (click)="closeGallery()">✕</button>
+    <button class="nav-btn prev" (click)="prevImage($event)">❮</button>
+    <div class="gallery-content" (click)="$event.stopPropagation()">
+      <img [src]="currentGalleryImages()[currentImageIndex()]?.url" alt="Full Gallery Image" />
+      <div class="gallery-counter">
+        {{ currentImageIndex() + 1 }} / {{ currentGalleryImages().length }}
+      </div>
+    </div>
+    <button class="nav-btn next" (click)="nextImage($event)">❯</button>
+  </div>
+}
+
+@if (isDetailModalOpen() && selectedRoom()) {
+  <div class="detail-modal-overlay" (click)="closeRoomDetail()">
+    <div class="detail-modal-content split-layout" (click)="$event.stopPropagation()">
+      <button class="btn-close-modal" (click)="closeRoomDetail()">✕</button>
+
+      <div class="modal-left">
+        <div
+          class="main-gallery"
+          [ngClass]="
+            selectedRoomImages().length <= 1
+              ? 'layout-1'
+              : selectedRoomImages().length === 2
+                ? 'layout-2'
+                : 'layout-3-plus'
+          "
+        >
+          @if (selectedRoomImages().length === 0) {
+            <div class="img-wrapper"><img src="/images/room-default.jpg" alt="Room" /></div>
+          } @else {
+            @for (img of selectedRoomImages() | slice: 0 : 3; track img.id; let i = $index) {
+              <div
+                class="img-wrapper pointer"
+                (click)="openGallery(selectedRoomImages(), i, $event)"
+              >
+                <img [src]="img.url" alt="Room" />
+                @if (selectedRoomImages().length > 3 && i === 2) {
+                  <div class="more-overlay">+{{ selectedRoomImages().length - 3 }}</div>
+                }
+              </div>
+            }
+          }
+          <div class="gallery-overlay">
+            <div class="status-badge-premium" [class.rented]="selectedRoom().hasRent">
+              <span class="pulse-dot"></span>
+              <span class="status-text">{{
+                selectedRoom().hasRent ? 'Đã Thuê' : 'Phòng Trống'
+              }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-right">
+        <div class="modal-header">
+          <h2>{{ selectedRoom().name }} - {{ selectedRoom().houseSet?.name }}</h2>
+          <p class="address">
+            📍 {{ selectedRoom().houseSet?.address }}, {{ selectedRoom().houseSet?.commune?.name }},
+            {{ selectedRoom().houseSet?.province?.name }}
+          </p>
+        </div>
+
+        <div class="modal-body">
+          <div class="main-price-banner">
+            <div class="price-info">
+              <span class="label">Giá Thuê</span>
+              <span class="value">{{ selectedRoom().priceRoom | number: '1.0-0' }}</span
+              ><span class="unit">đ/tháng</span>
+            </div>
+            <div class="area-block">
+              <span class="label">Diện tích</span>
+              <span class="value">{{ selectedRoom().area }}</span
+              ><span class="unit">m²</span>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <h3>Chi phí dịch vụ</h3>
+            <div class="fee-grid">
+              @if (selectedRoom().priceElectricity) {
+                <div class="fee-item">
+                  <div class="fee-icon electrical">⚡</div>
+                  <div class="fee-text">
+                    <span class="f-label">Điện</span>
+                    <span class="f-val">{{ selectedRoom().priceElectricity | number }}đ/số</span>
+                  </div>
+                </div>
+              }
+              @if (selectedRoom().priceWater) {
+                <div class="fee-item">
+                  <div class="fee-icon water">💧</div>
+                  <div class="fee-text">
+                    <span class="f-label">Nước</span>
+                    <span class="f-val"
+                      >{{ selectedRoom().priceWater | number }}đ/{{
+                        selectedRoom().priceWater > 100000 ? 'người' : 'khối'
+                      }}</span
+                    >
+                  </div>
+                </div>
+              }
+              @if (selectedRoom().priceInternet) {
+                <div class="fee-item">
+                  <div class="fee-icon internet">🌐</div>
+                  <div class="fee-text">
+                    <span class="f-label">Internet</span>
+                    <span class="f-val">{{ selectedRoom().priceInternet | number }}đ/người</span>
+                  </div>
+                </div>
+              }
+              @if (selectedRoom().priceWashingMachine) {
+                <div class="fee-item">
+                  <div class="fee-icon washing">🧺</div>
+                  <div class="fee-text">
+                    <span class="f-label">Giặt sấy</span>
+                    <span class="f-val"
+                      >{{ selectedRoom().priceWashingMachine | number }}đ/người</span
+                    >
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="info-section">
+            <h3>Tiện ích nổi bật</h3>
+            <div class="amenities-list">
+              @if (selectedRoom().bed) {
+                <span class="am-item">🛏️ {{ selectedRoom().bed }} Giường</span>
+              }
+              @if (selectedRoom().wardrobe) {
+                <span class="am-item">🚪 {{ selectedRoom().wardrobe }} Tủ</span>
+              }
+              @if (selectedRoom().airConditioner) {
+                <span class="am-item">❄️ Điều hòa</span>
+              }
+              @if (selectedRoom().waterHeater) {
+                <span class="am-item">♨️ Nóng lạnh</span>
+              }
+              @if (selectedRoom().privateBathroom) {
+                <span class="am-item">🚿 Khép kín</span>
+              }
+              @if (selectedRoom().washingMachine) {
+                <span class="am-item">🧺 Máy giặt</span>
+              }
+              @if (selectedRoom().elevator) {
+                <span class="am-item">🛗 Thang máy</span>
+              }
+              @if (selectedRoom().parkingArea) {
+                <span class="am-item">🏍️ Chỗ để xe</span>
+              }
+              @if (selectedRoom().hasPet) {
+                <span class="am-item">🐈 Nuôi Pet</span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            class="btn-modal btn-save"
+            [class.saved]="listIdSavedRoom().includes(selectedRoom().id)"
+            (click)="toggleSaveRoom(selectedRoom(), $event)"
+          >
+            {{ listIdSavedRoom().includes(selectedRoom().id) ? '❤️ Đã lưu' : '🤍 Lưu phòng' }}
+          </button>
+          <button class="btn-modal btn-rent">📞 Liên hệ thuê ngay</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -41,25 +41,23 @@ export class Home implements OnInit {
   private toast = inject(ToastrService);
   private fb = inject(FormBuilder);
   private houseService = inject(HouseRoomManagementService);
+  private cdr = inject(ChangeDetectorRef); // Ép Angular cập nhật UI ngay lập tức
 
   searchForm!: FormGroup;
   listRooms = signal<any[]>([]);
   isLoading = signal(false);
+  totalPages = signal(1); // Tổng số trang trả về từ API
+  totalElements = signal(0); // Tổng số bản ghi
+
+  listIdSavedRoom = signal<string[]>([]);
 
   // Pagination
   pageNumber = signal(0);
   pageSize = signal(12);
 
-  // User Dropdown
-  isDropdownOpen = signal(false);
-  currentUser = signal({
-    name: 'Admin Nguyễn',
-    avatar: 'https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff',
-    role: 'Quản trị viên',
-  });
-
   // --- TRẠNG THÁI LỌC NÂNG CAO ---
   isAdvancedSearchOpen = signal(false);
+  existingRoomImages: { id: string; url: string; urlImage: string }[][] = [];
 
   // --- DATA PROVINCE/COMMUNE TÌM KIẾM ---
   listProvince = signal<Province[]>([]);
@@ -95,6 +93,67 @@ export class Home implements OnInit {
     return this.listCommune().filter((c) => c.name.toLowerCase().includes(text));
   });
 
+  // --- STATE: ROOM DETAIL MODAL ---
+  isDetailModalOpen = signal(false);
+  selectedRoom = signal<any>(null);
+  selectedRoomImages = signal<{ id: string; url: string; urlImage: string }[]>([]); // Thêm biến lưu ảnh cho Modal
+
+  // Cập nhật hàm mở Detail để truyền thêm index lấy đúng ảnh
+  openRoomDetail(room: any, index: number) {
+    this.selectedRoom.set(room);
+    this.selectedRoomImages.set(this.existingRoomImages[index] || []);
+    this.isDetailModalOpen.set(true);
+  }
+
+  closeRoomDetail() {
+    this.isDetailModalOpen.set(false);
+    this.selectedRoom.set(null);
+    this.selectedRoomImages.set([]);
+  }
+
+  // --- LOGIC: THÊM / XÓA LƯU PHÒNG ---
+  // Hàm gộp logic click nút Lưu lại
+  toggleSaveRoom(room: any, event: Event) {
+    event.stopPropagation(); // Ngăn sự kiện click lan ra ngoài (tránh mở modal chi tiết)
+
+    const isSaved = this.listIdSavedRoom().includes(room.id);
+    if (isSaved) {
+      this.deleteSavedRoom(room);
+    } else {
+      this.addSavedRoom(room);
+    }
+  }
+
+  // --- STATE: IMAGE GALLERY MODAL ---
+  isGalleryOpen = signal(false);
+  currentGalleryImages = signal<{ id: string; url: string; urlImage: string }[]>([]);
+  currentImageIndex = signal(0);
+
+  openGallery(images: any[], index: number, event: Event) {
+    event.stopPropagation(); // Ngăn sự kiện click lan ra ngoài (tránh mở luôn cả modal chi tiết)
+    if (!images || images.length === 0) return;
+    this.currentGalleryImages.set(images);
+    this.currentImageIndex.set(index);
+    this.isGalleryOpen.set(true);
+  }
+
+  closeGallery() {
+    this.isGalleryOpen.set(false);
+  }
+
+  nextImage(event: Event) {
+    event.stopPropagation();
+    const nextIdx = (this.currentImageIndex() + 1) % this.currentGalleryImages().length;
+    this.currentImageIndex.set(nextIdx);
+  }
+
+  prevImage(event: Event) {
+    event.stopPropagation();
+    const length = this.currentGalleryImages().length;
+    const prevIdx = (this.currentImageIndex() - 1 + length) % length;
+    this.currentImageIndex.set(prevIdx);
+  }
+
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
       const token = params['token'];
@@ -112,7 +171,11 @@ export class Home implements OnInit {
             this.router.navigate(['/home'], { replaceUrl: true });
           },
           error: (err) => {
-            this.toast.error(err.error?.message, 'Lỗi', { timeOut: 3000, progressBar: true });
+            this.toast.error(err.error?.message, 'Lỗi', {
+              timeOut: 3000,
+              progressBar: true,
+              positionClass: 'toast-top-right',
+            });
             this.router.navigate(['/home'], { replaceUrl: true });
           },
         });
@@ -120,6 +183,7 @@ export class Home implements OnInit {
 
       this.initSearchForm();
       this.getListProvince(); // Call API lấy Tỉnh thành
+      this.getListSavedRoom();
       this.getPublicRooms();
     });
   }
@@ -132,9 +196,17 @@ export class Home implements OnInit {
       max_area: [null],
       min_price_room: [null],
       max_price_room: [null],
+
+      price_electricity: [null],
+      price_water: [null],
+      price_general_cleaning: [null],
+      price_general_electricity: [null],
+      price_internet: [null],
+      price_washing_machine: [null],
       bed: [null],
       mattress: [null],
       wardrobe: [null],
+
       parking_area: [null],
       elevator: [null],
       security_camera: [null],
@@ -148,14 +220,51 @@ export class Home implements OnInit {
       washing_machine: [null],
       private_bathroom: [null],
       has_pet: [null],
+      has_host: [null],
+      has_rent: [false],
     });
   }
 
   // --- API LOCATION ---
   getListProvince() {
-    this.houseService.findProvince({}).subscribe({
-      next: (res) => this.listProvince.set(res.listProvince || []),
-      error: (err) => console.error(err),
+    this.isLoading.set(true);
+    const payload = {};
+    this.houseService.findProvince(payload).subscribe({
+      next: (res) => {
+        this.isLoading.set(false);
+        this.listProvince.set(res.listProvince || []);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.toast.error(err.error?.message, 'Lỗi', {
+          timeOut: 3000,
+          progressBar: true,
+          positionClass: 'toast-top-right',
+        });
+      },
+    });
+  }
+
+  getListSavedRoom() {
+    this.isLoading.set(true);
+    const payload = {
+      pageNumber: 0,
+      pageSize: 1000,
+      requestParam: {},
+    };
+    this.houseService.findSavedRoom(payload).subscribe({
+      next: (res) => {
+        this.isLoading.set(false);
+        this.listIdSavedRoom.set(res.page?.content.map((room: any) => room.id) || []);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.toast.error(err.error?.message, 'Lỗi', {
+          timeOut: 3000,
+          progressBar: true,
+          positionClass: 'toast-top-right',
+        });
+      },
     });
   }
 
@@ -189,6 +298,7 @@ export class Home implements OnInit {
 
   resetSearch() {
     this.searchForm.reset();
+    this.searchForm.patchValue({ has_rent: false });
     this.filterProvinceText.set('');
     this.filterCommuneText.set('');
     this.pageNumber.set(0);
@@ -202,24 +312,8 @@ export class Home implements OnInit {
     return userPermissions.some((p: string) => p === permission);
   }
 
-  get canManageRoles() {
-    return this.hasPermission(EPermission.ADD_ROLE);
-  }
-  get canManageUsers() {
-    return this.hasPermission(EPermission.ADD_USER);
-  }
-  get canManageHouses() {
-    return this.hasPermission(EPermission.ADD_HOUSE);
-  }
-  get isAdminOrHost() {
-    return this.canManageRoles || this.canManageUsers || this.canManageHouses;
-  }
-
   navigateTo(path: string) {
     this.router.navigate([path]);
-  }
-  logout() {
-    console.log('Thực hiện đăng xuất...');
   }
 
   // --- TÌM KIẾM ---
@@ -233,32 +327,140 @@ export class Home implements OnInit {
     }, 100);
   }
 
-  getPublicRooms() {
-    this.isLoading.set(true);
-    const rawData = this.searchForm.value;
-    const cleanParams: any = {};
-    Object.keys(rawData).forEach((key) => {
-      if (rawData[key] !== null && rawData[key] !== '') {
-        cleanParams[key] = rawData[key];
+  cleanPayload(obj: any): any {
+    const cleanedObj: any = {};
+
+    Object.keys(obj).forEach((key) => {
+      const value = obj[key];
+
+      if (value !== null && value !== undefined && value !== '') {
+        cleanedObj[key] = value;
       }
     });
+
+    return cleanedObj;
+  }
+
+  getPublicRooms() {
+    this.isLoading.set(true);
+    const rawFilterData = this.searchForm ? this.searchForm.value : {};
+
+    const cleanedParams = this.cleanPayload(rawFilterData);
+    console.log('search room:', cleanedParams);
 
     const payload = {
       pageNumber: this.pageNumber(),
       pageSize: this.pageSize(),
       isHost: false, // User public
-      requestParam: cleanParams,
+      requestParam: cleanedParams,
     };
 
     this.houseService.findHouse(payload).subscribe({
-      next: (res: any) => {
+      next: (res) => {
         this.isLoading.set(false);
+        console.log('room: ', res.page?.content);
         this.listRooms.set(res.page?.content || []);
+        this.totalPages.set(res.page?.totalPages || 1);
+        this.totalElements.set(res.page?.totalElements || 0);
+
+        this.existingRoomImages = [];
+        //TODO: với từng phòng nếu id thuộc this.listIdSavedRoom thì nút Lưu lại đỏ như lúc di chuột vào
+        // khi click chọn thì call addSavedRoom(), bỏ chọn call deleteSavedRoom()
+
+        if (this.listRooms() != null && this.listRooms().length > 0) {
+          this.listRooms().forEach((roomData: any, index: number) => {
+            this.existingRoomImages.push([]);
+            let count = 0;
+
+            if (roomData.listImage && roomData.listImage.split(',').length > 0) {
+              roomData.listImage.split(',').forEach((imgUrl: string) => {
+                this.houseService.getImageRoom({ id: imgUrl }).subscribe({
+                  next: (blob: any) => {
+                    count++;
+
+                    const objectUrl = URL.createObjectURL(blob);
+                    this.existingRoomImages[index].push({
+                      id: imgUrl,
+                      url: objectUrl,
+                      urlImage: imgUrl,
+                    });
+                    if (count === roomData.listImage.split(',').length) {
+                      this.cdr.detectChanges();
+                      console.log('image: ', this.existingRoomImages);
+                    }
+                  },
+                  error: (err) => {
+                    this.toast.error(err.error?.message, 'Lỗi', {
+                      timeOut: 3000,
+                      progressBar: true,
+                      positionClass: 'toast-top-right',
+                    });
+                  },
+                });
+              });
+            }
+          });
+        }
       },
-      error: (err: any) => {
+      error: (err) => {
         this.isLoading.set(false);
-        console.error('Lỗi:', err);
+        this.toast.error(err.error?.message, 'Lỗi', {
+          timeOut: 3000,
+          progressBar: true,
+          positionClass: 'toast-top-right',
+        });
       },
     });
+  }
+
+  addSavedRoom(room: any) {
+    // call api + push vào this.listIdSavedRoom
+    const payload = {
+      id: room.id,
+    };
+    this.houseService.addSavedRoom(payload).subscribe({
+      next: (res) => {
+        this.listIdSavedRoom.update((ids) => [...ids, room.id]);
+      },
+      error: (err) => {
+        this.toast.error(err.error?.message, 'Lỗi', {
+          timeOut: 3000,
+          progressBar: true,
+          positionClass: 'toast-top-right',
+        });
+      },
+    });
+  }
+
+  deleteSavedRoom(room: any) {
+    // call api + push vào this.listIdSavedRoom
+    const payload = {
+      id: room.id,
+    };
+    this.houseService.deleteSavedRoom(payload).subscribe({
+      next: (res) => {
+        this.listIdSavedRoom.update((ids) => ids.filter((id) => id !== room.id));
+      },
+      error: (err) => {
+        this.toast.error(err.error?.message, 'Lỗi', {
+          timeOut: 3000,
+          progressBar: true,
+          positionClass: 'toast-top-right',
+        });
+      },
+    });
+  }
+
+  // --- CHUYỂN TRANG ---
+  changePage(newPage: number) {
+    if (newPage >= 0 && newPage < this.totalPages()) {
+      this.pageNumber.set(newPage);
+      this.getPublicRooms();
+
+      // Cuộn mượt lên đầu phần kết quả sau khi chuyển trang
+      setTimeout(() => {
+        document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
   }
 }

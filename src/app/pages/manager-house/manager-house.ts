@@ -77,9 +77,9 @@ export class ManagerHouse implements OnInit {
     { key: 'price_electricity', label: 'Giá điện/số' },
     { key: 'price_water', label: 'Giá nước/số' },
     { key: 'price_general_cleaning', label: 'Phí vệ sinh chung' },
-    { key: 'price_general_electricity', label: 'Điện chung' },
-    { key: 'price_internet', label: 'Internet/phòng' },
-    { key: 'price_washing_machine', label: 'Phí máy giặt/người' },
+    { key: 'price_general_electricity', label: 'Phí điện chung' },
+    { key: 'price_internet', label: 'Giá Internet/người' },
+    { key: 'price_washing_machine', label: 'Giá máy giặt/người' },
   ];
 
   amenityFields = [
@@ -101,8 +101,8 @@ export class ManagerHouse implements OnInit {
   ];
 
   qtyFields = [
-    { key: 'bed', label: 'Số giường' },
-    { key: 'mattress', label: 'Số đệm' },
+    { key: 'bed', label: 'Giường ngủ' },
+    { key: 'mattress', label: 'Đệm ngủ' },
     { key: 'wardrobe', label: 'Tủ quần áo' },
   ];
 
@@ -140,14 +140,9 @@ export class ManagerHouse implements OnInit {
   cleanPayload(obj: any): any {
     const cleanedObj: any = {};
 
-    // Duyệt qua từng key trong Object
     Object.keys(obj).forEach((key) => {
       const value = obj[key];
 
-      // Kiểm tra điều kiện:
-      // 1. Không phải là null
-      // 2. Không phải là undefined
-      // 3. Không phải là chuỗi rỗng (nếu bạn muốn xóa cả chuỗi rỗng)
       if (value !== null && value !== undefined && value !== '') {
         cleanedObj[key] = value;
       }
@@ -173,12 +168,16 @@ export class ManagerHouse implements OnInit {
       min_price_room: [null],
       max_price_room: [null],
 
-      // Thêm nhóm Số lượng nội thất
+      price_electricity: [null],
+      price_water: [null],
+      price_general_cleaning: [null],
+      price_general_electricity: [null],
+      price_internet: [null],
+      price_washing_machine: [null],
       bed: [null],
       mattress: [null],
       wardrobe: [null],
 
-      // Thêm toàn bộ nhóm Tiện ích (Boolean)
       parking_area: [null],
       elevator: [null],
       security_camera: [null],
@@ -191,9 +190,9 @@ export class ManagerHouse implements OnInit {
       water_heater: [null],
       washing_machine: [null],
       private_bathroom: [null],
-      has_rent: [null],
-      has_host: [null],
       has_pet: [null],
+      has_host: [null],
+      has_rent: [null],
     });
   }
 
@@ -589,21 +588,19 @@ export class ManagerHouse implements OnInit {
     const rawFilterData = this.searchForm ? this.searchForm.value : {};
 
     const cleanedParams = this.cleanPayload(rawFilterData);
-    console.log('Cleaned filter data to be sent to API:', cleanedParams);
+    console.log('search room:', cleanedParams);
 
     const payload = {
       pageNumber: this.pageNumber(),
       pageSize: this.pageSize(),
       isHost: true,
-      requestParam: cleanedParams, // Nạp cục payload sạch sẽ vào đây!
+      requestParam: cleanedParams,
     };
 
     this.houseService.findHouse(payload).subscribe({
       next: (res) => {
         this.isLoading.set(false);
         this.listRooms.set(res.page?.content || []);
-
-        // Gán dữ liệu phân trang (Tùy thuộc vào cấu trúc trả về chuẩn của Spring Boot Page)
         this.totalPages.set(res.page?.totalPages || 1);
         this.totalElements.set(res.page?.totalElements || 0);
       },

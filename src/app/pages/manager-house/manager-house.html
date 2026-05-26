@@ -114,15 +114,84 @@
               <input type="number" matInput formControlName="max_area" placeholder="VD: 50" />
             </mat-form-field>
             <mat-form-field appearance="outline">
-              <mat-label>Số giường</mat-label>
+              <mat-label>Giá điện (VNĐ/KWh)</mat-label>
+              <input
+                type="text"
+                matInput
+                formControlName="price_electricity"
+                mask="separator.0"
+                thousandSeparator=","
+                placeholder="VD: 4000"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Giá nước (VNĐ/m3)</mat-label>
+              <input
+                type="text"
+                matInput
+                formControlName="price_water"
+                mask="separator.0"
+                thousandSeparator=","
+                placeholder="VD: 30,000"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Giá Internet (VNĐ/người)</mat-label>
+              <input
+                type="text"
+                matInput
+                formControlName="price_internet"
+                mask="separator.0"
+                thousandSeparator=","
+                placeholder="VD: 40,000"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Giá máy giặt (VNĐ/người)</mat-label>
+              <input
+                type="text"
+                matInput
+                formControlName="price_washing_machine"
+                mask="separator.0"
+                thousandSeparator=","
+                placeholder="VD: 40,000"
+              />
+            </mat-form-field>
+          </div>
+
+          <div class="filter-grid" style="margin-top: 8px">
+            <mat-form-field appearance="outline">
+              <mat-label>Phí điện chung (VNĐ/người)</mat-label>
+              <input
+                type="text"
+                matInput
+                formControlName="price_general_electricity"
+                mask="separator.0"
+                thousandSeparator=","
+                placeholder="VD: 40,000"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Phí vệ sinh chung (VNĐ/người)</mat-label>
+              <input
+                type="text"
+                matInput
+                formControlName="price_general_cleaning"
+                mask="separator.0"
+                thousandSeparator=","
+                placeholder="VD: 40,000"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Giường ngủ (cái)</mat-label>
               <input type="number" matInput formControlName="bed" placeholder="VD: 1" />
             </mat-form-field>
             <mat-form-field appearance="outline">
-              <mat-label>Số đệm</mat-label>
+              <mat-label>Đệm ngủ (cái)</mat-label>
               <input type="number" matInput formControlName="mattress" placeholder="VD: 1" />
             </mat-form-field>
             <mat-form-field appearance="outline">
-              <mat-label>Tủ quần áo</mat-label>
+              <mat-label>Tủ quần áo (cái)</mat-label>
               <input type="number" matInput formControlName="wardrobe" placeholder="VD: 1" />
             </mat-form-field>
           </div>
