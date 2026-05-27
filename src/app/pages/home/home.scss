@@ -784,9 +784,9 @@
   .detail-modal-content.split-layout {
     position: relative;
     width: 100%;
-    max-width: 1100px; /* Bè ngang rộng ra */
-    height: 80vh; /* Cố định chiều cao 80% màn hình */
-    max-height: 750px;
+    max-width: 1240px; /* Bè ngang rộng ra */
+    height: 85vh; /* Cố định chiều cao 80% màn hình */
+    max-height: 850px;
     background: #ffffff;
     border-radius: 24px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
@@ -965,6 +965,125 @@
         padding: 24px 32px;
         flex: 1; /* Căng giãn chiếm phần còn lại */
         overflow-y: auto; /* Cho phép cuộn nếu thông tin dài */
+
+        /* 1. KHỐI THÔNG TIN CƠ BẢN (MÔ TẢ, GIÁ, DIỆN TÍCH) */
+        .main-price-banner {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 16px 20px;
+          margin-bottom: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+
+          .price-info,
+          .area-block {
+            display: flex;
+            align-items: baseline;
+            font-size: 15px;
+
+            .label {
+              color: #64748b;
+              font-weight: 500;
+              min-width: 100px; /* Cố định chiều rộng nhãn để thẳng hàng */
+            }
+            .value {
+              color: #0f172a;
+              font-weight: 700;
+              font-size: 16px;
+            }
+            .unit {
+              color: #475569;
+              font-weight: 500;
+              margin-left: 4px;
+            }
+          }
+        }
+
+        /* 2. CÁC SECTION CHI PHÍ & TIỆN ÍCH */
+        .info-section {
+          margin-bottom: 28px;
+
+          h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+          }
+
+          /* CHIA 2 CỘT CHO CHI PHÍ DỊCH VỤ */
+          .fee-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* CHIA ĐÚNG 2 CỘT */
+            gap: 12px;
+
+            .fee-item {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              background: #ffffff;
+              border: 1px solid #e2e8f0;
+              padding: 10px 14px;
+              border-radius: 10px;
+              transition: all 0.2s;
+
+              &:hover {
+                border-color: #cbd5e1;
+                background: #f8fafc;
+              }
+
+              .fee-icon {
+                font-size: 18px;
+                width: 36px;
+                height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #f1f5f9;
+                border-radius: 8px;
+                flex-shrink: 0;
+              }
+
+              .fee-text {
+                display: flex;
+                flex-direction: column;
+
+                .f-label {
+                  font-size: 12px;
+                  color: #64748b;
+                  font-weight: 500;
+                }
+
+                .f-val {
+                  font-size: 14px;
+                  color: #0f172a;
+                  font-weight: 700;
+                  margin-top: 2px;
+                }
+              }
+            }
+          }
+
+          /* TIỆN ÍCH NỔI BẬT DÀN HÀNG NGANG */
+          .amenities-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+
+            .am-item {
+              background: #eff6ff;
+              color: #1d4ed8;
+              padding: 6px 12px;
+              border-radius: 8px;
+              font-size: 13px;
+              font-weight: 500;
+              border: 1px solid #bfdbfe;
+            }
+          }
+        }
       }
 
       .modal-footer {

@@ -63,7 +63,14 @@ export const routes: Routes = [
       {
         path: 'saved-room',
         component: SavedRoom,
-        canActivate: [authGuard],
+        canActivate: [authGuard, permissionGuard],
+        data: {
+          permission: [
+            EPermission.ADD_SAVED_ROOM,
+            EPermission.DELETE_SAVED_ROOM,
+            EPermission.FIND_SAVED_ROOM,
+          ],
+        },
       },
       {
         path: 'sys-user',

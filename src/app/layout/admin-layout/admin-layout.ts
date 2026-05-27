@@ -6,6 +6,7 @@ import { EPermission } from '../../enum/EPermission.enum';
 import { InfoUser } from '../../core/models/info-user.model';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../core/services/auth.service';
+import { PermissionService } from '../../core/services/permission.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -18,6 +19,7 @@ export class AdminLayout implements OnInit {
   private tokenService = inject(TokenService);
   private toast = inject(ToastrService);
   private authService = inject(AuthService);
+  private permissionService = inject(PermissionService);
 
   isLoading = signal(false);
 
@@ -57,21 +59,42 @@ export class AdminLayout implements OnInit {
     }
   }
 
-  // --- HỆ THỐNG PHÂN QUYỀN ---
-  hasPermission(permission: string): boolean {
-    if (!this.tokenService.isLoggedIn()) return false;
-    const userPermissions = this.tokenService.getListPermission() || [];
-    return userPermissions.some((p: string) => p === permission);
-  }
-
   get canManageRoles() {
-    return this.hasPermission(EPermission.ADD_ROLE);
+    return this.permissionService.hasAnyPermission([
+      EPermission.ADD_ROLE,
+      EPermission.UPDATE_ROLE,
+      EPermission.FIND_ROLE,
+      EPermission.GET_ROLE,
+      EPermission.DELETE_ROLE,
+    ]);
   }
   get canManageUsers() {
-    return this.hasPermission(EPermission.ADD_USER);
+    return this.permissionService.hasAnyPermission([
+      EPermission.ADD_USER,
+      EPermission.UPDATE_USER,
+      EPermission.ADMIN_UPDATE_USER,
+      EPermission.FIND_USER,
+      EPermission.GET_USER,
+      EPermission.DELETE_USER,
+      EPermission.LOCK_USER,
+      EPermission.UNLOCK_USER,
+    ]);
   }
   get canManageHouses() {
-    return this.hasPermission(EPermission.ADD_HOUSE);
+    return this.permissionService.hasAnyPermission([
+      EPermission.ADD_HOUSE,
+      EPermission.UPDATE_HOUSE,
+      EPermission.FIND_HOUSE,
+      EPermission.GET_HOUSE,
+      EPermission.DELETE_HOUSE,
+    ]);
+  }
+  get canManageSavedRoom() {
+    return this.permissionService.hasAnyPermission([
+      EPermission.ADD_SAVED_ROOM,
+      EPermission.DELETE_SAVED_ROOM,
+      EPermission.FIND_SAVED_ROOM,
+    ]);
   }
   get isLogin() {
     return this.tokenService.isLoggedIn();

@@ -1,1 +1,411 @@
-<p>sys-user works!</p>
+@if (isLoading()) {
+  <div class="full-page-loader">
+    <svg class="spinner-large" viewBox="0 0 50 50">
+      <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+    </svg>
+    <div class="loading-text">Đang xử lý dữ liệu...</div>
+  </div>
+}
+
+<div class="dashboard-wrapper">
+  @if (viewMode() === 'LIST') {
+    <div class="dashboard-card list-view">
+      <div class="header-actions">
+        <div>
+          <h1>Hệ thống Quản lý Người dùng</h1>
+          <p>Quản trị toàn bộ tài khoản khách hàng và quản trị viên</p>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center">
+          <button
+            class="btn-outline filter-toggle-btn"
+            [class.active]="isFilterExpanded()"
+            (click)="isFilterExpanded.set(!isFilterExpanded())"
+          >
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+              ></path>
+            </svg>
+            {{ isFilterExpanded() ? 'Đóng bộ lọc' : 'Lọc & Tìm kiếm' }}
+          </button>
+          <button class="btn-primary" (click)="openAddForm()">+ Thêm Tài Khoản</button>
+        </div>
+        <!-- <button class="btn-primary" (click)="openAddForm()">Tạo Tài Khoản Mới</button> -->
+      </div>
+
+      @if (isFilterExpanded()) {
+        <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="filter-section mb-4">
+          <div class="filter-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Username</mat-label>
+              <input matInput formControlName="username" placeholder="Nhập username..." />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Họ và tên</mat-label>
+              <input matInput formControlName="name" placeholder="VD: Hoàng Thế Anh" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Số điện thoại</mat-label>
+              <input matInput formControlName="phoneNumber" placeholder="VD: 0904..." />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" placeholder="Nhập email..." />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Vai trò</mat-label>
+              <mat-select formControlName="role">
+                <mat-option [value]="null">Tất cả</mat-option>
+                <mat-option value="ROLE_ADMIN">Quản trị viên (Admin)</mat-option>
+                <mat-option value="ROLE_USER">Người dùng (User)</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Trạng thái khóa</mat-label>
+              <mat-select formControlName="isLockLogin">
+                <mat-option [value]="null">Tất cả</mat-option>
+                <mat-option [value]="false">Đang hoạt động</mat-option>
+                <mat-option [value]="true">Đã khóa</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="filter-actions mt-3">
+            <button type="button" class="btn-outline" (click)="onResetSearch()">Xóa bộ lọc</button>
+            <button type="submit" class="btn-primary">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
+              </svg>
+              Tìm kiếm
+            </button>
+          </div>
+        </form>
+      }
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 5%">STT</th>
+              <th style="width: 15%">Tài khoản</th>
+              <th style="width: 20%">Họ và tên</th>
+              <th style="width: 15%">Liên hệ</th>
+              <th style="width: 15%">Vai trò</th>
+              <th style="width: 15%">Trạng thái</th>
+              <th style="width: 15%">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of listUsers(); track user.id; let i = $index) {
+              <tr>
+                <td>{{ i + 1 + pageNumber() * pageSize() }}</td>
+                <td class="font-bold text-primary">{{ user.username }}</td>
+                <td>
+                  <div class="user-name-block">
+                    <div class="avatar-circle">{{ user.name.charAt(0) }}</div>
+                    <span>{{ user.name }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="contact-info">
+                    <span>📞 {{ user.phoneNumber }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="role-badge" [class.admin]="user.role === 'ROLE_ADMIN'">
+                    {{ user.role === 'ROLE_ADMIN' ? 'Admin' : 'User' }}
+                  </span>
+                </td>
+                <td>
+                  @if (user.isLockLogin) {
+                    <span class="status-badge locked">
+                      <span class="pulse-dot"></span> Đã khóa
+                    </span>
+                  } @else {
+                    <span class="status-badge active">
+                      <span class="pulse-dot"></span> Hoạt động
+                    </span>
+                  }
+                </td>
+                <td class="actions">
+                  <button class="btn-icon view" (click)="openDetail(user.id)" title="Xem chi tiết">
+                    👁️
+                  </button>
+                  <button class="btn-icon edit" (click)="openUpdateForm(user)" title="Cập nhật">
+                    ✏️
+                  </button>
+
+                  @if (user.isLockLogin) {
+                    <button
+                      class="btn-icon unlock"
+                      (click)="unlockUser(user)"
+                      title="Mở khóa tài khoản"
+                    >
+                      🔓
+                    </button>
+                  } @else {
+                    <button
+                      class="btn-icon lock"
+                      (click)="openLockModal(user)"
+                      title="Khóa tài khoản"
+                    >
+                      🔒
+                    </button>
+                  }
+
+                  <button
+                    class="btn-icon delete"
+                    (click)="deleteUser(user.id)"
+                    title="Xóa tài khoản"
+                  >
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="empty-state">
+                  <div class="empty-content">
+                    <h3>Không tìm thấy người dùng nào</h3>
+                    <p>Hãy thử thay đổi điều kiện tìm kiếm hoặc thêm người dùng mới.</p>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pagination-wrapper">
+          <span class="page-info"
+            >Hiển thị tổng số <strong>{{ totalElements() }}</strong> người dùng</span
+          >
+          <div class="pagination-controls">
+            <button
+              class="btn-page"
+              [disabled]="pageNumber() === 0"
+              (click)="changePage(pageNumber() - 1)"
+            >
+              &laquo; Trước
+            </button>
+            <span class="page-current">Trang {{ pageNumber() + 1 }} / {{ totalPages() }}</span>
+            <button
+              class="btn-page"
+              [disabled]="pageNumber() >= totalPages() - 1"
+              (click)="changePage(pageNumber() + 1)"
+            >
+              Sau &raquo;
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (viewMode() === 'FORM') {
+    <div class="dashboard-card form-view" style="max-width: 800px">
+      <div class="header-actions">
+        <h1>{{ isUpdateMode() ? 'Cập nhật tài khoản' : 'Tạo tài khoản mới' }}</h1>
+        <button class="btn-outline" (click)="viewMode.set('LIST')">Quay lại danh sách</button>
+      </div>
+
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="complex-form">
+        <div class="section-block">
+          <h3>Thông tin xác thực</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Username <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                formControlName="username"
+                class="form-control"
+                [readonly]="isUpdateMode()"
+                placeholder="Tên đăng nhập..."
+              />
+              @if (isUpdateMode()) {
+                <small class="hint">Không thể thay đổi username</small>
+              }
+            </div>
+
+            @if (isUpdateMode()) {
+              <div class="form-group">
+                <label>Mật khẩu cũ</label>
+                <input
+                  type="password"
+                  formControlName="old_password"
+                  class="form-control"
+                  placeholder="Để trống nếu không đổi..."
+                />
+              </div>
+              <div class="form-group">
+                <label>Mật khẩu mới</label>
+                <input
+                  type="password"
+                  formControlName="password"
+                  class="form-control"
+                  placeholder="Mật khẩu mới..."
+                />
+              </div>
+            } @else {
+              <div class="form-group">
+                <label>Mật khẩu <span class="text-danger">*</span></label>
+                <input
+                  type="password"
+                  formControlName="password"
+                  class="form-control"
+                  placeholder="Nhập mật khẩu..."
+                />
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="section-block mt-4">
+          <h3>Thông tin cá nhân & Phân quyền</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Họ và tên <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                formControlName="name"
+                class="form-control"
+                placeholder="VD: Nguyễn Văn A..."
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Email <span class="text-danger">*</span></label>
+              <input
+                type="email"
+                formControlName="email"
+                class="form-control"
+                placeholder="Email liên hệ..."
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Số điện thoại <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                formControlName="phone_number"
+                class="form-control"
+                placeholder="Nhập SĐT..."
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="roleSelect">Vai trò hệ thống <span class="text-danger">*</span></label>
+              <select
+                id="roleSelect"
+                formControlName="role"
+                class="form-control custom-select"
+                aria-label="Chọn vai trò hệ thống"
+              >
+                <option value="ROLE_USER">Người dùng (User)</option>
+                <option value="ROLE_ADMIN">Quản trị viên (Admin)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions mt-4">
+          <button type="button" class="btn-cancel" (click)="viewMode.set('LIST')">Hủy bỏ</button>
+          <button type="submit" class="btn-submit">
+            {{ isUpdateMode() ? 'Lưu Thay Đổi' : 'Xác Nhận Tạo Mới' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>
+
+@if (isDetailModalOpen() && selectedUser()) {
+  <div class="custom-modal-overlay" (click)="isDetailModalOpen.set(false)">
+    <div class="custom-modal-content user-detail-card" (click)="$event.stopPropagation()">
+      <button class="btn-close-modal" (click)="isDetailModalOpen.set(false)">✕</button>
+
+      <div class="modal-header-bg"></div>
+
+      <div class="user-profile-head">
+        <div class="avatar-large">{{ selectedUser().name.charAt(0) }}</div>
+        <h2>{{ selectedUser().name }}</h2>
+        <p class="tag-username">&#64;{{ selectedUser().username }}</p>
+
+        <div class="status-tags mt-2">
+          <span class="role-badge" [class.admin]="selectedUser().role === 'ROLE_ADMIN'">
+            {{ selectedUser().role === 'ROLE_ADMIN' ? 'Administrator' : 'User' }}
+          </span>
+          @if (selectedUser().isLockLogin) {
+            <span class="status-badge locked">Đã khóa tài khoản</span>
+          } @else {
+            <span class="status-badge active">Đang hoạt động</span>
+          }
+        </div>
+      </div>
+
+      <div class="user-info-body">
+        <div class="info-row">
+          <span class="i-label">📧 Email:</span>
+          <span class="i-value">{{ selectedUser().email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="i-label">📞 Điện thoại:</span>
+          <span class="i-value">{{ selectedUser().phoneNumber }}</span>
+        </div>
+        @if (selectedUser().lockReason) {
+          <div class="info-row warning">
+            <span class="i-label">Lý do khóa:</span>
+            <span class="i-value text-danger">{{ selectedUser().lockReason }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer-actions">
+        <button class="btn-secondary w-100" (click)="isDetailModalOpen.set(false)">Đóng</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (isLockModalOpen() && selectedUser()) {
+  <div class="custom-modal-overlay" (click)="isLockModalOpen.set(false)">
+    <div class="custom-modal-content lock-modal" (click)="$event.stopPropagation()">
+      <div class="lock-icon-warning">⚠️</div>
+      <h2>Khóa tài khoản</h2>
+      <p class="text-muted text-center mb-4">
+        Bạn đang thực hiện khóa tài khoản <strong>{{ selectedUser().username }}</strong
+        >. Vui lòng thiết lập thông số.
+      </p>
+
+      <div class="form-group mb-4">
+        <label>Số lần cảnh báo / Thời gian khóa (Count Locked Until)</label>
+        <input
+          type="number"
+          class="form-control"
+          [value]="lockCountInput()"
+          (input)="lockCountInput.set(+$any($event.target).value)"
+          aria-label="Nhập thời gian khóa tài khoản"
+        />
+      </div>
+
+      <div class="modal-footer-actions row-btn">
+        <button class="btn-cancel" (click)="isLockModalOpen.set(false)">Hủy</button>
+        <button class="btn-danger" (click)="confirmLockUser()">Xác nhận khóa</button>
+      </div>
+    </div>
+  </div>
+}

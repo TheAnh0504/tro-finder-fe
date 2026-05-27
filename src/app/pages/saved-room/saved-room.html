@@ -256,13 +256,18 @@
         <div class="modal-body">
           <div class="main-price-banner">
             <div class="price-info">
-              <span class="label">Giá Thuê</span>
-              <span class="value">{{ selectedRoom().priceRoom | number: '1.0-0' }}</span
+              <span class="label">Mô tả phòng: </span>
+              <span class="value"> {{ selectedRoom().describeRoom }}</span>
+              <!-- <span class="unit">đ/tháng</span> -->
+            </div>
+            <div class="price-info">
+              <span class="label">Giá phòng: </span>
+              <span class="value"> {{ selectedRoom().priceRoom | number: '1.0-0' }}</span
               ><span class="unit">đ/tháng</span>
             </div>
             <div class="area-block">
-              <span class="label">Diện tích</span>
-              <span class="value">{{ selectedRoom().area }}</span
+              <span class="label">Diện tích: </span>
+              <span class="value"> {{ selectedRoom().area }}</span
               ><span class="unit">m²</span>
             </div>
           </div>
@@ -274,8 +279,10 @@
                 <div class="fee-item">
                   <div class="fee-icon electrical">⚡</div>
                   <div class="fee-text">
-                    <span class="f-label">Điện</span>
-                    <span class="f-val">{{ selectedRoom().priceElectricity | number }}đ/số</span>
+                    <span class="f-label">Điện: </span>
+                    <span class="f-val">
+                      {{ selectedRoom().priceElectricity | number: '1.0-0' }} đ/số</span
+                    >
                   </div>
                 </div>
               }
@@ -283,9 +290,9 @@
                 <div class="fee-item">
                   <div class="fee-icon water">💧</div>
                   <div class="fee-text">
-                    <span class="f-label">Nước</span>
-                    <span class="f-val"
-                      >{{ selectedRoom().priceWater | number }}đ/{{
+                    <span class="f-label">Nước: </span>
+                    <span class="f-val">
+                      {{ selectedRoom().priceWater | number: '1.0-0' }} đ/{{
                         selectedRoom().priceWater > 100000 ? 'người' : 'khối'
                       }}</span
                     >
@@ -296,8 +303,10 @@
                 <div class="fee-item">
                   <div class="fee-icon internet">🌐</div>
                   <div class="fee-text">
-                    <span class="f-label">Internet</span>
-                    <span class="f-val">{{ selectedRoom().priceInternet | number }}đ/người</span>
+                    <span class="f-label">Mạng Internet: </span>
+                    <span class="f-val">
+                      {{ selectedRoom().priceInternet | number: '1.0-0' }} đ/người</span
+                    >
                   </div>
                 </div>
               }
@@ -305,9 +314,31 @@
                 <div class="fee-item">
                   <div class="fee-icon washing">🧺</div>
                   <div class="fee-text">
-                    <span class="f-label">Giặt sấy</span>
-                    <span class="f-val"
-                      >{{ selectedRoom().priceWashingMachine | number }}đ/người</span
+                    <span class="f-label">Giặt sấy: </span>
+                    <span class="f-val">
+                      {{ selectedRoom().priceWashingMachine | number: '1.0-0' }} đ/người</span
+                    >
+                  </div>
+                </div>
+              }
+              @if (selectedRoom().priceGeneralCleaning) {
+                <div class="fee-item">
+                  <div class="fee-icon washing">🧺</div>
+                  <div class="fee-text">
+                    <span class="f-label">Phí vệ sinh chung: </span>
+                    <span class="f-val">
+                      {{ selectedRoom().priceGeneralCleaning | number: '1.0-0' }} đ/người</span
+                    >
+                  </div>
+                </div>
+              }
+              @if (selectedRoom().priceGeneralElectricity) {
+                <div class="fee-item">
+                  <div class="fee-icon washing">🧺</div>
+                  <div class="fee-text">
+                    <span class="f-label">Tiền điện chung: </span>
+                    <span class="f-val">
+                      {{ selectedRoom().priceGeneralElectricity | number: '1.0-0' }} đ/người</span
                     >
                   </div>
                 </div>
@@ -331,10 +362,13 @@
                 <span class="am-item">♨️ Nóng lạnh</span>
               }
               @if (selectedRoom().privateBathroom) {
-                <span class="am-item">🚿 Khép kín</span>
+                <span class="am-item">🚿 VS Khép kín</span>
               }
               @if (selectedRoom().washingMachine) {
-                <span class="am-item">🧺 Máy giặt</span>
+                <span class="am-item">🧺 Máy giặt riêng</span>
+              }
+              @if (selectedRoom().tableAndChairs) {
+                <span class="am-item">🪑 Bàn ghế</span>
               }
               @if (selectedRoom().elevator) {
                 <span class="am-item">🛗 Thang máy</span>
@@ -343,7 +377,15 @@
                 <span class="am-item">🏍️ Chỗ để xe</span>
               }
               @if (selectedRoom().hasPet) {
-                <span class="am-item">🐈 Nuôi Pet</span>
+                <span class="am-item">🐈 Nuôi thú cưng</span>
+              }
+              @if (selectedRoom().hasHost) {
+                <span class="am-item">🔑 Chung chủ</span>
+              } @else {
+                <span class="am-item">🔑 Không chung chủ</span>
+              }
+              @if (selectedRoom().security24_7 || selectedRoom().securityCamera) {
+                <span class="am-item">🛡️ An ninh tốt</span>
               }
             </div>
           </div>

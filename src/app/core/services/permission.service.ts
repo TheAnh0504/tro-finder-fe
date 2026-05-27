@@ -6,26 +6,22 @@ import { TokenService } from './token.service';
   providedIn: 'root',
 })
 export class PermissionService {
-  hasPermission(permission: EPermission): boolean {
-    const tokenService = inject(TokenService);
+  private tokenService = inject(TokenService);
 
-    const userPermissions = tokenService.getListPermission();
+  hasPermission(permission: EPermission): boolean {
+    const userPermissions = this.tokenService.getListPermission();
 
     return userPermissions.some((p) => p === permission);
   }
 
   hasAnyPermission(permissionPage: EPermission[]): boolean {
-    const tokenService = inject(TokenService);
-
-    const userPermissions = tokenService.getListPermission();
+    const userPermissions = this.tokenService.getListPermission();
 
     return userPermissions.some((p) => permissionPage.includes(p));
   }
 
   hasAllPermission(permissionPage: EPermission[]): boolean {
-    const tokenService = inject(TokenService);
-
-    const userPermissions = tokenService.getListPermission();
+    const userPermissions = this.tokenService.getListPermission();
 
     return permissionPage.every((p) => userPermissions.includes(p));
   }
