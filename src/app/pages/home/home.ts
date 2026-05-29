@@ -168,7 +168,7 @@ export class Home implements OnInit {
               urlImage: res.urlImage,
             };
             this.tokenService.setTokens(res.access_token, res.listPermission, currentUser);
-            this.router.navigate(['/home'], { replaceUrl: true });
+            window.location.href = '/home';
           },
           error: (err) => {
             this.toast.error(err.error?.message, 'Lỗi', {
