@@ -183,7 +183,7 @@ export class Home implements OnInit {
 
       this.initSearchForm();
       this.getListProvince(); // Call API lấy Tỉnh thành
-      this.getListSavedRoom();
+      if (this.tokenService.isLoggedIn()) this.getListSavedRoom();
       this.getPublicRooms();
     });
   }
