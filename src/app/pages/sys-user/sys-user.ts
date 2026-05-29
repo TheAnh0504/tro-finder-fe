@@ -9,6 +9,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { SysUserService } from '../../core/services/sys-user.service';
+import { SysRole } from '../sys-role/sys-role';
+import { RoleService } from '../../core/services/role.service';
+import { Role } from '../../core/models/role-info.model';
 
 @Component({
   selector: 'app-sys-user',
@@ -28,6 +31,7 @@ export class SysUser implements OnInit {
   private fb = inject(FormBuilder);
   private toast = inject(ToastrService);
   private userService = inject(SysUserService);
+  private roleService = inject(RoleService);
 
   // --- STATE QUẢN LÝ GIAO DIỆN ---
   viewMode = signal<'LIST' | 'FORM'>('LIST');
@@ -51,11 +55,15 @@ export class SysUser implements OnInit {
   isDetailModalOpen = signal(false);
 
   isLockModalOpen = signal(false);
-  lockCountInput = signal<number>(3); // Mặc định như cURL là 3
+  lockCountInput = signal<number>(10); // Mặc định như cURL là 3
+  reasonLockUser = signal<string>('');
+
+  listRole = signal<any[]>([]);
 
   ngOnInit() {
     this.initSearchForm();
     this.initUserForm();
+    this.getListRole();
     this.getUsers();
   }
 
@@ -85,6 +93,36 @@ export class SysUser implements OnInit {
       role: ['ROLE_USER', Validators.required],
       is_lock_login: [false],
     });
+  }
+
+  getListRole() {
+    this.isLoading.set(true);
+
+    this.roleService
+      .findRolePublic({
+        pageNumber: 0,
+        pageSize: 10,
+        requestParam: {},
+      })
+      .subscribe({
+        next: (res: any) => {
+          this.isLoading.set(false);
+          this.listRole.set(res.page?.content || []);
+          console.log('listRole:', this.listRole);
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.toast.error(err.error?.message, 'Lỗi', {
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+          });
+        },
+      });
+  }
+
+  getRole(roleCode: string) {
+    return this.listRole().find((role) => role.roleCode === roleCode);
   }
 
   // --- TÌM KIẾM & PHÂN TRANG ---
@@ -128,7 +166,11 @@ export class SysUser implements OnInit {
       },
       error: (err: any) => {
         this.isLoading.set(false);
-        this.toast.error(err.error?.message || 'Lỗi lấy danh sách user', 'Lỗi');
+        this.toast.error(err.error?.message, 'Lỗi', {
+          timeOut: 3000,
+          progressBar: true,
+          positionClass: 'toast-top-right',
+        });
       },
     });
   }
@@ -207,13 +249,21 @@ export class SysUser implements OnInit {
 
       this.userService.updateUser(formData).subscribe({
         next: () => {
-          this.toast.success('Cập nhật người dùng thành công!');
+          this.toast.success('Cập nhật thông tin tài khoản thành công!', 'Thành công', {
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+          });
           this.viewMode.set('LIST');
           this.getUsers();
         },
         error: (err: any) => {
           this.isLoading.set(false);
-          this.toast.error(err.error?.message, 'Lỗi cập nhật');
+          this.toast.error(err.error?.message, 'Lỗi', {
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+          });
         },
       });
     } else {
@@ -227,13 +277,21 @@ export class SysUser implements OnInit {
 
       this.userService.addUser(formData).subscribe({
         next: () => {
-          this.toast.success('Thêm người dùng thành công!');
+          this.toast.success('Tạo tài khoản mới thành công!', 'Thành công', {
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+          });
           this.viewMode.set('LIST');
           this.getUsers();
         },
         error: (err: any) => {
           this.isLoading.set(false);
-          this.toast.error(err.error?.message, 'Lỗi thêm mới');
+          this.toast.error(err.error?.message, 'Lỗi', {
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+          });
         },
       });
     }
@@ -245,12 +303,21 @@ export class SysUser implements OnInit {
       this.isLoading.set(true);
       this.userService.deleteUser({ id: id }).subscribe({
         next: () => {
-          this.toast.success('Xóa người dùng thành công');
+          // this.toast.success('Xóa người dùng thành công');
+          this.toast.success('Xóa tài khoản thành công!', 'Thành công', {
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+          });
           this.getUsers();
         },
         error: (err: any) => {
           this.isLoading.set(false);
-          this.toast.error(err.error?.message, 'Lỗi xóa user');
+          this.toast.error(err.error?.message, 'Lỗi', {
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+          });
         },
       });
     }
@@ -259,7 +326,7 @@ export class SysUser implements OnInit {
   // --- KHÓA / MỞ KHÓA USER ---
   openLockModal(user: any) {
     this.selectedUser.set(user);
-    this.lockCountInput.set(3); // Default
+    this.lockCountInput.set(10); // Default
     this.isLockModalOpen.set(true);
   }
 
@@ -268,17 +335,26 @@ export class SysUser implements OnInit {
     const payload = {
       id: this.selectedUser().id,
       count_locked_until: this.lockCountInput(),
+      reason: this.reasonLockUser(),
     };
 
     this.userService.lockUser(payload).subscribe({
       next: () => {
-        this.toast.success('Đã khóa tài khoản thành công');
+        this.toast.success('Khóa tài khoản thành công!', 'Thành công', {
+          timeOut: 3000,
+          progressBar: true,
+          positionClass: 'toast-top-right',
+        });
         this.isLockModalOpen.set(false);
         this.getUsers();
       },
       error: (err: any) => {
         this.isLoading.set(false);
-        this.toast.error(err.error?.message, 'Lỗi khóa tài khoản');
+        this.toast.error(err.error?.message, 'Lỗi', {
+          timeOut: 3000,
+          progressBar: true,
+          positionClass: 'toast-top-right',
+        });
       },
     });
   }
@@ -288,12 +364,20 @@ export class SysUser implements OnInit {
       this.isLoading.set(true);
       this.userService.unlockUser({ id: user.id }).subscribe({
         next: () => {
-          this.toast.success('Mở khóa tài khoản thành công');
+          this.toast.success('Mở khóa tài khoản thành công!', 'Thành công', {
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+          });
           this.getUsers();
         },
         error: (err: any) => {
           this.isLoading.set(false);
-          this.toast.error(err.error?.message, 'Lỗi mở khóa');
+          this.toast.error(err.error?.message, 'Lỗi', {
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+          });
         },
       });
     }
@@ -310,7 +394,11 @@ export class SysUser implements OnInit {
       },
       error: (err: any) => {
         this.isLoading.set(false);
-        this.toast.error('Không lấy được thông tin chi tiết', 'Lỗi');
+        this.toast.error(err.error?.message, 'Lỗi', {
+          timeOut: 3000,
+          progressBar: true,
+          positionClass: 'toast-top-right',
+        });
       },
     });
   }

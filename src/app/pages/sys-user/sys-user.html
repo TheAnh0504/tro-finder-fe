@@ -33,7 +33,6 @@
           </button>
           <button class="btn-primary" (click)="openAddForm()">+ Thêm Tài Khoản</button>
         </div>
-        <!-- <button class="btn-primary" (click)="openAddForm()">Tạo Tài Khoản Mới</button> -->
       </div>
 
       @if (isFilterExpanded()) {
@@ -43,17 +42,14 @@
               <mat-label>Username</mat-label>
               <input matInput formControlName="username" placeholder="Nhập username..." />
             </mat-form-field>
-
             <mat-form-field appearance="outline">
               <mat-label>Họ và tên</mat-label>
               <input matInput formControlName="name" placeholder="VD: Hoàng Thế Anh" />
             </mat-form-field>
-
             <mat-form-field appearance="outline">
               <mat-label>Số điện thoại</mat-label>
               <input matInput formControlName="phoneNumber" placeholder="VD: 0904..." />
             </mat-form-field>
-
             <mat-form-field appearance="outline">
               <mat-label>Email</mat-label>
               <input matInput formControlName="email" placeholder="Nhập email..." />
@@ -63,11 +59,11 @@
               <mat-label>Vai trò</mat-label>
               <mat-select formControlName="role">
                 <mat-option [value]="null">Tất cả</mat-option>
-                <mat-option value="ROLE_ADMIN">Quản trị viên (Admin)</mat-option>
-                <mat-option value="ROLE_USER">Người dùng (User)</mat-option>
+                @for (role of listRole(); track role.id) {
+                  <mat-option [value]="role.roleCode">{{ role.roleName }}</mat-option>
+                }
               </mat-select>
             </mat-form-field>
-
             <mat-form-field appearance="outline">
               <mat-label>Trạng thái khóa</mat-label>
               <mat-select formControlName="isLockLogin">
@@ -76,21 +72,23 @@
                 <mat-option [value]="true">Đã khóa</mat-option>
               </mat-select>
             </mat-form-field>
-          </div>
 
-          <div class="filter-actions mt-3">
-            <button type="button" class="btn-outline" (click)="onResetSearch()">Xóa bộ lọc</button>
-            <button type="submit" class="btn-primary">
-              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                ></path>
-              </svg>
-              Tìm kiếm
-            </button>
+            <div class="filter-actions">
+              <button type="button" class="btn-outline" (click)="onResetSearch()">
+                Xóa bộ lọc
+              </button>
+              <button type="submit" class="btn-primary">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  ></path>
+                </svg>
+                Tìm kiếm
+              </button>
+            </div>
           </div>
         </form>
       }
@@ -125,19 +123,17 @@
                   </div>
                 </td>
                 <td>
-                  <span class="role-badge" [class.admin]="user.role === 'ROLE_ADMIN'">
-                    {{ user.role === 'ROLE_ADMIN' ? 'Admin' : 'User' }}
-                  </span>
+                  <span class="role-badge" [class.admin]="user.role === 'ROLE_ADMIN'">{{
+                    getRole(user.role).roleName
+                  }}</span>
                 </td>
                 <td>
                   @if (user.isLockLogin) {
-                    <span class="status-badge locked">
-                      <span class="pulse-dot"></span> Đã khóa
-                    </span>
+                    <span class="status-badge locked"><span class="pulse-dot"></span> Đã khóa</span>
                   } @else {
-                    <span class="status-badge active">
-                      <span class="pulse-dot"></span> Hoạt động
-                    </span>
+                    <span class="status-badge active"
+                      ><span class="pulse-dot"></span> Hoạt động</span
+                    >
                   }
                 </td>
                 <td class="actions">
@@ -147,7 +143,6 @@
                   <button class="btn-icon edit" (click)="openUpdateForm(user)" title="Cập nhật">
                     ✏️
                   </button>
-
                   @if (user.isLockLogin) {
                     <button
                       class="btn-icon unlock"
@@ -165,7 +160,6 @@
                       🔒
                     </button>
                   }
-
                   <button
                     class="btn-icon delete"
                     (click)="deleteUser(user.id)"
@@ -217,7 +211,7 @@
   }
 
   @if (viewMode() === 'FORM') {
-    <div class="dashboard-card form-view" style="max-width: 800px">
+    <div class="dashboard-card form-view">
       <div class="header-actions">
         <h1>{{ isUpdateMode() ? 'Cập nhật tài khoản' : 'Tạo tài khoản mới' }}</h1>
         <button class="btn-outline" (click)="viewMode.set('LIST')">Quay lại danh sách</button>
@@ -248,7 +242,7 @@
                   type="password"
                   formControlName="old_password"
                   class="form-control"
-                  placeholder="Để trống nếu không đổi..."
+                  placeholder="Để trống nếu không đổi mật khẩu..."
                 />
               </div>
               <div class="form-group">
@@ -260,6 +254,15 @@
                   placeholder="Mật khẩu mới..."
                 />
               </div>
+              <div class="form-group">
+                <label>Nhập lại mật khẩu mới</label>
+                <input
+                  type="password"
+                  formControlName="confirm_password"
+                  class="form-control"
+                  placeholder="Xác nhận mật khẩu mới..."
+                />
+              </div>
             } @else {
               <div class="form-group">
                 <label>Mật khẩu <span class="text-danger">*</span></label>
@@ -268,6 +271,15 @@
                   formControlName="password"
                   class="form-control"
                   placeholder="Nhập mật khẩu..."
+                />
+              </div>
+              <div class="form-group">
+                <label>Nhập lại mật khẩu <span class="text-danger">*</span></label>
+                <input
+                  type="password"
+                  formControlName="confirm_password"
+                  class="form-control"
+                  placeholder="Xác nhận mật khẩu..."
                 />
               </div>
             }
@@ -286,7 +298,6 @@
                 placeholder="VD: Nguyễn Văn A..."
               />
             </div>
-
             <div class="form-group">
               <label>Email <span class="text-danger">*</span></label>
               <input
@@ -296,7 +307,6 @@
                 placeholder="Email liên hệ..."
               />
             </div>
-
             <div class="form-group">
               <label>Số điện thoại <span class="text-danger">*</span></label>
               <input
@@ -306,17 +316,17 @@
                 placeholder="Nhập SĐT..."
               />
             </div>
-
             <div class="form-group">
               <label for="roleSelect">Vai trò hệ thống <span class="text-danger">*</span></label>
               <select
                 id="roleSelect"
                 formControlName="role"
                 class="form-control custom-select"
-                aria-label="Chọn vai trò hệ thống"
+                aria-label="Chọn vai trò"
               >
-                <option value="ROLE_USER">Người dùng (User)</option>
-                <option value="ROLE_ADMIN">Quản trị viên (Admin)</option>
+                @for (role of listRole(); track role.id) {
+                  <option [value]="role.roleCode">{{ role.roleName }}</option>
+                }
               </select>
             </div>
           </div>
@@ -337,18 +347,15 @@
   <div class="custom-modal-overlay" (click)="isDetailModalOpen.set(false)">
     <div class="custom-modal-content user-detail-card" (click)="$event.stopPropagation()">
       <button class="btn-close-modal" (click)="isDetailModalOpen.set(false)">✕</button>
-
       <div class="modal-header-bg"></div>
-
       <div class="user-profile-head">
         <div class="avatar-large">{{ selectedUser().name.charAt(0) }}</div>
         <h2>{{ selectedUser().name }}</h2>
         <p class="tag-username">&#64;{{ selectedUser().username }}</p>
-
         <div class="status-tags mt-2">
-          <span class="role-badge" [class.admin]="selectedUser().role === 'ROLE_ADMIN'">
-            {{ selectedUser().role === 'ROLE_ADMIN' ? 'Administrator' : 'User' }}
-          </span>
+          <span class="role-badge" [class.admin]="selectedUser().role === 'ROLE_ADMIN'">{{
+            getRole(selectedUser().role).roleName
+          }}</span>
           @if (selectedUser().isLockLogin) {
             <span class="status-badge locked">Đã khóa tài khoản</span>
           } @else {
@@ -356,24 +363,28 @@
           }
         </div>
       </div>
-
       <div class="user-info-body">
         <div class="info-row">
-          <span class="i-label">📧 Email:</span>
-          <span class="i-value">{{ selectedUser().email }}</span>
+          <span class="i-label">📧 Email:</span
+          ><span class="i-value">{{ selectedUser().email }}</span>
         </div>
         <div class="info-row">
-          <span class="i-label">📞 Điện thoại:</span>
-          <span class="i-value">{{ selectedUser().phoneNumber }}</span>
+          <span class="i-label">📞 Điện thoại:</span
+          ><span class="i-value">{{ selectedUser().phoneNumber }}</span>
         </div>
-        @if (selectedUser().lockReason) {
+        @if (selectedUser().isLockLogin) {
           <div class="info-row warning">
-            <span class="i-label">Lý do khóa:</span>
-            <span class="i-value text-danger">{{ selectedUser().lockReason }}</span>
+            <span class="i-label">Tài khoản được mở khóa lúc:</span
+            ><span class="i-value text-danger">{{ selectedUser().lockedUntil }}</span>
           </div>
+          @if (selectedUser().lockReason) {
+            <div class="info-row warning">
+              <span class="i-label">Lý do khóa:</span
+              ><span class="i-value text-danger">{{ selectedUser().lockReason }}</span>
+            </div>
+          }
         }
       </div>
-
       <div class="modal-footer-actions">
         <button class="btn-secondary w-100" (click)="isDetailModalOpen.set(false)">Đóng</button>
       </div>
@@ -387,19 +398,34 @@
       <div class="lock-icon-warning">⚠️</div>
       <h2>Khóa tài khoản</h2>
       <p class="text-muted text-center mb-4">
-        Bạn đang thực hiện khóa tài khoản <strong>{{ selectedUser().username }}</strong
-        >. Vui lòng thiết lập thông số.
+        Tài khoản <strong>{{ selectedUser().username }}</strong> sẽ bị khóa đăng nhập.
       </p>
 
-      <div class="form-group mb-4">
-        <label>Số lần cảnh báo / Thời gian khóa (Count Locked Until)</label>
-        <input
-          type="number"
-          class="form-control"
-          [value]="lockCountInput()"
-          (input)="lockCountInput.set(+$any($event.target).value)"
-          aria-label="Nhập thời gian khóa tài khoản"
-        />
+      <div class="lock-form-body">
+        <div class="form-group mb-4">
+          <label class="text-left-label"
+            >Lý do khóa tài khoản <span class="text-danger">*</span></label
+          >
+          <input
+            type="text"
+            class="form-control input-reason-fancy"
+            [value]="reasonLockUser()"
+            (input)="reasonLockUser.set($any($event.target).value)"
+            placeholder="Ví dụ: Đăng tin sai sự thật, dùng từ ngữ thô tục..."
+            aria-label="Nhập lý do khóa tài khoản"
+          />
+        </div>
+
+        <div class="form-group lock-input-group mb-4">
+          <label>Thời gian khóa (phút)</label>
+          <input
+            type="number"
+            class="form-control input-lock-fancy"
+            [value]="lockCountInput()"
+            (input)="lockCountInput.set(+$any($event.target).value)"
+            aria-label="Nhập thời gian khóa tài khoản"
+          />
+        </div>
       </div>
 
       <div class="modal-footer-actions row-btn">

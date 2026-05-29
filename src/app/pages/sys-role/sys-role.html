@@ -1,1 +1,273 @@
-<p>sys-role works!</p>
+@if (isLoading()) {
+  <div class="full-page-loader">
+    <svg class="spinner-large" viewBox="0 0 50 50">
+      <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+    </svg>
+    <div class="loading-text">Đang xử lý dữ liệu...</div>
+  </div>
+}
+
+<div class="dashboard-wrapper">
+  @if (viewMode() === 'LIST') {
+    <div class="dashboard-card list-view">
+      <div class="header-actions">
+        <div>
+          <h1>Hệ Thống Phân Quyền</h1>
+          <p>Quản lý các nhóm nhóm quyền và chi tiết quyền hạn hệ thống</p>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center">
+          <button
+            class="btn-outline filter-toggle-btn"
+            [class.active]="isFilterExpanded()"
+            (click)="isFilterExpanded.set(!isFilterExpanded())"
+          >
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+              ></path>
+            </svg>
+            {{ isFilterExpanded() ? 'Đóng bộ lọc' : 'Lọc & Tìm kiếm' }}
+          </button>
+          <button class="btn-primary" (click)="openAddForm()">+ Tạo nhóm quyền</button>
+        </div>
+      </div>
+
+      @if (isFilterExpanded()) {
+        <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="filter-section mb-4">
+          <div class="filter-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Mã nhóm quyền (Role Code)</mat-label>
+              <input matInput formControlName="roleCode" placeholder="VD: ADMIN, USER..." />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Tên hiển thị</mat-label>
+              <input matInput formControlName="roleName" placeholder="VD: Quản trị viên" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Quyền hạn chứa</mat-label>
+              <mat-select formControlName="listPermission" multiple>
+                <mat-option [value]="null">Tất cả</mat-option>
+                @for (p of availablePermissions; track p.key) {
+                  <mat-option [value]="p.key">{{ p.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <div class="filter-actions" style="grid-column: span 1">
+              <button type="button" class="btn-outline" (click)="onResetSearch()">
+                Xóa bộ lọc
+              </button>
+              <button type="submit" class="btn-primary">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  ></path>
+                </svg>
+                Tìm kiếm
+              </button>
+            </div>
+          </div>
+        </form>
+      }
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 5%">STT</th>
+              <th style="width: 20%">Mã nhóm quyền</th>
+              <th style="width: 25%">Tên hiển thị</th>
+              <th style="width: 35%">Danh sách quyền hạn</th>
+              <th style="width: 15%; text-align: center">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (role of listRoles(); track role.id; let i = $index) {
+              <tr>
+                <td>{{ i + 1 + pageNumber() * pageSize() }}</td>
+                <td>
+                  <span class="role-badge" [class.admin]="role.roleCode.includes('ADMIN')">
+                    {{ role.roleCode }}
+                  </span>
+                </td>
+                <td class="font-bold text-primary">{{ role.roleName }}</td>
+                <td>
+                  <div class="chips-list">
+                    @for (p of role.listPermission | slice: 0 : 3; track p) {
+                      <span class="chip-mini">{{ p }}</span>
+                    }
+                    @if (role.listPermission?.length > 3) {
+                      <span class="chip-mini more">+{{ role.listPermission.length - 3 }}</span>
+                    }
+                  </div>
+                </td>
+                <td class="actions" style="justify-content: center">
+                  <button class="btn-icon view" (click)="openDetail(role.id)" title="Xem chi tiết">
+                    👁️
+                  </button>
+                  <button class="btn-icon edit" (click)="openUpdateForm(role)" title="Cập nhật">
+                    ✏️
+                  </button>
+                  <button
+                    class="btn-icon delete"
+                    (click)="deleteRole(role.id)"
+                    title="Xóa nhóm quyền"
+                  >
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="empty-state">
+                  <div class="empty-content">
+                    <h3>Không tìm thấy nhóm quyền nào</h3>
+                    <p>Hãy thử thay đổi điều kiện tìm kiếm hoặc thêm mới.</p>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pagination-wrapper">
+          <span class="page-info"
+            >Hiển thị tổng số <strong>{{ totalElements() }}</strong> nhóm quyền</span
+          >
+          <div class="pagination-controls">
+            <button
+              class="btn-page"
+              [disabled]="pageNumber() === 0"
+              (click)="changePage(pageNumber() - 1)"
+            >
+              &laquo; Trước
+            </button>
+            <span class="page-current">Trang {{ pageNumber() + 1 }} / {{ totalPages() }}</span>
+            <button
+              class="btn-page"
+              [disabled]="pageNumber() >= totalPages() - 1"
+              (click)="changePage(pageNumber() + 1)"
+            >
+              Sau &raquo;
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (viewMode() === 'FORM') {
+    <div class="dashboard-card form-view">
+      <div class="header-actions">
+        <h1>{{ isUpdateMode() ? 'Cập nhật Quyền Hệ thống' : 'Tạo Phân quyền mới' }}</h1>
+        <button class="btn-outline" (click)="viewMode.set('LIST')">Quay lại danh sách</button>
+      </div>
+
+      <form [formGroup]="roleForm" (ngSubmit)="onSubmit()" class="complex-form">
+        <div class="section-block">
+          <h3>Thông tin cơ bản</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Mã nhóm quyền (Role Code) <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                formControlName="role_code"
+                class="form-control uppercase"
+                placeholder="VD: ROLE_MANAGER"
+              />
+              <small class="hint">Chỉ dùng chữ cái IN HOA, số và dấu gạch dưới (_).</small>
+            </div>
+            <div class="form-group">
+              <label>Tên hiển thị <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                formControlName="role_name"
+                class="form-control"
+                placeholder="VD: Quản lý chi nhánh..."
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="section-block mt-4">
+          <h3>Cấp quyền hạn chức năng</h3>
+          <p class="text-muted mb-4">
+            Gạt công tắc để cấp các quyền tương ứng cho nhóm nhóm quyền này.
+          </p>
+
+          <div class="permissions-grid">
+            @for (p of availablePermissions; track p.key) {
+              <label
+                class="toggle-switch-card"
+                [class.active]="roleForm.value.list_permission.includes(p.key)"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="roleForm.value.list_permission.includes(p.key)"
+                  (change)="togglePermission(p.key, $event)"
+                />
+                <div class="ts-content">
+                  <div class="ts-info">
+                    <span class="ts-title">{{ p.label }}</span>
+                    <span class="ts-key">{{ p.key }}</span>
+                  </div>
+                  <span class="slider"></span>
+                </div>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions mt-4">
+          <button type="button" class="btn-cancel" (click)="viewMode.set('LIST')">Hủy bỏ</button>
+          <button type="submit" class="btn-submit">
+            {{ isUpdateMode() ? 'Lưu Thay Đổi' : 'Xác Nhận Tạo Mới' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>
+
+@if (isDetailModalOpen() && selectedRole()) {
+  <div class="custom-modal-overlay" (click)="isDetailModalOpen.set(false)">
+    <div class="custom-modal-content role-detail-card" (click)="$event.stopPropagation()">
+      <button class="btn-close-modal" (click)="isDetailModalOpen.set(false)">✕</button>
+
+      <div class="modal-header-bg">
+        <div class="shield-icon">🛡️</div>
+      </div>
+
+      <div class="role-profile-head">
+        <h2>{{ selectedRole().roleName }}</h2>
+        <span class="role-badge admin mt-2">{{ selectedRole().roleCode }}</span>
+      </div>
+
+      <div class="role-info-body">
+        <h4 class="mb-3">Danh sách Quyền hạn ({{ selectedRole().listPermission?.length || 0 }})</h4>
+        <div class="chips-list wrap-all">
+          @for (p of selectedRole().listPermission; track p) {
+            <span class="chip-mini active-chip">✔️ {{ p }}</span>
+          }
+          @if (!selectedRole().listPermission || selectedRole().listPermission.length === 0) {
+            <span class="text-muted">Chưa được cấp quyền nào.</span>
+          }
+        </div>
+      </div>
+
+      <div class="modal-footer-actions mt-4">
+        <button class="btn-secondary w-100" (click)="isDetailModalOpen.set(false)">Đóng</button>
+      </div>
+    </div>
+  </div>
+}
