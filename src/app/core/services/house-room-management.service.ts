@@ -39,6 +39,10 @@ export class HouseRoomManagementService {
     return this.http.post(`/api/house/public/find`, data);
   }
 
+  findHouseToken(data: any): Observable<any> {
+    return this.http.post(`/api/house/find`, data);
+  }
+
   getImageRoom(data: any): Observable<any> {
     return this.http.post(`/api/house/image-room`, data, { responseType: 'blob' });
   }

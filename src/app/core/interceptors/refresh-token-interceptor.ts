@@ -5,10 +5,12 @@ import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { TokenService } from '../services/token.service';
 import { InfoUser } from '../models/info-user.model';
+import { Router } from '@angular/router';
 
 export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const tokenService = inject(TokenService);
+  const router = inject(Router);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -29,13 +31,17 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
                 Authorization: `Bearer ${res.access_token}`,
               },
             });
-
+            router.navigate(['/home']);
             return next(clonedReq);
           }),
         );
       }
 
-      return throwError(() => error);
+      return throwError(() => {
+        tokenService.clear();
+
+        return error;
+      });
     }),
   );
 };

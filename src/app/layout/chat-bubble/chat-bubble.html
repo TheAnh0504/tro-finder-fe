@@ -1,0 +1,85 @@
+<div class="chat-wrapper">
+  @if (isOpen()) {
+    <div class="chat-window">
+      <div class="chat-header">
+        <div class="header-info">
+          <div class="avatar-group">
+            <img
+              src="https://ui-avatars.com/api/?name=Hỗ+Trợ&background=10b981&color=fff"
+              alt="Avatar"
+            />
+          </div>
+          <div>
+            <h4>Hỗ trợ viên</h4>
+            <span class="status">Đang trực tuyến</span>
+          </div>
+        </div>
+        <button class="close-btn" (click)="toggleChat()" aria-label="Đóng">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="chat-body" #scrollMe>
+        @for (msg of messages(); track msg.messId) {
+          <div class="message" [class.me]="msg.createdBy === currentUsername()">
+            <div class="msg-content">
+              <p>{{ msg.content }}</p>
+              <span class="time">{{ msg.createdTime | date: 'shortTime' }}</span>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-msg">Hãy bắt đầu cuộc trò chuyện...</div>
+        }
+      </div>
+
+      <div class="chat-footer">
+        <input
+          type="text"
+          placeholder="Nhập tin nhắn..."
+          [ngModel]="newMessage()"
+          (ngModelChange)="newMessage.set($event)"
+          (keyup.enter)="sendMessage()"
+        />
+        <button
+          class="send-btn"
+          (click)="sendMessage()"
+          [disabled]="!newMessage().trim()"
+          aria-label="Gửi tin nhắn"
+        >
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  }
+
+  <button class="bubble-btn" (click)="toggleChat()" [class.active]="isOpen()">
+    @if (!isOpen()) {
+      <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+        ></path>
+      </svg>
+    } @else {
+      <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"
+        ></path>
+      </svg>
+    }
+  </button>
+</div>

@@ -1,0 +1,116 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject, signal } from '@angular/core';
+import { Client } from '@stomp/stompjs';
+import { Observable, Subject } from 'rxjs';
+import { TokenService } from './token.service';
+import SockJS from 'sockjs-client';
+import { EMediaMess } from '../../enum/EMediaMess.enum';
+import { environment } from '../../../environments/environment';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ChatService {
+  // private http = inject(HttpClient);
+  // private apiUrl = '/api/chat-message'; // Đổi theo config proxy của bạn
+
+  // getMessages(groupId: string): Observable<any> {
+  //   return this.http.get<any>(`/api/chat/${groupId}/messages`);
+  // }
+
+  // sendMessage(groupId: string, content: string, mediaType: EMediaMess): Observable<any> {
+  //   return this.http.post<any>(`/api/chat/send`, {
+  //     groupId,
+  //     content,
+  //     mediaType,
+  //   });
+  // }
+
+  private http = inject(HttpClient);
+  private tokenService = inject(TokenService);
+  private stompClient!: Client;
+
+  // Dùng Subject để phát sự kiện khi có tin nhắn mới qua WebSocket
+  public messageReceived$ = new Subject<any>();
+
+  // Khởi tạo kết nối WebSocket
+  connectWebSocket() {
+    const token = this.tokenService.getAccessToken(); // Lấy token để xác thực nếu cần
+
+    this.stompClient = new Client({
+      // Dùng cấu hình webSocketFactory nếu bạn xài SockJS bên backend
+      webSocketFactory: () => new SockJS(environment.apiUrl + '/api/chat/ws-chat'),
+      connectHeaders: {
+        Authorization: `Bearer ${token}`, // Gửi token lên backend xác thực
+      },
+      debug: (str) => {
+        // console.log(str); // Bật lên để debug nếu lỗi
+      },
+      reconnectDelay: 5000, // Tự động kết nối lại sau 5s nếu rớt mạng
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+    });
+
+    this.stompClient.onConnect = (frame) => {
+      console.log('Đã kết nối WebSocket Chat!');
+    };
+
+    this.stompClient.onStompError = (frame) => {
+      console.error('Lỗi STOMP: ' + frame.headers['message']);
+    };
+
+    this.stompClient.activate();
+  }
+
+  // Đăng ký nhận tin nhắn của một phòng cụ thể
+  subscribeToGroup(groupId: string) {
+    if (this.stompClient && this.stompClient.connected) {
+      return this.stompClient.subscribe(`/api/chat/topic/group/${groupId}`, (message) => {
+        if (message.body) {
+          const parsedMessage = JSON.parse(message.body);
+          this.messageReceived$.next(parsedMessage); // Bắn dữ liệu ra cho Component hứng
+        }
+      });
+    }
+    return null;
+  }
+
+  // Gửi tin nhắn qua WebSocket
+  sendMessageWS(groupId: string, content: string) {
+    if (this.stompClient && this.stompClient.connected) {
+      const chatMessage = {
+        groupId: groupId,
+        content: content,
+        mediaType: EMediaMess.TEXT.toString(),
+      };
+      this.stompClient.publish({
+        destination: '/api/chat/chat.sendMessage',
+        body: JSON.stringify(chatMessage),
+      });
+    }
+  }
+
+  // Lấy lịch sử chat cũ qua REST API
+  getHistoryMessages(groupId: string): Observable<any> {
+    return this.http.get(`/api/chat/${groupId}/messages`);
+  }
+
+  getListGroupMessage(): Observable<any> {
+    return this.http.get(`/api/chat/list-group`);
+  }
+
+  addNewGroupMessage(groupData: any): Observable<any> {
+    return this.http.post(`/api/chat/add-group`, groupData);
+  }
+
+  updateGroupMessage(groupData: any): Observable<any> {
+    return this.http.post(`/api/chat/update-group`, groupData);
+  }
+
+  // Ngắt kết nối khi tắt web
+  disconnectWebSocket() {
+    if (this.stompClient) {
+      this.stompClient.deactivate();
+    }
+  }
+}

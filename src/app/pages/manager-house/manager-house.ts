@@ -597,7 +597,7 @@ export class ManagerHouse implements OnInit {
       requestParam: cleanedParams,
     };
 
-    this.houseService.findHouse(payload).subscribe({
+    this.houseService.findHouseToken(payload).subscribe({
       next: (res) => {
         this.isLoading.set(false);
         this.listRooms.set(res.page?.content || []);

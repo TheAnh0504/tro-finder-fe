@@ -7,10 +7,11 @@ import { InfoUser } from '../../core/models/info-user.model';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../core/services/auth.service';
 import { PermissionService } from '../../core/services/permission.service';
+import { ChatBubble } from '../chat-bubble/chat-bubble';
 
 @Component({
   selector: 'app-admin-layout',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ChatBubble],
   templateUrl: './admin-layout.html',
   styleUrl: './admin-layout.scss',
 })

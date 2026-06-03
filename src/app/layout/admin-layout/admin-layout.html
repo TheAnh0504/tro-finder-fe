@@ -144,3 +144,7 @@
 <main>
   <router-outlet></router-outlet>
 </main>
+
+@if (isLogin) {
+  <app-chat-bubble></app-chat-bubble>
+}
