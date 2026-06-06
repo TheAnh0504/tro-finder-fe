@@ -28,6 +28,18 @@
           Trang chủ
         </button>
 
+        <button class="nav-link" (click)="navigateTo('/profile')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+            ></path>
+          </svg>
+          Trang cá nhân
+        </button>
+
         @if (canManageHouses) {
           <button class="nav-link" (click)="navigateTo('/manager-house')">
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,14 +132,24 @@
             <a class="dropdown-item" (click)="navigateTo('/home'); isDropdownOpen.set(false)"
               >Trang chủ</a
             >
-            <a
-              class="dropdown-item"
-              (click)="navigateTo('/manager-house'); isDropdownOpen.set(false)"
-              >Quản lý phòng trọ</a
+            <a class="dropdown-item" (click)="navigateTo('/profile'); isDropdownOpen.set(false)"
+              >Trang cá nhân</a
             >
-            <a class="dropdown-item" (click)="navigateTo('/saved-room'); isDropdownOpen.set(false)"
-              >Phòng đã lưu</a
-            >
+            @if (canManageHouses) {
+              <a
+                class="dropdown-item"
+                (click)="navigateTo('/manager-house'); isDropdownOpen.set(false)"
+                >Quản lý phòng trọ</a
+              >
+            }
+            @if (canManageSavedRoom) {
+              <a
+                class="dropdown-item"
+                (click)="navigateTo('/saved-room'); isDropdownOpen.set(false)"
+                >Phòng đã lưu</a
+              >
+            }
+
             <a class="dropdown-item text-danger" (click)="logout()">Đăng xuất</a>
           </div>
         }

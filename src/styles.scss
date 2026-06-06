@@ -151,7 +151,7 @@ app-root {
 
 /* Tùy chỉnh ngx-toastr theo phong cách TroFinder */
 #toast-container {
-  z-index: 999999 !important; /* Đảm bảo nó luôn nổi trên modal */
+  z-index: 99999999999 !important; /* Đảm bảo nó luôn nổi trên modal */
 }
 
 /* Xóa sạch code cũ và dán đoạn này vào styles.scss */
@@ -160,7 +160,7 @@ app-root {
    BỘ UI TOASTR - TROFINDER (GLASSMORPHISM)
    ========================================= */
 #toast-container {
-  z-index: 999999 !important;
+  z-index: 9999999999999 !important;
 
   /* 1. Các thuộc tính dùng chung cho TẤT CẢ các loại thông báo */
   > div {

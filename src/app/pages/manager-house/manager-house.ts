@@ -547,17 +547,17 @@ export class ManagerHouse implements OnInit {
   }
 
   fetchCommunesForFilter(provinceCode: string) {
-    this.isLoading.set(true);
+    // this.isLoading.set(true);
     const payload = {
       province_code: provinceCode,
     };
     this.houseService.findCommune(payload).subscribe({
       next: (res) => {
-        this.isLoading.set(false);
+        // this.isLoading.set(false);
         this.listCommune.set(res.listCommune || []);
       },
       error: (err) => {
-        this.isLoading.set(false);
+        // this.isLoading.set(false);
         this.toast.error(err.error?.message, 'Lỗi', {
           timeOut: 3000,
           progressBar: true,
@@ -770,15 +770,15 @@ export class ManagerHouse implements OnInit {
   }
 
   getListProvince() {
-    this.isLoading.set(true);
+    // this.isLoading.set(true);
     const payload = {};
     this.houseService.findProvince(payload).subscribe({
       next: (res) => {
-        this.isLoading.set(false);
+        // this.isLoading.set(false);
         this.listProvince.set(res.listProvince || []);
       },
       error: (err) => {
-        this.isLoading.set(false);
+        // this.isLoading.set(false);
         this.toast.error(err.error?.message, 'Lỗi', {
           timeOut: 3000,
           progressBar: true,
@@ -789,17 +789,17 @@ export class ManagerHouse implements OnInit {
   }
 
   getListCommune() {
-    this.isLoading.set(true);
+    // this.isLoading.set(true);
     const payload = {
       province_code: this.houseForm.value.province,
     };
     this.houseService.findCommune(payload).subscribe({
       next: (res) => {
-        this.isLoading.set(false);
+        // this.isLoading.set(false);
         this.listCommune.set(res.listCommune || []);
       },
       error: (err) => {
-        this.isLoading.set(false);
+        // this.isLoading.set(false);
         this.toast.error(err.error?.message, 'Lỗi', {
           timeOut: 3000,
           progressBar: true,

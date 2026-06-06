@@ -90,6 +90,19 @@ export class ChatService {
     }
   }
 
+  sendFileMessageREST(groupId: string, file: File) {
+    const formData = new FormData();
+    formData.append('groupId', groupId);
+    formData.append('file', file);
+
+    // Đổi lại đường dẫn API cho đúng với config của bạn
+    return this.http.post('/api/chat/send-file', formData);
+  }
+
+  getImage(data: any): Observable<any> {
+    return this.http.post(`/api/chat/image`, data, { responseType: 'blob' });
+  }
+
   // Lấy lịch sử chat cũ qua REST API
   getHistoryMessages(groupId: string): Observable<any> {
     return this.http.get(`/api/chat/${groupId}/messages`);

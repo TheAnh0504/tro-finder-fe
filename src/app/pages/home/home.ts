@@ -227,15 +227,15 @@ export class Home implements OnInit {
 
   // --- API LOCATION ---
   getListProvince() {
-    this.isLoading.set(true);
+    // this.isLoading.set(true);
     const payload = {};
     this.houseService.findProvince(payload).subscribe({
       next: (res) => {
-        this.isLoading.set(false);
+        // this.isLoading.set(false);
         this.listProvince.set(res.listProvince || []);
       },
       error: (err) => {
-        this.isLoading.set(false);
+        // this.isLoading.set(false);
         this.toast.error(err.error?.message, 'Lỗi', {
           timeOut: 3000,
           progressBar: true,

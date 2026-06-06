@@ -3,17 +3,42 @@
     <div class="chat-window">
       <div class="chat-header">
         <div class="header-info">
-          <div class="avatar-group">
-            <img
-              src="https://ui-avatars.com/api/?name=Hỗ+Trợ&background=10b981&color=fff"
-              alt="Avatar"
-            />
-          </div>
-          <div>
-            <h4>Hỗ trợ viên</h4>
-            <span class="status">Đang trực tuyến</span>
-          </div>
+          @if (viewMode() === 'room') {
+            <button class="back-btn" (click)="backToList()" aria-label="Quay lại danh sách">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                ></path>
+              </svg>
+            </button>
+            <div class="avatar-group">
+              <img
+                [src]="
+                  activeGroupInfo()?.urlAvatar ||
+                  'https://ui-avatars.com/api/?name=' +
+                    (activeGroupInfo()?.name || 'Group') +
+                    '&background=10b981&color=fff'
+                "
+                alt="Avatar"
+              />
+            </div>
+            <div>
+              <h4 class="truncate-text">{{ activeGroupInfo()?.name || 'Phòng chat' }}</h4>
+              <span class="status text-online">Đang nhắn tin</span>
+            </div>
+          } @else {
+            <div>
+              <h4>Hộp thoại tin nhắn</h4>
+              <span class="status text-count"
+                >Có {{ listGroupMessage().length }} cuộc hội thoại</span
+              >
+            </div>
+          }
         </div>
+
         <button class="close-btn" (click)="toggleChat()" aria-label="Đóng">
           <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -26,42 +51,114 @@
         </button>
       </div>
 
-      <div class="chat-body" #scrollMe>
-        @for (msg of messages(); track msg.messId) {
-          <div class="message" [class.me]="msg.createdBy === currentUsername()">
-            <div class="msg-content">
-              <p>{{ msg.content }}</p>
-              <span class="time">{{ msg.createdTime | date: 'shortTime' }}</span>
+      @if (viewMode() === 'list') {
+        <div class="chat-body group-list-mode">
+          @for (group of listGroupMessage(); track group.groupId) {
+            <div class="group-item" (click)="selectGroup(group.groupId)">
+              <img
+                class="group-avatar"
+                [src]="
+                  group.urlAvatar ||
+                  'https://ui-avatars.com/api/?name=' + group.name + '&background=10b981&color=fff'
+                "
+                alt="Group Avatar"
+              />
+              <div class="group-details">
+                <div class="group-name">{{ group.name }}</div>
+                <div class="group-type">
+                  {{ group.typeGroup === 'COUPLE' ? 'Trò chuyện cá nhân' : 'Nhóm chung' }}
+                </div>
+              </div>
+              <div class="arrow-indicator">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  ></path>
+                </svg>
+              </div>
             </div>
-          </div>
-        } @empty {
-          <div class="empty-msg">Hãy bắt đầu cuộc trò chuyện...</div>
-        }
-      </div>
+          } @empty {
+            <div class="empty-msg">Bạn chưa tham gia cuộc hội thoại nào.</div>
+          }
+        </div>
+      } @else {
+        <div class="chat-body" #scrollMe>
+          @for (msg of messages(); track msg.messId; let i = $index) {
+            @if (i === 0 || !isSameDay(msg.createdTime, messages()[i - 1].createdTime)) {
+              <div class="date-divider">
+                <span>{{ parseCustomDate(msg.createdTime) | date: 'dd/MM/yyyy' }}</span>
+              </div>
+            }
 
-      <div class="chat-footer">
-        <input
-          type="text"
-          placeholder="Nhập tin nhắn..."
-          [ngModel]="newMessage()"
-          (ngModelChange)="newMessage.set($event)"
-          (keyup.enter)="sendMessage()"
-        />
-        <button
-          class="send-btn"
-          (click)="sendMessage()"
-          [disabled]="!newMessage().trim()"
-          aria-label="Gửi tin nhắn"
-        >
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
-          </svg>
-        </button>
-      </div>
+            <div class="message" [class.me]="msg.createdBy === currentUsername()">
+              <div class="msg-content">
+                @if (msg.mediaType === 'TEXT') {
+                  <p>{{ msg.content }}</p>
+                } @else if (msg.mediaType === 'VIDEO_MP4') {
+                  <video [src]="msg.contentNew" controls class="media-chat"></video>
+                } @else {
+                  <img [src]="msg.contentNew" alt="image" class="media-chat" />
+                }
+                <span class="time">{{ parseCustomDate(msg.createdTime) | date: 'shortTime' }}</span>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-msg">Hãy bắt đầu cuộc trò chuyện...</div>
+          }
+        </div>
+
+        <div class="chat-footer">
+          <input
+            type="file"
+            #fileInput
+            (change)="onFileSelected($event)"
+            accept="image/*,video/mp4"
+            hidden
+          />
+
+          <button class="attach-btn" (click)="triggerFileInput()" aria-label="Đính kèm file">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+              ></path>
+            </svg>
+          </button>
+
+          <input
+            type="text"
+            placeholder="Nhập tin nhắn..."
+            [ngModel]="newMessage()"
+            (ngModelChange)="newMessage.set($event)"
+            (keyup.enter)="sendMessage()"
+          />
+
+          <button
+            class="send-btn"
+            (click)="sendMessage()"
+            [disabled]="!newMessage().trim()"
+            aria-label="Gửi tin nhắn"
+          >
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+            </svg>
+          </button>
+        </div>
+      }
     </div>
   }
 
-  <button class="bubble-btn" (click)="toggleChat()" [class.active]="isOpen()">
+  <button
+    class="bubble-btn"
+    (click)="toggleChat()"
+    [class.active]="isOpen()"
+    aria-label="Mở hộp chat"
+  >
     @if (!isOpen()) {
       <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
