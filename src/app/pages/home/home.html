@@ -289,6 +289,16 @@
 
         <div class="card-content pointer" (click)="openRoomDetail(room, indexRoom)">
           <h3 class="room-title">{{ room.name }} - {{ room.houseSet?.name }}</h3>
+          @if (room.avgRating) {
+            <div class="rating-row">
+              <span class="stars-inline">
+                @for (s of renderStars(5); track s) {
+                  <span [class.filled]="isStarFilled(s, room.avgRating)">★</span>
+                }
+              </span>
+              <span class="rating-text">{{ room.avgRating | number: '1.1-1' }} ({{ room.reviewCount || 0 }} đánh giá)</span>
+            </div>
+          }
           <p class="room-address">
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -627,6 +637,55 @@
               }
             </div>
           </div>
+
+          @if (selectedRoom().avgRating) {
+            <div class="detail-section">
+              <h4>⭐ Đánh giá ({{ selectedRoom().reviewCount || 0 }})</h4>
+              <div class="rating-row detail-rating">
+                <span class="stars-inline">
+                  @for (s of renderStars(5); track s) {
+                    <span [class.filled]="isStarFilled(s, selectedRoom().avgRating)">★</span>
+                  }
+                </span>
+                <span>{{ selectedRoom().avgRating | number: '1.1-1' }}/5</span>
+              </div>
+              @if (selectedRoom().reviews?.length) {
+                @for (rev of selectedRoom().reviews; track rev.id) {
+                  <div class="review-block">
+                    <strong>{{ rev.tenant?.name }}</strong>
+                    <span class="mini-stars">
+                      @for (s of renderStars(rev.stars); track s) {
+                        <span class="filled">★</span>
+                      }
+                    </span>
+                    <p>{{ rev.content }}</p>
+                  </div>
+                }
+              }
+            </div>
+          }
+
+          @if (hasMapLocation(selectedRoom())) {
+            <div class="detail-section map-section">
+              <h4>📍 Vị trí trên bản đồ</h4>
+              <div class="detail-map">
+                <app-osm-map
+                  [latitude]="selectedRoom().houseSet.latitude"
+                  [longitude]="selectedRoom().houseSet.longitude"
+                  [zoom]="16"
+                  [markerText]="selectedRoom().houseSet?.name"
+                />
+              </div>
+              <a
+                class="map-link"
+                [href]="'https://www.openstreetmap.org/?mlat=' + selectedRoom().houseSet.latitude + '&mlon=' + selectedRoom().houseSet.longitude + '#map=16/' + selectedRoom().houseSet.latitude + '/' + selectedRoom().houseSet.longitude"
+                target="_blank"
+                rel="noopener"
+              >
+                Mở trên OpenStreetMap ↗
+              </a>
+            </div>
+          }
         </div>
 
         <div class="modal-footer">

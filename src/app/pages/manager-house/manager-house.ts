@@ -23,6 +23,8 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { count } from 'rxjs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { OsmMapComponent } from '../../shared/osm-map/osm-map.component';
+import { ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-manager-house',
@@ -35,12 +37,15 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatAutocompleteModule,
     NgxMaskDirective,
     MatTooltipModule,
+    OsmMapComponent,
   ],
   providers: [provideNgxMask()],
   templateUrl: './manager-house.html',
   styleUrl: './manager-house.scss',
 })
 export class ManagerHouse implements OnInit {
+  @ViewChild('locationMap') locationMap?: OsmMapComponent;
+
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef); // Ép Angular cập nhật UI ngay lập tức
@@ -213,6 +218,8 @@ export class ManagerHouse implements OnInit {
       province: ['', Validators.required],
       commune: ['', Validators.required],
       address: ['', Validators.required],
+      latitude: [21.0285],
+      longitude: [105.8542],
       count_room: [1, Validators.required],
       name: ['', Validators.required],
       room: this.fb.array([this.createRoomFormGroup(0)]),
@@ -442,6 +449,7 @@ export class ManagerHouse implements OnInit {
     }
 
     this.isLoading.set(true);
+    this.syncMapToForm();
     const formData = new FormData();
     const requestJson = this.houseForm.value;
 
@@ -627,6 +635,8 @@ export class ManagerHouse implements OnInit {
       province: ['', Validators.required],
       commune: ['', Validators.required],
       address: ['', Validators.required],
+      latitude: [null as number | null],
+      longitude: [null as number | null],
       count_room: [null, Validators.required],
       name: ['', Validators.required],
       room: this.fb.array([]),
@@ -650,6 +660,8 @@ export class ManagerHouse implements OnInit {
           id: houseData.id,
           name: houseData.name,
           address: houseData.address,
+          latitude: houseData.latitude ?? 21.0285,
+          longitude: houseData.longitude ?? 105.8542,
           province: houseData.province.provinceCode,
           commune: houseData.commune.communeCode,
           count_room: houseData.countRoom,
@@ -833,6 +845,54 @@ export class ManagerHouse implements OnInit {
   // KHI CHỌN XÃ TRÊN MATERIAL DROPDOWN
   selectCommune(commune: Commune) {
     this.houseForm.patchValue({ commune: commune.communeCode });
+    this.searchCommuneText.set(commune.name);
+  }
+
+  async geocodeAddress(): Promise<void> {
+    const address = this.houseForm.get('address')?.value;
+    const provinceName = this.searchProvinceText();
+    const communeName = this.searchCommuneText();
+    if (!address) {
+      this.toast.warning('Vui lòng nhập địa chỉ trước', 'Chú ý');
+      return;
+    }
+    const query = encodeURIComponent(`${address}, ${communeName}, ${provinceName}, Vietnam`);
+    try {
+      this.isLoading.set(true);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`,
+        { headers: { 'Accept-Language': 'vi' } },
+      );
+      const data = await res.json();
+      if (data?.length) {
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+        this.houseForm.patchValue({ latitude: lat, longitude: lng });
+        this.locationMap?.setPosition(lat, lng);
+        this.toast.success('Đã lấy vị trí từ địa chỉ', 'Thành công');
+      } else {
+        this.toast.warning('Không tìm thấy vị trí. Hãy kéo marker trên bản đồ.', 'Chú ý');
+      }
+    } catch {
+      this.toast.error('Lỗi khi tra cứu vị trí', 'Lỗi');
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  syncMapToForm(): void {
+    const pos = this.locationMap?.getPosition();
+    if (pos) {
+      this.houseForm.patchValue({ latitude: pos.latitude, longitude: pos.longitude });
+    }
+  }
+
+  mapLatitude(): number {
+    return this.houseForm.get('latitude')?.value ?? 21.0285;
+  }
+
+  mapLongitude(): number {
+    return this.houseForm.get('longitude')?.value ?? 105.8542;
   }
 
   // Tiện ích để Template gọi xem phòng này có đang load không
@@ -849,7 +909,6 @@ export class ManagerHouse implements OnInit {
     this.selectedImageToView.set(null);
   }
 
-  // Hàm nén ảnh sang định dạng WebP bằng Canvas
   private convertToWebP(file: File, quality: number = 0.8): Promise<File> {
     return new Promise((resolve, reject) => {
       const img = new Image();

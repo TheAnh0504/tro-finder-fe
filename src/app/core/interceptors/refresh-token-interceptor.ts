@@ -38,8 +38,6 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       return throwError(() => {
-        tokenService.clear();
-
         return error;
       });
     }),

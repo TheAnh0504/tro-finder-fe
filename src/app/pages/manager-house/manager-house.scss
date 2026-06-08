@@ -896,3 +896,37 @@ textarea.form-control {
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
   }
 }
+
+.location-map-block {
+  margin: 16px 0;
+  padding: 16px;
+  background: rgba(248, 250, 252, 0.9);
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+
+  h4 {
+    margin: 0;
+    color: #0f172a;
+  }
+}
+
+.map-hint {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0 0 12px;
+}
+
+.house-map {
+  height: 280px;
+  border-radius: 12px;
+  overflow: hidden;
+}

@@ -1,1 +1,629 @@
-<p>profile works!</p>
+@if (isLoading()) {
+  <div class="full-page-loader">
+    <svg class="spinner-large" viewBox="0 0 50 50">
+      <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+    </svg>
+    <div class="loading-text">Đang xử lý dữ liệu...</div>
+  </div>
+}
+
+<div class="profile-page">
+  @if (profile(); as p) {
+    <section class="profile-hero-wrapper glass-card">
+      <div class="hero-cover"></div>
+      <div class="hero-content">
+        <div class="avatar-wrap">
+          @if (avatarUrl()) {
+            <img [src]="avatarUrl()" alt="Avatar" class="avatar" />
+          } @else {
+            <div class="avatar placeholder">{{ p.user?.name?.charAt(0) }}</div>
+          }
+        </div>
+
+        <div class="hero-info">
+          <div class="header-title">
+            <h1>{{ p.user?.name }}</h1>
+            <span class="role-badge">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.956 11.956 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                ></path>
+              </svg>
+              {{
+                p.user?.role === 'ROLE_HOST'
+                  ? 'Chủ nhà trọ'
+                  : p.user?.role === 'ROLE_ROOMER'
+                    ? 'Người thuê trọ'
+                    : 'Chủ trọ & Người thuê'
+              }}
+            </span>
+          </div>
+
+          <div class="contact-row">
+            <span>
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                ></path>
+              </svg>
+              {{ p.user?.email }}
+            </span>
+            <span>
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                ></path>
+              </svg>
+              {{ p.user?.phoneNumber }}
+            </span>
+          </div>
+
+          @if (p.ocrIdentity) {
+            <div class="ocr-chip">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              Đã xác thực CCCD: {{ p.ocrIdentity.cccdNumber }}
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <nav class="profile-tabs glass-card">
+      <button [class.active]="activeTab() === 'info'" (click)="setTab('info')">
+        Thông tin chung
+      </button>
+      @if (isHost()) {
+        <button [class.active]="activeTab() === 'houses'" (click)="setTab('houses')">
+          Nhà trọ quản lý
+        </button>
+        <button [class.active]="activeTab() === 'ocr'" (click)="setTab('ocr')">
+          Sinh hợp đồng tự động
+        </button>
+      }
+      @if (isRoomer() || isHost()) {
+        <button [class.active]="activeTab() === 'contracts'" (click)="setTab('contracts')">
+          Hợp đồng thuê
+        </button>
+        <button [class.active]="activeTab() === 'reviews'" (click)="setTab('reviews')">
+          Đánh giá
+        </button>
+      }
+    </nav>
+
+    <div class="tab-content-area">
+      @if (activeTab() === 'info') {
+        <section class="glass-card section-block fade-in">
+          <div class="section-header">
+            <h2>Hồ sơ cá nhân</h2>
+            <p>Thông tin cơ bản và xác thực danh tính của bạn trên TroFinder</p>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Họ và tên</label>
+              <span>{{ p.user?.name }}</span>
+            </div>
+            <div class="info-item">
+              <label>Email liên hệ</label>
+              <span>{{ p.user?.email }}</span>
+            </div>
+            <div class="info-item">
+              <label>Số điện thoại</label>
+              <span>{{ p.user?.phoneNumber }}</span>
+            </div>
+            @if (p.ocrIdentity) {
+              <div class="info-item highlight">
+                <label>CCCD / CMND</label>
+                <span>{{ p.ocrIdentity.cccdNumber }}</span>
+              </div>
+              <div class="info-item">
+                <label>Ngày sinh</label>
+                <span>{{ p.ocrIdentity.dateOfBirth }}</span>
+              </div>
+              <div class="info-item address-item">
+                <label>Địa chỉ thường trú</label>
+                <span>{{ p.ocrIdentity.permanentAddress }}</span>
+              </div>
+            }
+          </div>
+
+          @if (!p.ocrIdentity) {
+            <div class="ocr-upload-block mt-4">
+              <div class="ocr-header">
+                <div class="icon-shield">🛡️</div>
+                <h3>Xác minh danh tính của bạn</h3>
+                <p>
+                  Tải lên ảnh CCCD mặt trước của bạn để hệ thống tự động điền thông tin bằng AI
+                  (OCR). Quá trình này giúp tăng độ tin cậy cho tài khoản.
+                </p>
+              </div>
+
+              <label class="custom-file-upload fancy-dropzone">
+                <input type="file" accept="image/*" (change)="onCccdSelected($event)" hidden />
+                <div class="upload-content">
+                  <div class="upload-icon">
+                    <svg
+                      width="48"
+                      height="48"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.5"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                      ></path>
+                    </svg>
+                  </div>
+                  <span class="upload-title">{{
+                    cccdFileName() || 'Nhấn để chọn hoặc kéo thả ảnh CCCD vào đây'
+                  }}</span>
+                  <span class="upload-subtitle">Hỗ trợ định dạng JPG, PNG (Tối đa 5MB)</span>
+                </div>
+              </label>
+
+              <div class="action-center">
+                <button class="btn-primary btn-glow" (click)="scanCccd()" [disabled]="!cccdFile()">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
+                  </svg>
+                  Bắt đầu xác thực ngay
+                </button>
+              </div>
+            </div>
+          }
+        </section>
+      }
+
+      @if (activeTab() === 'houses' && isHost()) {
+        <section class="glass-card section-block fade-in">
+          <div class="section-header">
+            <h2>Nhà trọ của bạn</h2>
+            <p>Quản lý danh sách nhà và phòng trọ đang cho thuê</p>
+          </div>
+
+          @if (!p.houses?.length) {
+            <div class="empty-state">
+              <div class="empty-icon">🏠</div>
+              <p>Bạn chưa có nhà trọ nào. Hãy thêm mới tại trang Quản lý nhà trọ.</p>
+            </div>
+          }
+
+          <div class="house-grid">
+            @for (house of p.houses; track house.id) {
+              <div class="house-card">
+                <div class="house-card-header">
+                  <h3>{{ house.name }}</h3>
+                  <p class="address">
+                    <svg
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      ></path>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      ></path>
+                    </svg>
+                    {{ house.address }}
+                  </p>
+                </div>
+
+                @if (house.latitude && house.longitude) {
+                  <div class="mini-map">
+                    <app-osm-map
+                      [latitude]="house.latitude"
+                      [longitude]="house.longitude"
+                      [zoom]="14"
+                    />
+                  </div>
+                }
+
+                <div class="room-container">
+                  <h4>Danh sách phòng ({{ house.room?.length || 0 }})</h4>
+                  <ul class="room-list">
+                    @for (room of house.room; track room.id) {
+                      <li>
+                        <div class="room-info">
+                          <strong>{{ room.name }}</strong>
+                          <span class="price">{{ room.priceRoom | number: '1.0-0' }} ₫/tháng</span>
+                        </div>
+                        <span class="status-pill" [class.rented]="room.hasRent">{{
+                          room.hasRent ? 'Đã có khách' : 'Phòng trống'
+                        }}</span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @if (activeTab() === 'contracts') {
+        <section class="glass-card section-block fade-in">
+          <div class="section-header">
+            <h2>Hợp đồng & Thanh toán</h2>
+            <p>Theo dõi tiến độ hợp đồng và lịch sử thu/trả tiền</p>
+          </div>
+
+          @if (!p.contracts?.length) {
+            <div class="empty-state">
+              <div class="empty-icon">📄</div>
+              <p>Bạn chưa có hợp đồng nào liên quan.</p>
+            </div>
+          }
+
+          <div class="contract-list">
+            @for (c of p.contracts; track c.id) {
+              <div class="contract-card">
+                <div class="contract-header">
+                  <div class="tags">
+                    <span class="type-badge">{{ contractTypeLabel(c.contractType) }}</span>
+                    <span class="status-badge" [class.active]="c.status === 'ACTIVE'">{{
+                      c.status
+                    }}</span>
+                  </div>
+                  <div class="dates">
+                    <span
+                      >⏳ {{ c.beginTime | date: 'dd/MM/yyyy' }} ➔
+                      {{ c.endTime | date: 'dd/MM/yyyy' }}</span
+                    >
+                  </div>
+                </div>
+
+                <div class="contract-body">
+                  <div class="info-cols">
+                    <div>
+                      <small>Phòng</small>
+                      <p>
+                        <strong>{{ c.room?.name }}</strong> <br /><span class="text-muted">{{
+                          c.room?.houseSet?.name || c.room?.house?.name
+                        }}</span>
+                      </p>
+                    </div>
+                    <div>
+                      <small>Người thuê</small>
+                      <p>
+                        <strong>{{ c.tenant?.name }}</strong> <br /><span class="text-muted"
+                          >(@{{ c.tenant?.username }})</span
+                        >
+                      </p>
+                    </div>
+                  </div>
+
+                  @if (c.documentContent) {
+                    <details class="doc-preview">
+                      <summary>📄 Xem nội dung hợp đồng chi tiết</summary>
+                      <pre>{{ c.documentContent }}</pre>
+                    </details>
+                  }
+
+                  @if (c.payment?.length) {
+                    <div class="payment-section">
+                      <h4>Lịch sử kỳ thanh toán</h4>
+                      <div class="payment-grid">
+                        @for (pay of c.payment; track pay.id) {
+                          <div class="payment-item" [class.done]="pay.status === 'CONFIRMED'">
+                            <div class="pay-info">
+                              <span class="month"
+                                >Kỳ Tháng {{ pay.paymentMonth }}/{{ pay.paymentYear }}</span
+                              >
+                              <span class="amount">{{ pay.amount | number: '1.0-0' }} ₫</span>
+                            </div>
+                            <div class="pay-actions">
+                              <span
+                                class="pay-status"
+                                [class.confirmed]="pay.status === 'CONFIRMED'"
+                                >{{ paymentStatusLabel(pay.status) }}</span
+                              >
+                              @if (isHost() && pay.status !== 'CONFIRMED') {
+                                <button class="btn-verify" (click)="confirmPayment(pay.id)">
+                                  Xác nhận đã thu
+                                </button>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @if (activeTab() === 'reviews') {
+        <section class="glass-card section-block fade-in">
+          <div class="section-header">
+            <h2>Đánh giá phòng trọ</h2>
+            <p>Chia sẻ trải nghiệm hoặc xem phản hồi từ khách thuê</p>
+          </div>
+
+          @if (isRoomer()) {
+            <div class="review-box">
+              <h3>✍️ Viết đánh giá của bạn</h3>
+              <p class="hint">
+                Đánh giá của bạn sẽ giúp cộng đồng TroFinder có cái nhìn chân thực nhất.
+              </p>
+
+              <form [formGroup]="reviewForm" (ngSubmit)="submitReview()" class="modern-form">
+                <mat-form-field appearance="outline" class="full-width custom-mat">
+                  <mat-label>Chọn phòng bạn đã thuê</mat-label>
+                  <mat-select formControlName="room_id">
+                    @for (c of p.contracts; track c.id) {
+                      <mat-option [value]="c.room?.id"
+                        >{{ c.room?.name }} -
+                        {{ c.room?.houseSet?.name || c.room?.house?.name }}</mat-option
+                      >
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width custom-mat">
+                  <mat-label>Chất lượng phòng (1-5 Sao)</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="stars"
+                    min="1"
+                    max="5"
+                    aria-label="Số sao đánh giá"
+                    placeholder="Ví dụ: 5"
+                  />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width custom-mat">
+                  <mat-label>Chi tiết trải nghiệm của bạn</mat-label>
+                  <textarea
+                    matInput
+                    rows="4"
+                    formControlName="content"
+                    placeholder="Phòng thoáng mát, chủ nhà thân thiện, điện nước giá nhà nước..."
+                  ></textarea>
+                </mat-form-field>
+
+                <div class="form-actions-row">
+                  <label class="custom-checkbox">
+                    <input type="checkbox" formControlName="anonymous" />
+                    <span class="checkmark"></span>
+                    Đánh giá ẩn danh (Giấu tên của bạn)
+                  </label>
+                  <button type="submit" class="btn-primary">Gửi đánh giá</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="review-list mt-4">
+              <h3>Lịch sử đánh giá bạn đã viết</h3>
+              @if (!p.reviews_written?.length) {
+                <p class="empty-state">Bạn chưa viết bài đánh giá nào.</p>
+              }
+              <div class="review-grid">
+                @for (r of p.reviews_written; track r.id) {
+                  <div class="review-card">
+                    <div class="r-header">
+                      <div class="stars">
+                        @for (s of renderStars(r.stars); track s) {
+                          <span [class.filled]="s <= r.stars">★</span>
+                        }
+                      </div>
+                      <span class="r-date">{{ r.createdTime | date: 'dd/MM/yyyy' }}</span>
+                    </div>
+                    <p class="r-content">"{{ r.content }}"</p>
+                    <span class="r-room">📍 Phòng: {{ r.roomName }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (isHost()) {
+            <div class="review-list mt-4">
+              <h3>Nhận xét từ khách thuê</h3>
+              @if (!p.reviews_received?.length) {
+                <div class="empty-state">
+                  <div class="empty-icon">⭐</div>
+                  <p>Chưa có khách thuê nào đánh giá phòng của bạn.</p>
+                </div>
+              }
+              <div class="review-grid">
+                @for (r of p.reviews_received; track r.id) {
+                  <div class="review-card host-view">
+                    <div class="r-header">
+                      <div class="reviewer">
+                        <div class="r-avatar">{{ r.tenant?.name?.charAt(0) }}</div>
+                        <strong>{{ r.tenant?.name }}</strong>
+                      </div>
+                      <div class="stars">
+                        @for (s of renderStars(r.stars); track s) {
+                          <span [class.filled]="s <= r.stars">★</span>
+                        }
+                      </div>
+                    </div>
+                    <p class="r-content">"{{ r.content }}"</p>
+                    <div class="r-footer">
+                      <span class="r-room">{{ r.roomName }} - {{ r.houseName }}</span>
+                      <span class="r-date">{{ r.createdTime | date: 'dd/MM/yyyy' }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </section>
+      }
+
+      @if (activeTab() === 'ocr' && isHost()) {
+        <section class="glass-card section-block fade-in">
+          <div class="section-header">
+            <h2>AI Tạo Hợp Đồng Tự Động</h2>
+            <p>
+              Tiết kiệm thời gian bằng cách tải lên ảnh CCCD của khách, hệ thống sẽ tự đọc và điền
+              dữ liệu tạo hợp đồng.
+            </p>
+          </div>
+
+          <form
+            [formGroup]="contractForm"
+            (ngSubmit)="submitContract()"
+            class="modern-form ocr-form"
+          >
+            <div class="form-grid-2">
+              <mat-form-field appearance="outline" class="custom-mat">
+                <mat-label>Chọn phòng cho thuê</mat-label>
+                <mat-select formControlName="room_id">
+                  @for (room of getHostRooms(); track room.id) {
+                    <mat-option [value]="room.id"
+                      >{{ room.name }} — {{ room.houseName }}</mat-option
+                    >
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="custom-mat">
+                <mat-label>Tài khoản khách thuê (Username)</mat-label>
+                <input matInput formControlName="tenant_username" placeholder="VD: nguyenvana123" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="custom-mat">
+                <mat-label>Loại hợp đồng / Giấy tờ</mat-label>
+                <mat-select formControlName="contract_type">
+                  @for (t of contractTypes; track t.value) {
+                    <mat-option [value]="t.value">{{ t.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="custom-mat">
+                <mat-label>Tiền cọc (VNĐ)</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  formControlName="deposit_amount"
+                  aria-label="Tiền cọc"
+                  placeholder="Ví dụ: 2000000"
+                />
+              </mat-form-field>
+            </div>
+
+            <div class="form-grid-2">
+              <mat-form-field appearance="outline" class="custom-mat">
+                <mat-label>Ngày bắt đầu</mat-label>
+                <input
+                  matInput
+                  type="datetime-local"
+                  formControlName="begin_time"
+                  aria-label="Ngày bắt đầu"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="custom-mat">
+                <mat-label>Ngày kết thúc</mat-label>
+                <input
+                  matInput
+                  type="datetime-local"
+                  formControlName="end_time"
+                  aria-label="Ngày kết thúc"
+                />
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width custom-mat">
+              <mat-label>Kênh gửi thông báo đóng tiền tự động</mat-label>
+              <mat-select formControlName="notify_channel">
+                <mat-option value="EMAIL">Gửi qua Email</mat-option>
+                <mat-option value="TELEGRAM">Nhắn tin qua Telegram Bot</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="ocr-upload-block">
+              <div class="ocr-header">
+                <div class="icon-shield">📸</div>
+                <h3>Tải lên CCCD khách thuê</h3>
+                <p>Hỗ trợ ảnh định dạng JPG, PNG mặt trước thẻ Căn Cước</p>
+              </div>
+
+              <label class="custom-file-upload fancy-dropzone">
+                <input
+                  type="file"
+                  accept="image/*"
+                  (change)="onContractCccdSelected($event)"
+                  hidden
+                />
+                <div class="upload-content">
+                  <div class="upload-icon">
+                    <svg width="48" height="48" fill="none" stroke="#10b981" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.5"
+                        d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <span class="upload-title">{{
+                    contractCccdFileName() || 'Nhấn để đính kèm ảnh CCCD'
+                  }}</span>
+                  <span class="upload-subtitle"
+                    >Hệ thống AI sẽ tự động đọc text sau khi bấm Tạo hợp đồng</span
+                  >
+                </div>
+              </label>
+
+              <div class="action-center mt-4">
+                <button type="submit" class="btn-primary btn-large btn-glow">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    ></path>
+                  </svg>
+                  Xác thực OCR & Tạo hợp đồng ngay
+                </button>
+              </div>
+            </div>
+          </form>
+        </section>
+      }
+    </div>
+  }
+</div>

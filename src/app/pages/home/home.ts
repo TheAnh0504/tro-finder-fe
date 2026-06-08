@@ -16,6 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { OsmMapComponent } from '../../shared/osm-map/osm-map.component';
 
 @Component({
   selector: 'app-home',
@@ -28,6 +29,7 @@ import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
     MatInputModule,
     MatAutocompleteModule,
     NgxMaskDirective,
+    OsmMapComponent,
   ],
   providers: [provideNgxMask()],
   templateUrl: './home.html',
@@ -462,5 +464,17 @@ export class Home implements OnInit {
         document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     }
+  }
+
+  renderStars(count: number): number[] {
+    return Array.from({ length: 5 }, (_, i) => i + 1);
+  }
+
+  isStarFilled(starIndex: number, rating: number | null | undefined): boolean {
+    return rating != null && starIndex <= Math.round(rating);
+  }
+
+  hasMapLocation(room: any): boolean {
+    return room?.houseSet?.latitude != null && room?.houseSet?.longitude != null;
   }
 }
