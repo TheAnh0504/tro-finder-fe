@@ -38,7 +38,13 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       return throwError(() => {
-        return error;
+        if (error.error.status_code === '1034') {
+          tokenService.clear();
+          router.navigate(['/login']);
+          return error;
+        } else {
+          return error;
+        }
       });
     }),
   );

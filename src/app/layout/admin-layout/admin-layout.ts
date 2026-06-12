@@ -72,7 +72,6 @@ export class AdminLayout implements OnInit {
   get canManageUsers() {
     return this.permissionService.hasAnyPermission([
       EPermission.ADD_USER,
-      EPermission.UPDATE_USER,
       EPermission.ADMIN_UPDATE_USER,
       EPermission.FIND_USER,
       EPermission.GET_USER,

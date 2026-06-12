@@ -12,6 +12,7 @@ import { SysUserService } from '../../core/services/sys-user.service';
 import { SysRole } from '../sys-role/sys-role';
 import { RoleService } from '../../core/services/role.service';
 import { Role } from '../../core/models/role-info.model';
+import { HouseRoomManagementService } from '../../core/services/house-room-management.service';
 
 @Component({
   selector: 'app-sys-user',
@@ -32,6 +33,7 @@ export class SysUser implements OnInit {
   private toast = inject(ToastrService);
   private userService = inject(SysUserService);
   private roleService = inject(RoleService);
+  private houseService = inject(HouseRoomManagementService);
 
   // --- STATE QUẢN LÝ GIAO DIỆN ---
   viewMode = signal<'LIST' | 'FORM'>('LIST');
@@ -161,6 +163,28 @@ export class SysUser implements OnInit {
       next: (res: any) => {
         this.isLoading.set(false);
         this.listUsers.set(res.page?.content || []);
+        // if (this.listUsers().length !== 0) {
+        //   this.listUsers().forEach((user) => {
+        //     let avatar =
+        //       'https://ui-avatars.com/api/?name=' + user.name + '&background=10b981&color=fff';
+        //     if (user?.urlImage) {
+        //       this.houseService.getImageRoom(user?.urlImage).subscribe({
+        //         next: (blob: any) => {
+        //           const objectUrl = URL.createObjectURL(blob);
+        //           avatar = objectUrl;
+        //           user.avatar = avatar; // Gán URL ảnh vào đối tượng user
+        //         },
+        //         error: (err) => {
+        //           this.toast.error(err.error?.message, 'Lỗi', {
+        //             timeOut: 3000,
+        //             progressBar: true,
+        //             positionClass: 'toast-top-right',
+        //           });
+        //         },
+        //       });
+        //     }
+        //   });
+        // }
         this.totalPages.set(res.page?.totalPages || 1);
         this.totalElements.set(res.page?.totalElements || 0);
       },

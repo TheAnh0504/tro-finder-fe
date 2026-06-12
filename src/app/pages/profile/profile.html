@@ -13,11 +13,35 @@
       <div class="hero-cover"></div>
       <div class="hero-content">
         <div class="avatar-wrap">
-          @if (avatarUrl()) {
-            <img [src]="avatarUrl()" alt="Avatar" class="avatar" />
-          } @else {
-            <div class="avatar placeholder">{{ p.user?.name?.charAt(0) }}</div>
-          }
+          <label class="avatar-edit-label" title="Nhấn để đổi ảnh đại diện">
+            <input
+              type="file"
+              accept="image/png, image/jpeg"
+              hidden
+              (change)="onAvatarEditSelected($event)"
+            />
+            @if (newAvatarPreview() || avatarUrl()) {
+              <img [src]="newAvatarPreview() || avatarUrl()" alt="Avatar" class="avatar" />
+            } @else {
+              <div class="avatar placeholder">{{ p.user?.name?.charAt(0) }}</div>
+            }
+            <div class="edit-overlay">
+              <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                ></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
+              </svg>
+            </div>
+          </label>
         </div>
 
         <div class="hero-info">
@@ -37,7 +61,9 @@
                   ? 'Chủ nhà trọ'
                   : p.user?.role === 'ROLE_ROOMER'
                     ? 'Người thuê trọ'
-                    : 'Chủ trọ & Người thuê'
+                    : p.user?.role === 'ROLE_ADMIN'
+                      ? 'Quản trị viên'
+                      : 'Chủ trọ & Người thuê'
               }}
             </span>
           </div>
@@ -111,39 +137,160 @@
         <section class="glass-card section-block fade-in">
           <div class="section-header">
             <h2>Hồ sơ cá nhân</h2>
-            <p>Thông tin cơ bản và xác thực danh tính của bạn trên TroFinder</p>
+            <p>Quản lý thông tin liên hệ và bảo mật tài khoản của bạn</p>
           </div>
 
-          <div class="info-grid">
-            <div class="info-item">
-              <label>Họ và tên</label>
-              <span>{{ p.user?.name }}</span>
-            </div>
-            <div class="info-item">
-              <label>Email liên hệ</label>
-              <span>{{ p.user?.email }}</span>
-            </div>
-            <div class="info-item">
-              <label>Số điện thoại</label>
-              <span>{{ p.user?.phoneNumber }}</span>
-            </div>
-            @if (p.ocrIdentity) {
-              <div class="info-item highlight">
-                <label>CCCD / CMND</label>
-                <span>{{ p.ocrIdentity.cccdNumber }}</span>
-              </div>
-              <div class="info-item">
-                <label>Ngày sinh</label>
-                <span>{{ p.ocrIdentity.dateOfBirth }}</span>
-              </div>
-              <div class="info-item address-item">
-                <label>Địa chỉ thường trú</label>
-                <span>{{ p.ocrIdentity.permanentAddress }}</span>
-              </div>
-            }
-          </div>
+          <form
+            [formGroup]="updateForm"
+            (ngSubmit)="submitUpdateProfile()"
+            class="modern-form update-profile-form"
+          >
+            <div class="form-layout-split">
+              <div class="form-column">
+                <h3>Thông tin cơ bản</h3>
 
-          @if (!p.ocrIdentity) {
+                <mat-form-field appearance="outline" class="full-width custom-mat">
+                  <mat-label>Username (Tên đăng nhập)</mat-label>
+                  <input matInput formControlName="username" placeholder="Tên đăng nhập" />
+                  <mat-hint>Không thể thay đổi tên đăng nhập</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width custom-mat">
+                  <mat-label>Họ và Tên</mat-label>
+                  <input matInput formControlName="name" placeholder="Ví dụ: Hoàng Thế Anh" />
+                  @if (
+                    updateForm.get('name')?.hasError('required') && updateForm.get('name')?.touched
+                  ) {
+                    <mat-error>Họ và tên không được để trống</mat-error>
+                  }
+                  @if (
+                    updateForm.get('name')?.hasError('minlength') && updateForm.get('name')?.touched
+                  ) {
+                    <mat-error>Họ và tên phải có ít nhất 3 ký tự</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width custom-mat">
+                  <mat-label>Email liên hệ</mat-label>
+                  <input
+                    matInput
+                    formControlName="email"
+                    type="email"
+                    placeholder="email@gmail.com"
+                  />
+                  @if (
+                    updateForm.get('email')?.hasError('required') &&
+                    updateForm.get('email')?.touched
+                  ) {
+                    <mat-error>Email không được để trống</mat-error>
+                  }
+                  @if (
+                    updateForm.get('email')?.hasError('email') && updateForm.get('email')?.touched
+                  ) {
+                    <mat-error>Email không đúng định dạng</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width custom-mat">
+                  <mat-label>Số điện thoại</mat-label>
+                  <input matInput formControlName="phone_number" placeholder="Ví dụ: 0904123456" />
+                  @if (
+                    updateForm.get('phone_number')?.hasError('required') &&
+                    updateForm.get('phone_number')?.touched
+                  ) {
+                    <mat-error>Số điện thoại không được để trống</mat-error>
+                  }
+                  @if (
+                    updateForm.get('phone_number')?.hasError('pattern') &&
+                    updateForm.get('phone_number')?.touched
+                  ) {
+                    <mat-error>SĐT không hợp lệ (Phải là số Việt Nam, 10 số)</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <div class="form-column">
+                <h3>Đổi mật khẩu (Tuỳ chọn)</h3>
+
+                <mat-form-field appearance="outline" class="full-width custom-mat">
+                  <mat-label>Mật khẩu hiện tại</mat-label>
+                  <input
+                    matInput
+                    formControlName="old_password"
+                    type="password"
+                    placeholder="Nhập mật khẩu cũ nếu muốn đổi"
+                  />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width custom-mat">
+                  <mat-label>Mật khẩu mới</mat-label>
+                  <input
+                    matInput
+                    formControlName="new_password"
+                    type="password"
+                    placeholder="Mật khẩu mới"
+                  />
+                  @if (updateForm.get('new_password')?.hasError('minlength')) {
+                    <mat-error>Mật khẩu phải có ít nhất 7 ký tự</mat-error>
+                  }
+                  @if (updateForm.get('new_password')?.hasError('maxlength')) {
+                    <mat-error>Mật khẩu không được vượt quá 254 ký tự</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width custom-mat">
+                  <mat-label>Nhập lại mật khẩu mới</mat-label>
+                  <input
+                    matInput
+                    formControlName="confirm_password"
+                    type="password"
+                    placeholder="Xác nhận mật khẩu mới"
+                  />
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="action-footer mt-4">
+              <button type="submit" class="btn-primary btn-large btn-glow">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+                Lưu Thay Đổi
+              </button>
+            </div>
+          </form>
+
+          @if (p.ocrIdentity) {
+            <div class="ocr-readonly-box mt-4">
+              <div class="ocr-header-mini">
+                <svg width="20" height="20" fill="none" stroke="#10b981" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                <h4>Danh tính đã được AI xác thực</h4>
+              </div>
+              <div class="info-grid mt-2">
+                <div class="info-item highlight">
+                  <label>CCCD / CMND</label><span>{{ p.ocrIdentity.cccdNumber }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Ngày sinh</label><span>{{ p.ocrIdentity.dateOfBirth }}</span>
+                </div>
+                <div class="info-item address-item">
+                  <label>Thường trú</label><span>{{ p.ocrIdentity.permanentAddress }}</span>
+                </div>
+              </div>
+            </div>
+          } @else {
             <div class="ocr-upload-block mt-4">
               <div class="ocr-header">
                 <div class="icon-shield">🛡️</div>
@@ -180,7 +327,7 @@
                 </div>
               </label>
 
-              <div class="action-center">
+              <div class="action-center mt-4">
                 <button class="btn-primary btn-glow" (click)="scanCccd()" [disabled]="!cccdFile()">
                   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -290,13 +437,17 @@
 
           <div class="contract-list">
             @for (c of p.contracts; track c.id) {
-              <div class="contract-card">
+              <div class="contract-card" [class.pending-card]="c.status === 'PENDING'">
                 <div class="contract-header">
                   <div class="tags">
                     <span class="type-badge">{{ contractTypeLabel(c.contractType) }}</span>
-                    <span class="status-badge" [class.active]="c.status === 'ACTIVE'">{{
-                      c.status
-                    }}</span>
+                    <span
+                      class="status-badge"
+                      [class.active]="c.status === 'ACTIVE'"
+                      [class.pending]="c.status === 'PENDING'"
+                    >
+                      {{ c.status === 'PENDING' ? 'Chờ Ký Duyệt' : c.status }}
+                    </span>
                   </div>
                   <div class="dates">
                     <span
@@ -317,7 +468,7 @@
                       </p>
                     </div>
                     <div>
-                      <small>Người thuê</small>
+                      <small>Người thuê (Yêu cầu)</small>
                       <p>
                         <strong>{{ c.tenant?.name }}</strong> <br /><span class="text-muted"
                           >(@{{ c.tenant?.username }})</span
@@ -328,12 +479,28 @@
 
                   @if (c.documentContent) {
                     <details class="doc-preview">
-                      <summary>📄 Xem nội dung hợp đồng chi tiết</summary>
+                      <summary>📄 Xem nội dung hợp đồng (Do AI trích xuất)</summary>
                       <pre>{{ c.documentContent }}</pre>
                     </details>
                   }
 
-                  @if (c.payment?.length) {
+                  @if (isHost() && c.status === 'PENDING') {
+                    <div class="contract-approval-zone">
+                      <h4>Yêu cầu từ người thuê</h4>
+                      <p>
+                        Khách hàng đã gửi yêu cầu thuê phòng kèm CCCD. Hãy kiểm tra thông tin hợp
+                        đồng trước khi ký duyệt.
+                      </p>
+                      <div class="approval-actions">
+                        <button class="btn-reject" (click)="rejectContract(c.id)">✕ Từ chối</button>
+                        <button class="btn-approve" (click)="approveContract(c.id)">
+                          ✍️ Ký hợp đồng ngay
+                        </button>
+                      </div>
+                    </div>
+                  }
+
+                  @if (c.payment?.length && c.status !== 'PENDING') {
                     <div class="payment-section">
                       <h4>Lịch sử kỳ thanh toán</h4>
                       <div class="payment-grid">
@@ -495,133 +662,161 @@
           <div class="section-header">
             <h2>AI Tạo Hợp Đồng Tự Động</h2>
             <p>
-              Tiết kiệm thời gian bằng cách tải lên ảnh CCCD của khách, hệ thống sẽ tự đọc và điền
-              dữ liệu tạo hợp đồng.
+              Để sinh hợp đồng tự động, tài khoản của bạn phải xác minh danh tính. Sau đó, Hệ thống
+              sẽ đọc ảnh CCCD của khách thuê và điền dữ liệu tạo hợp đồng.
             </p>
           </div>
 
-          <form
-            [formGroup]="contractForm"
-            (ngSubmit)="submitContract()"
-            class="modern-form ocr-form"
-          >
-            <div class="form-grid-2">
-              <mat-form-field appearance="outline" class="custom-mat">
-                <mat-label>Chọn phòng cho thuê</mat-label>
-                <mat-select formControlName="room_id">
-                  @for (room of getHostRooms(); track room.id) {
-                    <mat-option [value]="room.id"
-                      >{{ room.name }} — {{ room.houseName }}</mat-option
-                    >
-                  }
-                </mat-select>
-              </mat-form-field>
+          @if (p.ocrIdentity || p.user?.isOcr) {
+            <!-- @if (true) { -->
+            <form
+              [formGroup]="contractForm"
+              (ngSubmit)="submitContract()"
+              class="modern-form ocr-form"
+            >
+              <div class="form-grid-2">
+                <mat-form-field appearance="outline" class="custom-mat">
+                  <mat-label>Chọn phòng cho thuê</mat-label>
+                  <mat-select formControlName="room_id">
+                    @for (room of getHostRooms(); track room.id) {
+                      <mat-option [value]="room.id"
+                        >{{ room.name }} — {{ room.houseName }}</mat-option
+                      >
+                    }
+                  </mat-select>
+                </mat-form-field>
 
-              <mat-form-field appearance="outline" class="custom-mat">
-                <mat-label>Tài khoản khách thuê (Username)</mat-label>
-                <input matInput formControlName="tenant_username" placeholder="VD: nguyenvana123" />
-              </mat-form-field>
+                <mat-form-field appearance="outline" class="custom-mat">
+                  <mat-label>Tài khoản khách thuê (Username)</mat-label>
+                  <input
+                    matInput
+                    formControlName="tenant_username"
+                    placeholder="VD: nguyenvana123"
+                  />
+                </mat-form-field>
 
-              <mat-form-field appearance="outline" class="custom-mat">
-                <mat-label>Loại hợp đồng / Giấy tờ</mat-label>
-                <mat-select formControlName="contract_type">
-                  @for (t of contractTypes; track t.value) {
-                    <mat-option [value]="t.value">{{ t.label }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                <mat-form-field appearance="outline" class="custom-mat">
+                  <mat-label>Loại hợp đồng / Giấy tờ</mat-label>
+                  <mat-select formControlName="contract_type">
+                    @for (t of contractTypes; track t.value) {
+                      <mat-option [value]="t.value">{{ t.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
 
-              <mat-form-field appearance="outline" class="custom-mat">
-                <mat-label>Tiền cọc (VNĐ)</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  formControlName="deposit_amount"
-                  aria-label="Tiền cọc"
-                  placeholder="Ví dụ: 2000000"
-                />
-              </mat-form-field>
-            </div>
-
-            <div class="form-grid-2">
-              <mat-form-field appearance="outline" class="custom-mat">
-                <mat-label>Ngày bắt đầu</mat-label>
-                <input
-                  matInput
-                  type="datetime-local"
-                  formControlName="begin_time"
-                  aria-label="Ngày bắt đầu"
-                />
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="custom-mat">
-                <mat-label>Ngày kết thúc</mat-label>
-                <input
-                  matInput
-                  type="datetime-local"
-                  formControlName="end_time"
-                  aria-label="Ngày kết thúc"
-                />
-              </mat-form-field>
-            </div>
-
-            <mat-form-field appearance="outline" class="full-width custom-mat">
-              <mat-label>Kênh gửi thông báo đóng tiền tự động</mat-label>
-              <mat-select formControlName="notify_channel">
-                <mat-option value="EMAIL">Gửi qua Email</mat-option>
-                <mat-option value="TELEGRAM">Nhắn tin qua Telegram Bot</mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <div class="ocr-upload-block">
-              <div class="ocr-header">
-                <div class="icon-shield">📸</div>
-                <h3>Tải lên CCCD khách thuê</h3>
-                <p>Hỗ trợ ảnh định dạng JPG, PNG mặt trước thẻ Căn Cước</p>
+                <mat-form-field appearance="outline" class="custom-mat">
+                  <mat-label>Tiền cọc (VNĐ)</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="deposit_amount"
+                    aria-label="Tiền cọc"
+                    placeholder="Ví dụ: 2000000"
+                  />
+                </mat-form-field>
               </div>
 
-              <label class="custom-file-upload fancy-dropzone">
-                <input
-                  type="file"
-                  accept="image/*"
-                  (change)="onContractCccdSelected($event)"
-                  hidden
-                />
-                <div class="upload-content">
-                  <div class="upload-icon">
-                    <svg width="48" height="48" fill="none" stroke="#10b981" viewBox="0 0 24 24">
+              <div class="form-grid-2">
+                <mat-form-field appearance="outline" class="custom-mat">
+                  <mat-label>Ngày bắt đầu</mat-label>
+                  <input
+                    matInput
+                    type="datetime-local"
+                    formControlName="begin_time"
+                    aria-label="Ngày bắt đầu"
+                  />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="custom-mat">
+                  <mat-label>Ngày kết thúc</mat-label>
+                  <input
+                    matInput
+                    type="datetime-local"
+                    formControlName="end_time"
+                    aria-label="Ngày kết thúc"
+                  />
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline" class="full-width custom-mat">
+                <mat-label>Kênh gửi thông báo đóng tiền tự động</mat-label>
+                <mat-select formControlName="notify_channel">
+                  <mat-option value="EMAIL">Gửi qua Email</mat-option>
+                  <mat-option value="TELEGRAM">Nhắn tin qua Telegram Bot</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <div class="ocr-upload-block">
+                <div class="ocr-header">
+                  <div class="icon-shield">📸</div>
+                  <h3>Tải lên CCCD khách thuê</h3>
+                  <p>Hỗ trợ ảnh định dạng JPG, PNG mặt trước thẻ Căn Cước</p>
+                </div>
+
+                <label class="custom-file-upload fancy-dropzone">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    (change)="onContractCccdSelected($event)"
+                    hidden
+                  />
+                  <div class="upload-content">
+                    <div class="upload-icon">
+                      <svg width="48" height="48" fill="none" stroke="#10b981" viewBox="0 0 24 24">
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1.5"
+                          d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <span class="upload-title">{{
+                      contractCccdFileName() || 'Nhấn để đính kèm ảnh CCCD'
+                    }}</span>
+                    <span class="upload-subtitle"
+                      >Hệ thống AI sẽ tự động đọc text sau khi bấm Tạo hợp đồng</span
+                    >
+                  </div>
+                </label>
+
+                <div class="action-center mt-4">
+                  <button type="submit" class="btn-primary btn-large btn-glow">
+                    <svg
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        stroke-width="1.5"
-                        d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"
+                        stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
                       ></path>
                     </svg>
-                  </div>
-                  <span class="upload-title">{{
-                    contractCccdFileName() || 'Nhấn để đính kèm ảnh CCCD'
-                  }}</span>
-                  <span class="upload-subtitle"
-                    >Hệ thống AI sẽ tự động đọc text sau khi bấm Tạo hợp đồng</span
-                  >
+                    Xác thực OCR & Tạo hợp đồng ngay
+                  </button>
                 </div>
-              </label>
-
-              <div class="action-center mt-4">
-                <button type="submit" class="btn-primary btn-large btn-glow">
-                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    ></path>
-                  </svg>
-                  Xác thực OCR & Tạo hợp đồng ngay
+              </div>
+            </form>
+          } @else {
+            <div class="unverified-alert-box fade-in">
+              <div class="alert-icon">⚠️</div>
+              <div class="alert-content">
+                <h4>Tài khoản chưa được xác minh danh tính</h4>
+                <p>
+                  Vì lý do bảo mật và tính pháp lý của hợp đồng, bạn cần tải lên mặt trước Thẻ Căn
+                  cước công dân (CCCD) để hệ thống TroFinder xác thực trước khi sử dụng tính năng
+                  này.
+                </p>
+                <button class="btn-goto-verify" (click)="setTab('info')">
+                  Đi đến trang Xác minh ngay ➔
                 </button>
               </div>
             </div>
-          </form>
+          }
         </section>
       }
     </div>

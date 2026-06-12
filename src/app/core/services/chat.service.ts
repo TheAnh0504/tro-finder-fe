@@ -11,27 +11,14 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root',
 })
 export class ChatService {
-  // private http = inject(HttpClient);
-  // private apiUrl = '/api/chat-message'; // Đổi theo config proxy của bạn
-
-  // getMessages(groupId: string): Observable<any> {
-  //   return this.http.get<any>(`/api/chat/${groupId}/messages`);
-  // }
-
-  // sendMessage(groupId: string, content: string, mediaType: EMediaMess): Observable<any> {
-  //   return this.http.post<any>(`/api/chat/send`, {
-  //     groupId,
-  //     content,
-  //     mediaType,
-  //   });
-  // }
-
   private http = inject(HttpClient);
   private tokenService = inject(TokenService);
   private stompClient!: Client;
 
   // Dùng Subject để phát sự kiện khi có tin nhắn mới qua WebSocket
   public messageReceived$ = new Subject<any>();
+
+  public openChatBubble$ = new Subject<string>();
 
   // Khởi tạo kết nối WebSocket
   connectWebSocket() {
@@ -49,6 +36,14 @@ export class ChatService {
       reconnectDelay: 5000, // Tự động kết nối lại sau 5s nếu rớt mạng
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
+
+      beforeConnect: async () => {
+        const token = this.tokenService.getAccessToken();
+
+        this.stompClient.connectHeaders = {
+          Authorization: `Bearer ${token}`,
+        };
+      },
     });
 
     this.stompClient.onConnect = (frame) => {

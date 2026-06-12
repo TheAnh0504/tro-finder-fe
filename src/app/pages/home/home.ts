@@ -1,5 +1,11 @@
 import { Component, OnInit, inject, signal, computed, ChangeDetectorRef } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  FormsModule,
+  Validators,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TokenService } from '../../core/services/token.service';
@@ -10,6 +16,7 @@ import { HouseRoomManagementService } from '../../core/services/house-room-manag
 import { EPermission } from '../../enum/EPermission.enum';
 import { Province } from '../../core/models/province.model';
 import { Commune } from '../../core/models/commune.model';
+import { MatSelectModule } from '@angular/material/select';
 
 // Thêm các thư viện Material và Mask
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,6 +24,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { OsmMapComponent } from '../../shared/osm-map/osm-map.component';
+import { ChatService } from '../../core/services/chat.service';
 
 @Component({
   selector: 'app-home',
@@ -28,6 +36,7 @@ import { OsmMapComponent } from '../../shared/osm-map/osm-map.component';
     MatFormFieldModule,
     MatInputModule,
     MatAutocompleteModule,
+    MatSelectModule,
     NgxMaskDirective,
     OsmMapComponent,
   ],
@@ -44,6 +53,7 @@ export class Home implements OnInit {
   private fb = inject(FormBuilder);
   private houseService = inject(HouseRoomManagementService);
   private cdr = inject(ChangeDetectorRef); // Ép Angular cập nhật UI ngay lập tức
+  private chatService = inject(ChatService);
 
   searchForm!: FormGroup;
   listRooms = signal<any[]>([]);
@@ -66,6 +76,14 @@ export class Home implements OnInit {
   listCommune = signal<Commune[]>([]);
   filterProvinceText = signal('');
   filterCommuneText = signal('');
+
+  // --- STATE: MODAL GỬI YÊU CẦU HỢP ĐỒNG (DÀNH CHO NGƯỜI THUÊ) ---
+  isRequestContractModalOpen = signal(false);
+  requestContractForm!: FormGroup;
+  requestCccdFile = signal<File | null>(null);
+  requestCccdFileName = signal<string>('');
+
+  user = signal<InfoUser | null>(null);
 
   amenityFields = [
     { key: 'parking_area', label: 'Chỗ để xe' },
@@ -103,6 +121,7 @@ export class Home implements OnInit {
   // Cập nhật hàm mở Detail để truyền thêm index lấy đúng ảnh
   openRoomDetail(room: any, index: number) {
     this.selectedRoom.set(room);
+    console.log('selected room: ', room);
     this.selectedRoomImages.set(this.existingRoomImages[index] || []);
     this.isDetailModalOpen.set(true);
   }
@@ -185,7 +204,11 @@ export class Home implements OnInit {
 
       this.initSearchForm();
       this.getListProvince(); // Call API lấy Tỉnh thành
-      if (this.tokenService.isLoggedIn()) this.getListSavedRoom();
+      if (this.tokenService.isLoggedIn()) {
+        this.getListSavedRoom();
+        this.user.set(this.tokenService.getUserInfo() || null);
+        console.log('user: ', this.user());
+      }
       this.getPublicRooms();
     });
   }
@@ -476,5 +499,159 @@ export class Home implements OnInit {
 
   hasMapLocation(room: any): boolean {
     return room?.houseSet?.latitude != null && room?.houseSet?.longitude != null;
+  }
+
+  // --- STATE: MODAL THÔNG TIN CHỦ NHÀ ---
+  isOwnerModalOpen = signal(false);
+
+  // Lấy trạng thái đăng nhập
+  get isLoggedIn(): boolean {
+    return this.tokenService.isLoggedIn();
+  }
+
+  // Hàm mở Modal Thông tin Chủ nhà
+  openOwnerModal(room: any, event: Event) {
+    event.stopPropagation(); // Tránh kích hoạt mở detail modal nếu click ở ngoài card
+    if (room.houseSet.owner.urlImage) {
+      this.houseService.getImageRoom({ id: room.houseSet.owner.urlImage }).subscribe({
+        next: (blob: any) => {
+          const objectUrl = URL.createObjectURL(blob);
+          room.houseSet.owner.urlImageShow = objectUrl;
+          this.selectedRoom.set(room); // Tận dụng lại selectedRoom
+          this.isOwnerModalOpen.set(true);
+        },
+        error: (err) => {
+          this.toast.error(err.error?.message, 'Lỗi', {
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+          });
+        },
+      });
+    } else {
+      this.selectedRoom.set(room); // Tận dụng lại selectedRoom
+      this.isOwnerModalOpen.set(true);
+    }
+  }
+
+  // Hàm đóng Modal
+  closeOwnerModal() {
+    this.isOwnerModalOpen.set(false);
+    // Không set selectedRoom = null ở đây vì có thể user đang xem modal chi tiết phòng ở dưới
+  }
+
+  // Hàm điều hướng sang Chat
+  chatWithOwner() {
+    const owner = this.selectedRoom()?.houseSet?.owner;
+    if (!owner?.username) return;
+
+    this.isLoading.set(true);
+
+    const payload = {
+      typeGroup: 'COUPLE',
+      listAdmin: owner.username,
+    };
+
+    this.chatService.addNewGroupMessage(payload).subscribe({
+      next: (res: any) => {
+        this.isLoading.set(false);
+        this.closeOwnerModal();
+
+        // sử dụng res.groupId để điều hướng đến phòng chat tương ứng
+        this.chatService.openChatBubble$.next(res.groupId);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.toast.error(err.error?.message, 'Lỗi', {
+          timeOut: 3000,
+          progressBar: true,
+          positionClass: 'toast-top-right',
+        });
+      },
+    });
+  }
+
+  // Sửa lại hàm signContractNow() đang có
+  signContractNow() {
+    const room = this.selectedRoom();
+    if (!room) return;
+
+    this.closeOwnerModal();
+
+    // Khởi tạo form
+    this.requestContractForm = this.fb.group({
+      room_id: [room.id, Validators.required],
+      tenant_username: [this.tokenService.getUserInfo()?.name || '', Validators.required], // Chỉ để hiển thị
+      contract_type: ['LEASE', Validators.required],
+      begin_time: ['', Validators.required],
+      end_time: ['', Validators.required],
+      deposit_amount: [room.priceRoom || 0],
+      notify_channel: ['EMAIL'],
+    });
+
+    this.isRequestContractModalOpen.set(true);
+  }
+
+  closeRequestContractModal() {
+    this.isRequestContractModalOpen.set(false);
+    this.requestCccdFile.set(null);
+    this.requestCccdFileName.set('');
+  }
+
+  onRequestCccdSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.[0]) {
+      this.requestCccdFile.set(input.files[0]);
+      this.requestCccdFileName.set(input.files[0].name);
+    }
+  }
+
+  formatDateTime(value: string): string {
+    if (!value) return '';
+    const d = new Date(value);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
+
+  submitContractRequest(): void {
+    if (this.requestContractForm.invalid) {
+      this.requestContractForm.markAllAsTouched();
+      return;
+    }
+    const val = this.requestContractForm.value;
+    const request = {
+      room_id: val.room_id,
+      contract_type: val.contract_type,
+      deposit_amount: val.deposit_amount,
+      notify_channel: val.notify_channel,
+      begin_time: this.formatDateTime(val.begin_time),
+      end_time: this.formatDateTime(val.end_time),
+      // Lưu ý: BE của bạn có thể lấy tenant_username từ Token, không cần truyền text tĩnh
+    };
+
+    const fd = new FormData();
+    fd.append('request', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+
+    const cccd = this.requestCccdFile();
+    if (cccd) {
+      fd.append('cccd_image', cccd);
+    } else {
+      this.toast.warning('Vui lòng tải lên ảnh CCCD của bạn!');
+      return;
+    }
+
+    this.isLoading.set(true);
+    // Gọi API chung hoặc API riêng cho việc Gửi yêu cầu
+    // this.houseService.createContractWithOcr(fd).subscribe({
+    //   next: () => {
+    //     this.isLoading.set(false);
+    //     this.toast.success('Đã gửi yêu cầu tạo hợp đồng cho Chủ nhà!', 'Thành công');
+    //     this.closeRequestContractModal();
+    //   },
+    //   error: (err: any) => {
+    //     this.isLoading.set(false);
+    //     this.toast.error(err.error?.message || 'Gửi yêu cầu thất bại', 'Lỗi');
+    //   },
+    // });
   }
 }

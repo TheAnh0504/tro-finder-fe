@@ -419,6 +419,21 @@
                 <mat-error>Vui lòng nhập địa chỉ chi tiết</mat-error>
               }
             </mat-form-field>
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Tên nhà trọ</mat-label>
+              <input
+                type="text"
+                matInput
+                formControlName="name"
+                placeholder="VD: Nhà trọ Thế Anh..."
+              />
+
+              @if (houseForm.get('name')?.invalid && houseForm.get('name')?.touched) {
+                <mat-error>Vui lòng nhập tên nhà trọ</mat-error>
+              }
+            </mat-form-field>
+          </div>
+          <div class="form-grid-1">
             <div class="location-map-block">
               <div class="map-header">
                 <h4>📍 Vị trí nhà trọ (OpenStreetMap)</h4>
@@ -437,19 +452,6 @@
                 />
               </div>
             </div>
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Tên nhà trọ</mat-label>
-              <input
-                type="text"
-                matInput
-                formControlName="name"
-                placeholder="VD: Nhà trọ Thế Anh..."
-              />
-
-              @if (houseForm.get('name')?.invalid && houseForm.get('name')?.touched) {
-                <mat-error>Vui lòng nhập tên nhà trọ</mat-error>
-              }
-            </mat-form-field>
           </div>
         </div>
 

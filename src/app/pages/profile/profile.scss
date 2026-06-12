@@ -1,5 +1,5 @@
-/* BIẾN MÀU TROFINDER (EMERALD THEME) */
-:root {
+/* CHUYỂN TOÀN BỘ BIẾN VÀO :host ĐỂ ANGULAR NHẬN DIỆN ĐƯỢC */
+:host {
   --tf-primary: #10b981;
   --tf-primary-dark: #059669;
   --tf-primary-light: #d1fae5;
@@ -9,15 +9,14 @@
   --tf-bg-body: #f1f5f9;
   --tf-card-bg: #ffffff;
   --tf-border: #e2e8f0;
-}
 
-:host {
   display: block;
   height: calc(100vh - 70px);
   overflow-y: auto;
   padding: 32px 24px;
   background-color: var(--tf-bg-body);
 
+  /* Scrollbar xịn */
   &::-webkit-scrollbar {
     width: 8px;
   }
@@ -36,9 +35,10 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  padding-bottom: 80px;
 }
 
-/* THẺ CARD TRẮNG - SOLID */
+/* THẺ CARD TRẮNG */
 .glass-card {
   background-color: var(--tf-card-bg);
   border: 1px solid var(--tf-border);
@@ -303,6 +303,7 @@
   }
 }
 
+/* KHUNG DROPZONE NÉT ĐỨT SỬA LỖI TRÀN TÊN FILE */
 .fancy-dropzone {
   display: block;
   width: 100%;
@@ -314,6 +315,7 @@
   cursor: pointer;
   background-color: rgba(255, 255, 255, 0.6);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden; /* Cực kỳ quan trọng để chống tràn */
 
   &:hover {
     border-color: var(--tf-primary);
@@ -331,6 +333,7 @@
     flex-direction: column;
     align-items: center;
     gap: 8px;
+    width: 100%; /* Ép chiếm vừa đủ khung */
 
     .upload-icon {
       color: #94a3b8;
@@ -342,6 +345,14 @@
       font-weight: 700;
       font-size: 1.15rem;
       color: var(--tf-secondary);
+
+      /* Ép tên file hiển thị dấu "..." nếu quá dài */
+      display: block;
+      width: 100%;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .upload-subtitle {
@@ -352,10 +363,10 @@
   }
 }
 
-/* NÚT BẤM CHUNG */
+/* NÚT BẤM CHUNG ĐÃ ĐƯỢC CHỐNG LỖI MÀU */
 .btn-primary {
-  background-color: var(--tf-primary);
-  color: white;
+  background-color: var(--tf-primary) !important;
+  color: white !important;
   border: none;
   padding: 12px 28px;
   border-radius: 10px;
@@ -369,16 +380,16 @@
   gap: 8px;
 
   &:hover:not(:disabled) {
-    background-color: var(--tf-primary-dark);
+    background-color: var(--tf-primary-dark) !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
   }
 
   &:disabled {
-    background-color: #cbd5e1;
-    color: #ffffff;
+    background-color: #94a3b8 !important; /* Xám đi khi chưa chọn file */
+    color: #f1f5f9 !important;
     cursor: not-allowed;
-    box-shadow: none;
+    box-shadow: none !important;
   }
 
   &.btn-large {
@@ -443,7 +454,7 @@
   }
 
   .mini-map {
-    height: 150px;
+    margin: 0px 24px;
     border-bottom: 1px solid var(--tf-border);
   }
 
@@ -678,7 +689,6 @@
   padding: 32px;
   border-radius: 16px;
   border: 1px dashed #cbd5e1;
-
   h3 {
     margin: 0 0 8px;
     color: var(--tf-secondary);
@@ -775,7 +785,6 @@
   margin-top: 16px;
 }
 
-/* CUSTOM CHECKBOX SIÊU ĐẸP */
 .custom-checkbox {
   position: relative;
   padding-left: 32px;
@@ -783,10 +792,8 @@
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--tf-text-muted);
-  // user-select: none;
   display: inline-flex;
   align-items: center;
-
   input {
     position: absolute;
     opacity: 0;
@@ -794,7 +801,6 @@
     height: 0;
     width: 0;
   }
-
   .checkmark {
     position: absolute;
     left: 0;
@@ -806,7 +812,6 @@
     border: 2px solid #cbd5e1;
     border-radius: 6px;
     transition: all 0.2s;
-
     &:after {
       content: '';
       position: absolute;
@@ -820,7 +825,6 @@
       transform: rotate(45deg);
     }
   }
-
   &:hover input ~ .checkmark {
     border-color: var(--tf-primary);
   }
@@ -833,7 +837,7 @@
   }
   input:checked ~ span {
     color: var(--tf-primary-dark);
-  } /* Đổi màu chữ khi check */
+  }
 }
 
 /* FORMS CHUNG & OVERRIDES */
@@ -850,7 +854,6 @@
   width: 100%;
 }
 
-/* ÉP VIỀN MATERIAL SÁNG MÀU, BO GÓC NHIỀU HƠN */
 ::ng-deep {
   .custom-mat {
     .mat-mdc-text-field-wrapper {
@@ -860,9 +863,8 @@
     .mdc-notched-outline__leading,
     .mdc-notched-outline__notch,
     .mdc-notched-outline__trailing {
-      border-color: #cbd5e1 !important; /* Đổi màu viền form nhạt hơn */
+      border-color: #cbd5e1 !important;
     }
-    /* Đổi viền khi Focus vào form */
     &.mat-focused {
       .mdc-notched-outline__leading,
       .mdc-notched-outline__notch,
@@ -899,4 +901,291 @@
 }
 .mt-4 {
   margin-top: 24px;
+}
+
+/* --- CHỈNH SỬA AVATAR --- */
+.avatar-edit-label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  border-radius: 50%;
+  overflow: hidden;
+
+  /* Giữ nguyên viền trắng và kích thước từ class avatar bên ngoài */
+  width: 130px;
+  height: 130px;
+  border: 6px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: var(--tf-primary); /* Đề phòng ảnh lỗi */
+
+  .avatar,
+  .placeholder {
+    width: 100%;
+    height: 100%;
+    border: none; /* Bỏ border con vì đã có ở thẻ label cha */
+    box-shadow: none;
+  }
+
+  .edit-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+
+  &:hover .edit-overlay {
+    opacity: 1;
+  }
+}
+
+/* --- FORM CẬP NHẬT HỒ SƠ CHIA CỘT --- */
+.update-profile-form {
+  .form-layout-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 24px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+  }
+
+  .form-column {
+    display: flex;
+    flex-direction: column;
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--tf-secondary);
+      margin: 0 0 16px 0;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed var(--tf-border);
+    }
+  }
+
+  .action-footer {
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid var(--tf-border);
+    padding-top: 24px;
+
+    .btn-large {
+      width: auto;
+      min-width: 250px;
+      padding: 14px 32px;
+    }
+  }
+}
+
+/* --- OCR READONLY BOX --- */
+.ocr-readonly-box {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 24px;
+
+  .ocr-header-mini {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    h4 {
+      margin: 0;
+      color: #166534;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+/* --- FIX LỖI ĐÈ CHỮ HINT/ERROR TRONG FORM CẬP NHẬT --- */
+.update-profile-form {
+  .form-column {
+    display: flex;
+    flex-direction: column;
+
+    /* Tạo khoảng cách thở mặc định giữa các ô input */
+    mat-form-field {
+      margin-bottom: 12px;
+    }
+  }
+}
+
+/* Can thiệp sâu vào Material để câu báo lỗi tự động đẩy form xuống */
+::ng-deep {
+  .update-profile-form {
+    .mat-mdc-form-field-subscript-wrapper {
+      position: relative !important; /* Quan trọng nhất: Hủy trạng thái lơ lửng */
+      padding-top: 4px !important;
+      min-height: 22px; /* Giữ một khoảng nhỏ để form không bị giật cục khi lỗi hiện ra */
+    }
+
+    /* Chỉnh cho font chữ báo lỗi/hint đẹp và rõ ràng hơn */
+    .mat-mdc-form-field-error,
+    .mat-mdc-form-field-hint {
+      font-size: 0.8rem;
+      letter-spacing: 0.3px;
+    }
+  }
+}
+
+/* --- HỘP CẢNH BÁO CHƯA XÁC MINH DANH TÍNH --- */
+.unverified-alert-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  background: #fef2f2; /* Nền đỏ nhạt */
+  border: 1px dashed #fca5a5;
+  padding: 32px;
+  border-radius: 16px;
+  margin-top: 24px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.05);
+
+  .alert-icon {
+    font-size: 40px;
+    line-height: 1;
+    animation: bounce-gentle 2s infinite ease-in-out;
+  }
+
+  .alert-content {
+    h4 {
+      margin: 0 0 8px;
+      color: #991b1b;
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    p {
+      margin: 0 0 20px;
+      color: #b91c1c;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      max-width: 600px;
+    }
+
+    .btn-goto-verify {
+      background: white;
+      color: #ef4444;
+      border: 2px solid #ef4444;
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #ef4444;
+        color: white;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        transform: translateX(4px); /* Hiệu ứng trượt nhẹ sang phải */
+      }
+    }
+  }
+}
+
+/* Responsive cho điện thoại */
+@media (max-width: 600px) {
+  .unverified-alert-box {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px;
+
+    .alert-icon {
+      margin-bottom: 8px;
+    }
+  }
+}
+
+/* --- HỢP ĐỒNG CHỜ DUYỆT (PROFILE) --- */
+.contract-card.pending-card {
+  border: 2px solid #fbbf24;
+  box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.15);
+
+  .status-badge.pending {
+    background: #fef3c7;
+    color: #b45309;
+    animation: pulse-orange 2s infinite;
+  }
+}
+
+.contract-approval-zone {
+  margin-top: 24px;
+  padding: 24px;
+  background: #fffbeb;
+  border-radius: 12px;
+  border: 1px dashed #f59e0b;
+
+  h4 {
+    margin: 0 0 8px;
+    color: #b45309;
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+  p {
+    margin: 0 0 20px;
+    color: #92400e;
+    font-size: 0.95rem;
+  }
+
+  .approval-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+
+    button {
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-reject {
+      background: white;
+      color: #ef4444;
+      border: 1px solid #fca5a5;
+      &:hover {
+        background: #fef2f2;
+        color: #b91c1c;
+        border-color: #ef4444;
+      }
+    }
+
+    .btn-approve {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(16, 185, 129, 0.4);
+      }
+    }
+  }
+}
+
+@keyframes pulse-orange {
+  0% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+  }
 }

@@ -49,6 +49,9 @@ export class ChatBubble implements OnInit, OnDestroy {
 
   @ViewChild('fileInput') fileInput!: ElementRef;
 
+  // Khai báo thêm biến để quản lý việc hủy theo dõi (nằm dưới các biến Subscription cũ)
+  private openChatSub?: Subscription;
+
   constructor() {
     effect(() => {
       if (this.messages().length > 0 && this.isOpen() && this.viewMode() === 'room') {
@@ -88,10 +91,39 @@ export class ChatBubble implements OnInit, OnDestroy {
         }
       }
     });
+
+    // 3. LẮNG NGHE TÍN HIỆU YÊU CẦU MỞ PHÒNG CHAT TỪ NƠI KHÁC
+    this.openChatSub = this.chatService.openChatBubble$.subscribe((groupId: string) => {
+      this.isOpen.set(true); // Bật bong bóng chat lên
+
+      this.chatService.getListGroupMessage().subscribe({
+        next: (res: any) => {
+          this.listGroupMessage.set(res);
+          // Hàm selectGroup của bạn đã có sẵn logic set ID, set mode 'room' và gọi openChatRoom() rồi
+          this.selectGroup(groupId);
+        },
+        error: (err) => {
+          if ('1036' === err.error?.status_code) {
+            this.listGroupMessage.set([]); // Nếu chưa có nhóm nào, set mảng rỗng để tránh lỗi
+          } else {
+            this.toast.error(
+              err.error?.message || 'Không thể tải danh sách cuộc trò chuyện',
+              'Lỗi',
+              {
+                timeOut: 3000,
+                progressBar: true,
+                positionClass: 'toast-top-right',
+              },
+            );
+          }
+        },
+      });
+    });
   }
 
   ngOnDestroy() {
     if (this.wsSubscription) this.wsSubscription.unsubscribe();
+    if (this.openChatSub) this.openChatSub.unsubscribe(); // Nhớ hủy lắng nghe để tránh rò rỉ bộ nhớ
     this.leaveChatRoom();
     this.chatService.disconnectWebSocket();
   }
@@ -136,11 +168,15 @@ export class ChatBubble implements OnInit, OnDestroy {
         this.listGroupMessage.set(res);
       },
       error: (err) => {
-        this.toast.error(err.error?.message || 'Không thể tải danh sách cuộc trò chuyện', 'Lỗi', {
-          timeOut: 3000,
-          progressBar: true,
-          positionClass: 'toast-top-right',
-        });
+        if ('1036' === err.error?.status_code) {
+          this.listGroupMessage.set([]); // Nếu chưa có nhóm nào, set mảng rỗng để tránh lỗi
+        } else {
+          this.toast.error(err.error?.message || 'Không thể tải danh sách cuộc trò chuyện', 'Lỗi', {
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+          });
+        }
       },
     });
   }
