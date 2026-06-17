@@ -302,6 +302,7 @@ export class SignIn implements OnInit, OnDestroy {
           email: res.email,
           phoneNumber: res.phoneNumber,
           urlImage: res.urlImage,
+          isOcr: res.isOcr,
         };
         this.tokenService.setTokens(res.access_token, res.listPermission, currentUser);
 

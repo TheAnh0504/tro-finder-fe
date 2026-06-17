@@ -23,6 +23,7 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
               email: res.email,
               phoneNumber: res.phoneNumber,
               urlImage: res.urlImage,
+              isOcr: res.isOcr,
             };
             tokenService.setTokens(res.access_token, res.listPermission, currentUser);
 

@@ -85,6 +85,9 @@ export class Home implements OnInit {
 
   user = signal<InfoUser | null>(null);
 
+  // trạng thái xác minh OCR
+  isUserVerified = signal<boolean>(false);
+
   amenityFields = [
     { key: 'parking_area', label: 'Chỗ để xe' },
     { key: 'elevator', label: 'Thang máy' },
@@ -187,6 +190,7 @@ export class Home implements OnInit {
               email: res.email,
               phoneNumber: res.phoneNumber,
               urlImage: res.urlImage,
+              isOcr: res.isOcr,
             };
             this.tokenService.setTokens(res.access_token, res.listPermission, currentUser);
             window.location.href = '/home';
@@ -578,10 +582,15 @@ export class Home implements OnInit {
 
     this.closeOwnerModal();
 
+    // KIỂM TRA TRẠNG THÁI OCR CỦA USER Ở ĐÂY
+    // Ép kiểu any để lấy isOcr (bạn nhớ đảm bảo Backend có trả trường isOcr vào trong token nhé)
+    const userInfo: any = this.tokenService.getUserInfo();
+    this.isUserVerified.set(userInfo?.isOcr === true);
+
     // Khởi tạo form
     this.requestContractForm = this.fb.group({
       room_id: [room.id, Validators.required],
-      tenant_username: [this.tokenService.getUserInfo()?.name || '', Validators.required], // Chỉ để hiển thị
+      tenant_username: [this.tokenService.getUserInfo()?.name || '', Validators.required],
       contract_type: ['LEASE', Validators.required],
       begin_time: ['', Validators.required],
       end_time: ['', Validators.required],
@@ -632,14 +641,6 @@ export class Home implements OnInit {
     const fd = new FormData();
     fd.append('request', new Blob([JSON.stringify(request)], { type: 'application/json' }));
 
-    const cccd = this.requestCccdFile();
-    if (cccd) {
-      fd.append('cccd_image', cccd);
-    } else {
-      this.toast.warning('Vui lòng tải lên ảnh CCCD của bạn!');
-      return;
-    }
-
     this.isLoading.set(true);
     // Gọi API chung hoặc API riêng cho việc Gửi yêu cầu
     // this.houseService.createContractWithOcr(fd).subscribe({
@@ -653,5 +654,11 @@ export class Home implements OnInit {
     //     this.toast.error(err.error?.message || 'Gửi yêu cầu thất bại', 'Lỗi');
     //   },
     // });
+  }
+
+  // 3. Thêm hàm để nút "Đi đến trang Xác minh" gọi tới
+  goToProfileToVerify() {
+    this.closeRequestContractModal();
+    this.router.navigate(['/profile']); // Chuyển hướng sang tab/trang cá nhân
   }
 }

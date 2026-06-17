@@ -1766,4 +1766,67 @@
       }
     }
   }
+
+  /* --- HỘP CẢNH BÁO CHƯA XÁC MINH DANH TÍNH (TRONG MODAL) --- */
+  .unverified-alert-wrapper {
+    padding: 32px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .unverified-alert-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      background: #fef2f2;
+      border: 1px dashed #fca5a5;
+      padding: 32px 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.05);
+
+      .alert-icon {
+        font-size: 48px;
+        line-height: 1;
+        animation: bounce-gentle 2s infinite ease-in-out;
+      }
+
+      .alert-content {
+        h4 {
+          margin: 0 0 12px;
+          color: #991b1b;
+          font-size: 1.15rem;
+          font-weight: 800;
+        }
+
+        p {
+          margin: 0 0 24px;
+          color: #b91c1c;
+          font-size: 0.95rem;
+          line-height: 1.6;
+        }
+
+        .btn-goto-verify {
+          background: white;
+          color: #ef4444;
+          border: 2px solid #ef4444;
+          padding: 12px 24px;
+          border-radius: 10px;
+          font-weight: 700;
+          font-size: 0.95rem;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &:hover {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            transform: translateY(-2px);
+          }
+        }
+      }
+    }
+  }
 }

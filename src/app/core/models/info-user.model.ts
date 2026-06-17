@@ -4,4 +4,5 @@ export interface InfoUser {
   email: string;
   phoneNumber: string;
   urlImage: string;
+  isOcr: boolean; // Trạng thái xác minh OCR
 }

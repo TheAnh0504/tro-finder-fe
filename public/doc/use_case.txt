@@ -1,0 +1,284 @@
+--------------------Begin use case tổng quát -----------------
+
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+' Định nghĩa 5 tác nhân
+actor "Khách vãng lai" as Guest
+actor "Người dùng" as User
+actor "Người thuê" as Tenant
+actor "Chủ trọ" as Landlord
+actor "Quản trị viên" as Admin
+
+' Mối quan hệ kế thừa giữa các tác nhân
+User --|> Guest
+Tenant --|> User
+Landlord --|> User
+
+rectangle "Hệ thống Tìm kiếm và Quản lý Nhà trọ Trực tuyến" {
+
+    ' Các Use Case cho Khách vãng lai (Quyền xem công khai)
+    usecase "Tìm kiếm và lọc phòng trọ" as UC_Search
+    usecase "Xem thông tin phòng trọ" as UC_ViewRoom
+    usecase "Xem thông tin chủ trọ" as UC_ViewLandlord
+
+    ' Các Use Case chung cho Người dùng đã đăng nhập
+    usecase "Xác thực tài khoản\n(Đăng ký/Đăng nhập SSO/OTP)" as UC_Auth
+    usecase "Định danh tài khoản (OCR)" as UC_VerifyIdentity
+    usecase "Trao đổi trực tiếp (Chat)" as UC_Chat
+    usecase "Lưu lại phòng trọ" as UC_TrackRoom
+    usecase "Tạo hợp đồng điện tử" as UC_CreateContract
+    usecase "Ký xác nhận hợp đồng" as UC_SignContract
+
+    ' Các Use Case đặc thù cho Người thuê
+    usecase "Đánh giá phòng trọ" as UC_Review
+
+    ' Các Use Case đặc thù cho Chủ nhà
+    usecase "Quản lý danh sách phòng cùng cơ sở vật chất" as UC_ManageRoom
+
+    ' Các Use Case cho Admin
+    usecase "Quản lý tài khoản người dùng" as UC_AdminUsers
+    usecase "Thiết lập phân quyền" as UC_AdminRoles
+}
+
+' Kết nối Khách vãng lai
+Guest --> UC_Search
+Guest --> UC_ViewRoom
+Guest --> UC_ViewLandlord
+
+' Kết nối Người dùng
+User --> UC_Auth
+User --> UC_VerifyIdentity
+User --> UC_Chat
+User --> UC_TrackRoom
+User --> UC_CreateContract
+User --> UC_SignContract
+
+' Kết nối Người thuê
+Tenant --> UC_Review
+
+' Kết nối Chủ trọ
+Landlord --> UC_ManageRoom
+
+' Kết nối Admin
+Admin --> UC_AdminUsers
+Admin --> UC_AdminRoles
+@enduml
+
+--------------------End use case tổng quát -----------------
+
+--------------------Begen use case Phân rã Xác thực tài khoản -----------------
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+actor "Người dùng" as User
+
+rectangle "Phân rã Xác thực tài khoản\n(Đăng ký/Đăng nhập SSO/OTP)" {
+    usecase "Đăng nhập bằng Username/Password" as UC_Login
+    usecase "Đăng nhập bằng Google/Facebook (SSO)" as UC_SSO
+    usecase "Đăng ký tài khoản mới" as UC_Register
+    usecase "Xác thực mã OTP" as UC_OTP
+    usecase "Khôi phục mật khẩu" as UC_Forgot
+    usecase "Đăng xuất" as UC_Logout
+
+    UC_Register ..> UC_OTP : <<include>>
+    UC_Forgot ..> UC_OTP : <<include>>
+    UC_Login ..> UC_OTP : <<include>>
+}
+
+User --> UC_Login
+User --> UC_SSO
+User --> UC_Register
+User --> UC_Forgot
+User --> UC_Logout
+@enduml
+--------------------End use case Phân rã Xác thực tài khoản -----------------
+
+--------------------Begin use case Phân rã Quản lý danh sách phòng cùng cơ sở vật chất -----------------
+
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+actor "Chủ trọ" as Landlord
+
+rectangle "Phân rã Quản lý danh sách phòng cùng cơ sở vật chất" {
+    usecase "Thêm phòng trọ mới" as UC_AddRoom
+    usecase "Tìm kiếm phòng trọ " as UC_FindRoom
+    usecase "Cập nhật thông tin phòng trọ" as UC_EditRoom
+    usecase "Quản lý tiện ích, cơ sở vật chất phòng trọ" as UC_Facilities
+    usecase "Xóa phòng trọ" as UC_DeleteRoom
+}
+
+Landlord --> UC_AddRoom
+Landlord --> UC_EditRoom
+Landlord --> UC_Facilities
+Landlord --> UC_DeleteRoom
+Landlord --> UC_FindRoom
+@enduml
+
+--------------------End use case Phân rã Quản lý danh sách phòng cùng cơ sở vật chất -----------------
+
+--------------------Begin use case Phân rã Tạo hợp đồng điện tử -----------------
+
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Người dùng" as User
+
+rectangle "Phân rã Tạo hợp đồng điện tử" {
+    usecase "Khởi tạo biểu mẫu hợp đồng" as UC_Init
+    usecase "Thiết lập điều khoản hợp đồng" as UC_SetTerms
+    usecase "Xem trước bản nháp hợp đồng" as UC_Preview
+    usecase "Gửi yêu cầu ký kết" as UC_Send
+}
+
+User --> UC_Init
+User --> UC_SetTerms
+User --> UC_Preview
+User --> UC_Send
+
+note top of UC_Init
+  Tiền điều kiện:
+  Tài khoản đã được định danh OCR (isOcr = true)
+end note
+@enduml
+
+--------------------End use case Phân rã Tạo hợp đồng điện tử -----------------
+
+--------------------Begin use case Ký xác nhận hợp đồng -----------------
+
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Người dùng" as User
+
+rectangle "Phân rã Ký xác nhận hợp đồng" {
+    usecase "Xem chi tiết hợp đồng chờ ký" as UC_ViewPending
+    usecase "Xác nhận ký hợp đồng" as UC_Accept
+    usecase "Từ chối và yêu cầu hủy" as UC_Reject
+}
+
+User --> UC_ViewPending
+User --> UC_Accept
+User --> UC_Reject
+
+note top of UC_ViewPending
+  Tiền điều kiện:
+  Tài khoản đã được định danh OCR (isOcr = true)
+end note
+@enduml
+
+--------------------End use case Ký xác nhận hợp đồng -----------------
+
+--------------------Begin use case Quản lý tài khoản người dùng -----------------
+
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Quản trị viên" as Admin
+
+rectangle "Phân rã Quản lý tài khoản người dùng" {
+    usecase "Thêm tài khoản mới" as UC_AddAccount
+    usecase "Lọc và tìm kiếm tài khoản" as UC_SearchAccount
+    usecase "Xem chi tiết tài khoản" as UC_ViewAccount
+    usecase "Chỉnh sửa thông tin tài khoản" as UC_EditAccount
+    usecase "Khóa/Mở khóa tài khoản" as UC_ToggleLock
+    usecase "Xóa tài khoản" as UC_DeleteAccount
+}
+
+Admin --> UC_AddAccount
+Admin --> UC_SearchAccount
+Admin --> UC_ViewAccount
+Admin --> UC_EditAccount
+Admin --> UC_ToggleLock
+Admin --> UC_DeleteAccount
+@enduml
+
+--------------------End use case Quản lý tài khoản người dùng -----------------
+
+--------------------Begin use case Thiết lập phân quyền -----------------
+
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Quản trị viên" as Admin
+
+rectangle "Phân rã Thiết lập phân quyền" {
+    usecase "Tạo nhóm quyền mới" as UC_CreateRole
+    usecase "Lọc và tìm kiếm nhóm quyền" as UC_SearchRole
+    usecase "Xem chi tiết nhóm quyền" as UC_ViewRole
+    usecase "Chỉnh sửa quyền trong nhóm" as UC_EditPermission
+    usecase "Xóa nhóm quyền" as UC_DeleteRole
+}
+
+Admin --> UC_CreateRole
+Admin --> UC_SearchRole
+Admin --> UC_ViewRole
+Admin --> UC_EditPermission
+Admin --> UC_DeleteRole
+@enduml
+
+--------------------End use case Thiết lập phân quyền -----------------
+
+
+--------------------Begin luồng chính -----------------
+
+@startuml
+skinparam conditionStyle Inside
+title Quy trình nghiệp vụ tìm phòng và ký kết hợp đồng khép kín
+
+|Bên khởi tạo (Chủ trọ / Người thuê)|
+start
+:Tìm kiếm và thảo luận điều khoản qua Khung Chat;
+:Chọn chức năng Tạo hợp đồng điện tử;
+
+|Hệ thống|
+:Truy xuất dữ liệu định danh OCR sẵn có;
+:Tự động điền thông tin cá nhân của hai bên;
+
+|Bên khởi tạo (Chủ trọ / Người thuê)|
+:Nhập giá thuê, tiền cọc và thời hạn;
+if (Lựa chọn thời điểm ký hợp đồng?) then (Ký trước khi gửi)
+    :Thực hiện Ký xác nhận hợp đồng;
+    |Hệ thống|
+    :Lưu hợp đồng (Trạng thái: Khởi tạo đã ký);
+else (Gửi bản nháp rà soát sau)
+    |Bên khởi tạo (Chủ trọ / Người thuê)|
+    :Nhấn nút Gửi bản nháp hợp đồng;
+    |Hệ thống|
+    :Lưu hợp đồng (Trạng thái: Chờ rà soát);
+endif
+
+:Gửi thông báo đến tài khoản Bên tiếp nhận;
+
+|Bên tiếp nhận (Người thuê / Chủ trọ)|
+:Truy cập không gian làm việc số để rà soát hợp đồng;
+if (Đồng ý với các điều khoản?) then (Có)
+    :Thực hiện Ký xác nhận hợp đồng;
+    |Hệ thống|
+    if (Hợp đồng đã thu thập đủ 2 chữ ký?) then (Chưa đủ (Bên khởi tạo chưa ký))
+        :Cập nhật trạng thái (Chờ bên khởi tạo ký);
+        |Bên khởi tạo (Chủ trọ / Người thuê)|
+        :Nhận thông báo phản hồi và thực hiện Ký xác nhận;
+        |Hệ thống|
+    else (Đã đủ 2 chữ ký)
+    endif
+    :Hợp đồng chính thức chuyển sang trạng thái "Hoàn thành";
+    :Lưu trữ tài liệu hợp đồng điện tử an toàn;
+    :Cập nhật trạng thái phòng sang "Đã cho thuê";
+    stop
+else (Không đồng ý)
+    |Bên tiếp nhận (Người thuê / Chủ trọ)|
+    :Nhấn Từ chối ký và yêu cầu hủy bỏ/sửa đổi;
+    |Hệ thống|
+    :Cập nhật trạng thái hợp đồng thành "Đã hủy";
+    stop
+endif
+@enduml
+
+--------------------End luồng chính -----------------
