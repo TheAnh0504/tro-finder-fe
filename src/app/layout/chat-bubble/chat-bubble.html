@@ -17,7 +17,7 @@
             <div class="avatar-group">
               <img
                 [src]="
-                  activeGroupInfo()?.urlAvatar ||
+                  activeGroupInfo()?.urlAvatarShow ||
                   'https://ui-avatars.com/api/?name=' +
                     (activeGroupInfo()?.name || 'Group') +
                     '&background=10b981&color=fff'
@@ -27,14 +27,17 @@
             </div>
             <div>
               <h4 class="truncate-text">{{ activeGroupInfo()?.name || 'Phòng chat' }}</h4>
-              <span class="status text-online">Đang nhắn tin</span>
+              <span class="status text-online">Online</span>
             </div>
           } @else {
             <div>
               <h4>Hộp thoại tin nhắn</h4>
               <span class="status text-count"
-                >Có {{ listGroupMessage().length }} cuộc hội thoại</span
-              >
+                >Có {{ listGroupMessage().length }} cuộc hội thoại
+                @if (totalUnreadCount() > 0) {
+                  <span class="unread-text-header">• {{ totalUnreadCount() }} tin nhắn mới</span>
+                }
+              </span>
             </div>
           }
         </div>
@@ -53,12 +56,12 @@
 
       @if (viewMode() === 'list') {
         <div class="chat-body group-list-mode">
-          @for (group of listGroupMessage(); track group.groupId) {
+          @for (group of listGroupMessage(); track group) {
             <div class="group-item" (click)="selectGroup(group.groupId)">
               <img
                 class="group-avatar"
                 [src]="
-                  group.urlAvatar ||
+                  group.urlAvatarShow ||
                   'https://ui-avatars.com/api/?name=' + group.name + '&background=10b981&color=fff'
                 "
                 alt="Group Avatar"
@@ -69,6 +72,11 @@
                   {{ group.typeGroup === 'COUPLE' ? 'Trò chuyện cá nhân' : 'Nhóm chung' }}
                 </div>
               </div>
+              @if (group.isNotRead > 0) {
+                <span class="unread-badge">{{
+                  group.isNotRead > 99 ? '99+' : group.isNotRead
+                }}</span>
+              }
               <div class="arrow-indicator">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -100,7 +108,13 @@
                 } @else if (msg.mediaType === 'VIDEO_MP4') {
                   <video [src]="msg.contentNew" controls class="media-chat"></video>
                 } @else {
-                  <img [src]="msg.contentNew" alt="image" class="media-chat" />
+                  <img
+                    [src]="msg.contentNew"
+                    alt="image"
+                    class="media-chat"
+                    (click)="openImageModal(msg.contentNew)"
+                    title="Nhấn để xem lớn"
+                  />
                 }
                 <span class="time">{{ parseCustomDate(msg.createdTime) | date: 'shortTime' }}</span>
               </div>
@@ -159,6 +173,11 @@
     [class.active]="isOpen()"
     aria-label="Mở hộp chat"
   >
+    @if (!isOpen() && totalUnreadCount() > 0) {
+      <span class="bubble-badge-total">{{
+        totalUnreadCount() > 99 ? '99+' : totalUnreadCount()
+      }}</span>
+    }
     @if (!isOpen()) {
       <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -180,3 +199,27 @@
     }
   </button>
 </div>
+
+@if (isImageModalOpen() && selectedImage()) {
+  <div class="image-modal-overlay" (click)="closeImageModal()">
+    <button class="btn-close-modal" (click)="closeImageModal()" aria-label="Đóng">✕</button>
+
+    <div class="image-modal-content" (click)="$event.stopPropagation()">
+      <img [src]="selectedImage()" alt="Zoomed Image" />
+
+      <div class="modal-actions">
+        <button class="btn-download" (click)="downloadImage()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            ></path>
+          </svg>
+          Tải xuống ảnh
+        </button>
+      </div>
+    </div>
+  </div>
+}

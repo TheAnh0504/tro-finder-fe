@@ -35,4 +35,8 @@ export class SysUserService {
   unlockUser(data: any): Observable<any> {
     return this.http.post(`/api/user/unlock-account`, data);
   }
+
+  updateSearchPreferences(data: any): Observable<any> {
+    return this.http.put(`/api/user/search-preferences`, data);
+  }
 }

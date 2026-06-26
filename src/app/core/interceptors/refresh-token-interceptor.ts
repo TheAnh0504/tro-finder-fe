@@ -32,7 +32,7 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
                 Authorization: `Bearer ${res.access_token}`,
               },
             });
-            router.navigate(['/home']);
+            // router.navigate(['/home']);
             return next(clonedReq);
           }),
         );

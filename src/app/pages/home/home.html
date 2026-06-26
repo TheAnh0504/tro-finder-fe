@@ -416,21 +416,24 @@
         }
 
         <div class="card-footer">
-          <button
-            class="btn-action btn-save"
-            [class.saved]="listIdSavedRoom().includes(room.id)"
-            (click)="toggleSaveRoom(room, $event)"
-          >
-            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              ></path>
-            </svg>
-            {{ listIdSavedRoom().includes(room.id) ? 'Đã lưu' : 'Lưu lại' }}
-          </button>
+          @if (isLoggedIn) {
+            <button
+              class="btn-action btn-save"
+              [class.saved]="listIdSavedRoom().includes(room.id)"
+              (click)="toggleSaveRoom(room, $event)"
+            >
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                ></path>
+              </svg>
+              {{ listIdSavedRoom().includes(room.id) ? 'Đã lưu' : 'Lưu lại' }}
+            </button>
+          }
+
           @if (user() == null || user()?.role !== 'Chủ nhà trọ') {
             <button class="btn-action btn-rent" (click)="openOwnerModal(room, $event)">
               📞 Thuê ngay
@@ -739,13 +742,16 @@
         </div>
 
         <div class="modal-footer">
-          <button
-            class="btn-modal btn-save"
-            [class.saved]="listIdSavedRoom().includes(selectedRoom().id)"
-            (click)="toggleSaveRoom(selectedRoom(), $event)"
-          >
-            {{ listIdSavedRoom().includes(selectedRoom().id) ? '❤️ Đã lưu' : '🤍 Lưu phòng' }}
-          </button>
+          @if (isLoggedIn) {
+            <button
+              class="btn-modal btn-save"
+              [class.saved]="listIdSavedRoom().includes(selectedRoom().id)"
+              (click)="toggleSaveRoom(selectedRoom(), $event)"
+            >
+              {{ listIdSavedRoom().includes(selectedRoom().id) ? '❤️ Đã lưu' : '🤍 Lưu phòng' }}
+            </button>
+          }
+
           @if (user() == null || user()?.role !== 'Chủ nhà trọ') {
             <button class="btn-modal btn-rent" (click)="openOwnerModal(selectedRoom(), $event)">
               📞 Liên hệ thuê ngay
@@ -996,6 +1002,264 @@
           </div>
         </div>
       }
+    </div>
+  </div>
+}
+
+@if (isPreferencesModalOpen()) {
+  <div class="owner-modal-overlay">
+    <div class="owner-modal-content preferences-modal-container" (click)="$event.stopPropagation()">
+      <div class="pref-header">
+        <button class="btn-close-pref" (click)="skipPreferences()">✕</button>
+        <div class="header-icon">
+          <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+            ></path>
+          </svg>
+        </div>
+        <h2>Thiết lập phòng mong muốn</h2>
+        <p>Cung cấp các tiêu chí để Trofinder gợi ý cho bạn những căn phòng hoàn hảo nhất.</p>
+      </div>
+
+      <div class="pref-body-scroll">
+        <form [formGroup]="preferencesForm" class="pref-form">
+          <div class="pref-section">
+            <div class="section-title">
+              <span class="icon">📍</span>
+              <h3>Khu vực bạn muốn tìm</h3>
+            </div>
+            <div class="form-grid-2">
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Tỉnh/Thành phố</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  placeholder="Chọn tỉnh/thành"
+                  [(ngModel)]="preferencesProvinceText"
+                  [ngModelOptions]="{ standalone: true }"
+                  [matAutocomplete]="autoPrefProvince"
+                />
+                <mat-autocomplete #autoPrefProvince="matAutocomplete">
+                  @for (p of filteredPreferencesProvinces(); track p.provinceCode) {
+                    <mat-option
+                      [value]="p.name"
+                      (onSelectionChange)="selectPreferencesProvince(p)"
+                      >{{ p.name }}</mat-option
+                    >
+                  }
+                </mat-autocomplete>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Phường/Xã</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  placeholder="Chọn phường/xã"
+                  [(ngModel)]="preferencesCommuneText"
+                  [ngModelOptions]="{ standalone: true }"
+                  [matAutocomplete]="autoPrefCommune"
+                  [disabled]="!preferencesForm.get('province')?.value"
+                />
+                <mat-autocomplete #autoPrefCommune="matAutocomplete">
+                  @for (c of filteredPreferencesCommunes(); track c.communeCode) {
+                    <mat-option
+                      [value]="c.name"
+                      (onSelectionChange)="selectPreferencesCommune(c)"
+                      >{{ c.name }}</mat-option
+                    >
+                  }
+                </mat-autocomplete>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="pref-section">
+            <div class="section-title">
+              <span class="icon">💰</span>
+              <h3>Ngân sách & Diện tích</h3>
+            </div>
+            <div class="form-grid-2">
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Giá phòng tối thiểu (VNĐ)</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  formControlName="min_price_room"
+                  mask="separator.0"
+                  thousandSeparator=","
+                  placeholder="VD: 1,000,000"
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Giá phòng tối đa (VNĐ)</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  formControlName="max_price_room"
+                  mask="separator.0"
+                  thousandSeparator=","
+                  placeholder="VD: 5,000,000"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Diện tích tối thiểu (m2)</mat-label>
+                <input type="number" matInput formControlName="min_area" placeholder="VD: 15" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Diện tích tối đa (m2)</mat-label>
+                <input type="number" matInput formControlName="max_area" placeholder="VD: 40" />
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="pref-section">
+            <div class="section-title">
+              <span class="icon">💸</span>
+              <h3>Chi phí dịch vụ (Tùy chọn)</h3>
+            </div>
+            <div class="form-grid-3">
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Giá điện (VNĐ/KWh)</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  formControlName="price_electricity"
+                  mask="separator.0"
+                  thousandSeparator=","
+                  aria-label="Giá điện"
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Giá nước (VNĐ/m3 hoặc ng)</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  formControlName="price_water"
+                  mask="separator.0"
+                  thousandSeparator=","
+                  aria-label="Giá nước"
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Giá Internet (VNĐ/người)</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  formControlName="price_internet"
+                  mask="separator.0"
+                  thousandSeparator=","
+                  aria-label="Giá Internet"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Máy giặt (VNĐ/người)</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  formControlName="price_washing_machine"
+                  mask="separator.0"
+                  thousandSeparator=","
+                  aria-label="Giá máy giặt"
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Điện chung (VNĐ/người)</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  formControlName="price_general_electricity"
+                  mask="separator.0"
+                  thousandSeparator=","
+                  aria-label="Giá điện chung"
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Vệ sinh chung (VNĐ/người)</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  formControlName="price_general_cleaning"
+                  mask="separator.0"
+                  thousandSeparator=","
+                  aria-label="Giá vệ sinh chung"
+                />
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="pref-section">
+            <div class="section-title">
+              <span class="icon">🛏️</span>
+              <h3>Nội thất yêu cầu</h3>
+            </div>
+            <div class="form-grid-3">
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Số Giường ngủ</mat-label>
+                <input type="number" matInput formControlName="bed" placeholder="VD: 1" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Số Đệm ngủ</mat-label>
+                <input type="number" matInput formControlName="mattress" placeholder="VD: 1" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="custom-pref-mat">
+                <mat-label>Số Tủ quần áo</mat-label>
+                <input type="number" matInput formControlName="wardrobe" placeholder="VD: 1" />
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="pref-section no-border">
+            <div class="section-title">
+              <span class="icon">✨</span>
+              <h3>Tiện ích nổi bật</h3>
+            </div>
+            <div
+              class="filter-amenities chips-container custom-home-chips"
+              style="margin-top: 10px"
+            >
+              @for (amenity of amenityFields; track amenity.key) {
+                <button
+                  type="button"
+                  class="filter-chip"
+                  [class.state-true]="preferencesForm.get(amenity.key)?.value === true"
+                  [class.state-false]="preferencesForm.get(amenity.key)?.value === false"
+                  (click)="togglePreferencesFilterState(amenity.key)"
+                >
+                  {{ getAmenityIcon(amenity.key) }} {{ amenity.label }}
+                  @if (preferencesForm.get(amenity.key)?.value === true) {
+                    <span class="icon">✓</span>
+                  }
+                  @if (preferencesForm.get(amenity.key)?.value === false) {
+                    <span class="icon">✕</span>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="pref-footer-sticky">
+        <button type="button" class="btn-pref btn-skip" (click)="skipPreferences()">Bỏ qua</button>
+        <button type="button" class="btn-pref btn-save" (click)="submitPreferences()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            ></path>
+          </svg>
+          Lưu tùy chọn
+        </button>
+      </div>
     </div>
   </div>
 }

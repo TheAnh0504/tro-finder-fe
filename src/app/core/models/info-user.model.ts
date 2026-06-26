@@ -5,4 +5,5 @@ export interface InfoUser {
   phoneNumber: string;
   urlImage: string;
   isOcr: boolean; // Trạng thái xác minh OCR
+  searchPreferences?: string;
 }

@@ -1,11 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Client } from '@stomp/stompjs';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { TokenService } from './token.service';
 import SockJS from 'sockjs-client';
 import { EMediaMess } from '../../enum/EMediaMess.enum';
 import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
+import { InfoUser } from '../models/info-user.model';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
@@ -13,12 +16,15 @@ import { environment } from '../../../environments/environment';
 export class ChatService {
   private http = inject(HttpClient);
   private tokenService = inject(TokenService);
+  private authService = inject(AuthService);
+  private toast = inject(ToastrService);
   private stompClient!: Client;
 
   // Dùng Subject để phát sự kiện khi có tin nhắn mới qua WebSocket
   public messageReceived$ = new Subject<any>();
-
   public openChatBubble$ = new Subject<string>();
+
+  public isConnected$ = new BehaviorSubject<boolean>(false);
 
   // Khởi tạo kết nối WebSocket
   connectWebSocket() {
@@ -38,16 +44,36 @@ export class ChatService {
       heartbeatOutgoing: 4000,
 
       beforeConnect: async () => {
-        const token = this.tokenService.getAccessToken();
+        this.authService.refreshToken().subscribe({
+          next: (res: any) => {
+            const currentUser: InfoUser = {
+              role: res.role,
+              name: res.name,
+              email: res.email,
+              phoneNumber: res.phoneNumber,
+              urlImage: res.urlImage,
+              isOcr: res.isOcr,
+            };
+            this.tokenService.setTokens(res.access_token, res.listPermission, currentUser);
 
-        this.stompClient.connectHeaders = {
-          Authorization: `Bearer ${token}`,
-        };
+            this.stompClient.connectHeaders = {
+              Authorization: `Bearer ${res.access_token}`,
+            };
+          },
+          error: (err) => {
+            this.toast.error(err.error?.message, 'Lỗi', {
+              timeOut: 3000,
+              progressBar: true,
+              positionClass: 'toast-top-right',
+            });
+          },
+        });
       },
     });
 
     this.stompClient.onConnect = (frame) => {
       console.log('Đã kết nối WebSocket Chat!');
+      this.isConnected$.next(true);
     };
 
     this.stompClient.onStompError = (frame) => {
@@ -119,6 +145,7 @@ export class ChatService {
   disconnectWebSocket() {
     if (this.stompClient) {
       this.stompClient.deactivate();
+      this.isConnected$.next(false);
     }
   }
 }

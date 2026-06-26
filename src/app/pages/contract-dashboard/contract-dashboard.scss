@@ -1,0 +1,1070 @@
+// ============================================
+//  CONTRACT DASHBOARD — PREMIUM GLASSMORPHISM
+// ============================================
+@use 'sass:color';
+
+$primary: #3b82f6;
+$primary-light: #60a5fa;
+$primary-dark: #2563eb;
+$success: #10b981;
+$success-light: #34d399;
+$warning: #f59e0b;
+$warning-light: #fbbf24;
+$danger: #ef4444;
+$danger-light: #f87171;
+$gray-50: #f8fafc;
+$gray-100: #f1f5f9;
+$gray-200: #e2e8f0;
+$gray-300: #cbd5e1;
+$gray-400: #94a3b8;
+$gray-500: #64748b;
+$gray-600: #475569;
+$gray-700: #334155;
+$gray-800: #1e293b;
+$gray-900: #0f172a;
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.contract-dashboard {
+  width: 100%;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 28px 32px 60px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #fafbff 50%, #f5f0ff 100%);
+  box-sizing: border-box;
+}
+
+// ============ HEADER ============
+.dashboard-header {
+  margin-bottom: 28px;
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, $primary, $primary-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba($primary, 0.35);
+  }
+
+  .header-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: $gray-900;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .header-subtitle {
+    font-size: 14px;
+    color: $gray-500;
+    margin: 2px 0 0;
+  }
+}
+
+// ============ STATS GRID ============
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba($gray-200, 0.7);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .stat-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: $gray-900;
+    line-height: 1.1;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: $gray-500;
+    margin-top: 2px;
+  }
+
+  &.stat-total .stat-icon {
+    background: linear-gradient(135deg, rgba($primary, 0.15), rgba($primary, 0.05));
+    color: $primary;
+  }
+
+  &.stat-rented .stat-icon {
+    background: linear-gradient(135deg, rgba($success, 0.15), rgba($success, 0.05));
+    color: $success;
+  }
+
+  &.stat-vacant .stat-icon {
+    background: linear-gradient(135deg, rgba($warning, 0.15), rgba($warning, 0.05));
+    color: $warning;
+  }
+
+  &.stat-contracts .stat-icon {
+    background: linear-gradient(135deg, rgba(#8b5cf6, 0.15), rgba(#8b5cf6, 0.05));
+    color: #8b5cf6;
+  }
+}
+
+// ============ ALERT SECTION ============
+.alert-section {
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  border: 1px solid;
+
+  &.alert-warning {
+    background: linear-gradient(135deg, rgba($warning, 0.08), rgba($warning, 0.02));
+    border-color: rgba($warning, 0.25);
+  }
+
+  .alert-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    color: color.adjust($warning, $lightness: -10%);
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+  }
+
+  .alert-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+.expiring-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  border: 1px solid rgba($gray-200, 0.5);
+
+  .expiring-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    strong {
+      font-size: 14px;
+      color: $gray-800;
+    }
+
+    .muted {
+      font-size: 12px;
+      color: $gray-500;
+    }
+  }
+
+  .expiring-date {
+    font-size: 13px;
+    color: $gray-600;
+
+    strong {
+      color: $danger;
+    }
+  }
+}
+
+// ============ SECTION CARD ============
+.section-card {
+  background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba($gray-200, 0.7);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .section-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: $gray-700;
+
+    h3 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 600;
+      color: $gray-800;
+    }
+  }
+}
+
+// ============ TABLE ============
+.payment-table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid $gray-200;
+}
+
+.payment-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  thead {
+    background: $gray-50;
+
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      color: $gray-600;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-bottom: 1px solid $gray-200;
+      white-space: nowrap;
+    }
+  }
+
+  tbody {
+    tr {
+      transition: background 0.15s;
+
+      &:hover {
+        background: rgba($primary, 0.03);
+      }
+
+      &:not(:last-child) td {
+        border-bottom: 1px solid $gray-100;
+      }
+    }
+
+    td {
+      padding: 14px 16px;
+      color: $gray-700;
+      white-space: nowrap;
+    }
+  }
+
+  .tenant-cell {
+    display: flex;
+    flex-direction: column;
+
+    strong {
+      color: $gray-800;
+    }
+
+    .muted {
+      font-size: 12px;
+      color: $gray-400;
+    }
+  }
+
+  .amount-cell {
+    font-weight: 600;
+    color: $gray-800;
+  }
+}
+
+// ============ STATUS BADGES ============
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.status-active {
+    background: rgba($success, 0.1);
+    color: color.adjust($success, $lightness: -8%);
+    border: 1px solid rgba($success, 0.2);
+  }
+
+  &.status-expired {
+    background: rgba($gray-400, 0.12);
+    color: $gray-500;
+    border: 1px solid rgba($gray-400, 0.2);
+  }
+
+  &.status-draft {
+    background: rgba($primary, 0.1);
+    color: $primary;
+    border: 1px solid rgba($primary, 0.2);
+  }
+
+  &.status-pending {
+    background: rgba($warning, 0.1);
+    color: color.adjust($warning, $lightness: -10%);
+    border: 1px solid rgba($warning, 0.2);
+  }
+
+  &.status-confirmed {
+    background: rgba($success, 0.1);
+    color: color.adjust($success, $lightness: -8%);
+    border: 1px solid rgba($success, 0.2);
+  }
+
+  &.status-overdue {
+    background: rgba($danger, 0.1);
+    color: $danger;
+    border: 1px solid rgba($danger, 0.2);
+  }
+}
+
+.contract-type-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: $primary;
+  background: rgba($primary, 0.08);
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+// ============ CONTRACTS GRID ============
+.contracts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.contract-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid $gray-200;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+    border-color: rgba($primary, 0.3);
+  }
+
+  &.contract-expired {
+    opacity: 0.7;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .contract-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid $gray-100;
+    background: $gray-50;
+  }
+
+  .contract-card-body {
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    > div {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: $gray-600;
+
+      svg {
+        flex-shrink: 0;
+        color: $gray-400;
+      }
+    }
+  }
+
+  .contract-card-actions {
+    display: flex;
+    gap: 8px;
+    padding: 12px 18px;
+    border-top: 1px solid $gray-100;
+    background: $gray-50;
+  }
+}
+
+// ============ BUTTONS ============
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  &.btn-confirm {
+    background: linear-gradient(135deg, $success, $success-light);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba($success, 0.3);
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba($success, 0.4);
+    }
+  }
+
+  &.btn-renew {
+    background: linear-gradient(135deg, $primary, $primary-light);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba($primary, 0.3);
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba($primary, 0.4);
+    }
+  }
+
+  &.btn-view {
+    background: rgba($gray-100, 1);
+    color: $gray-700;
+    border: 1px solid $gray-200;
+
+    &:hover {
+      background: $gray-200;
+    }
+  }
+
+  &.btn-secondary {
+    background: rgba($gray-100, 1);
+    color: $gray-700;
+    border: 1px solid $gray-200;
+
+    &:hover {
+      background: $gray-200;
+    }
+  }
+}
+
+.btn-primary-large {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, $primary, $primary-dark);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba($primary, 0.35);
+  transition: all 0.3s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba($primary, 0.45);
+  }
+}
+
+// ============ RENTAL HERO (Roomer) ============
+.rental-hero {
+  background: linear-gradient(135deg, $primary-dark, #6366f1);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 24px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+  box-shadow: 0 8px 30px rgba($primary-dark, 0.3);
+
+  .rental-hero-content {
+    flex: 1;
+  }
+
+  .rental-status-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+
+    .status-badge {
+      border: none;
+    }
+  }
+
+  .rental-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    letter-spacing: -0.5px;
+  }
+
+  .rental-room {
+    font-size: 18px;
+    font-weight: 500;
+    opacity: 0.9;
+    margin: 0 0 8px;
+  }
+
+  .rental-address {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    opacity: 0.8;
+    margin: 0;
+  }
+
+  .rental-hero-stats {
+    display: flex;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+
+  .rental-stat {
+    background: rgba(255, 255, 255, 0.15);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-radius: 14px;
+    padding: 18px 22px;
+    text-align: center;
+    min-width: 120px;
+
+    .rental-stat-value {
+      display: block;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .rental-stat-label {
+      display: block;
+      font-size: 12px;
+      opacity: 0.8;
+    }
+  }
+}
+
+// ============ CONTRACT TIMELINE ============
+.contract-timeline {
+  padding: 30px 0 10px;
+}
+
+.timeline-bar {
+  position: relative;
+  height: 8px;
+  background: $gray-200;
+  border-radius: 4px;
+  margin: 0 40px;
+
+  .timeline-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, $success, $primary);
+    border-radius: 4px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .timeline-marker {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+
+    &::before {
+      content: '';
+      display: block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 2px $primary;
+      background: $primary;
+      margin: 0 auto;
+    }
+
+    span {
+      display: block;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: $gray-500;
+      margin-top: 8px;
+      white-space: nowrap;
+    }
+
+    &.timeline-start {
+      left: 0;
+      transform: translate(-50%, -50%);
+
+      &::before {
+        background: $success;
+        box-shadow: 0 0 0 2px $success;
+      }
+    }
+
+    &.timeline-end {
+      right: 0;
+      left: auto;
+      transform: translate(50%, -50%);
+
+      &::before {
+        background: $gray-400;
+        box-shadow: 0 0 0 2px $gray-400;
+      }
+    }
+
+    &.timeline-now {
+      transform: translate(-50%, -50%);
+
+      &::before {
+        background: $primary;
+        box-shadow:
+          0 0 0 2px $primary,
+          0 0 10px rgba($primary, 0.4);
+      }
+
+      span {
+        color: $primary;
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+// ============ EXPIRY ACTIONS ============
+.expiry-actions {
+  margin-top: 20px;
+  padding: 18px 20px;
+  background: rgba($warning, 0.06);
+  border: 1px solid rgba($warning, 0.2);
+  border-radius: 12px;
+
+  .expiry-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: color.adjust($warning, $lightness: -15%);
+    margin-bottom: 14px;
+  }
+
+  .expiry-btns {
+    display: flex;
+    gap: 10px;
+  }
+}
+
+// ============ NO RENTAL HERO ============
+.no-rental-hero {
+  text-align: center;
+  padding: 80px 40px;
+  background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba($gray-200, 0.7);
+  border-radius: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+  .no-rental-icon {
+    color: $gray-300;
+    margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: $gray-800;
+    margin: 0 0 8px;
+  }
+
+  p {
+    font-size: 15px;
+    color: $gray-500;
+    margin: 0 0 28px;
+  }
+
+  .past-contracts-note {
+    margin-top: 24px;
+
+    p {
+      font-size: 13px;
+      color: $gray-400;
+      margin: 0;
+    }
+  }
+}
+
+// ============ EMPTY STATE ============
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: $gray-400;
+
+  p {
+    margin: 12px 0 0;
+    font-size: 14px;
+  }
+
+  &.small {
+    padding: 24px 20px;
+  }
+}
+
+// ============ MODAL ============
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-container {
+  background: #fff;
+  border-radius: 18px;
+  width: 480px;
+  max-width: 92vw;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.modal-large {
+    width: 720px;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid $gray-100;
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: $gray-800;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      color: $gray-400;
+      transition: all 0.15s;
+
+      &:hover {
+        background: $gray-100;
+        color: $gray-600;
+      }
+    }
+  }
+
+  .modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    max-height: 60vh;
+
+    &.document-body {
+      max-height: 70vh;
+    }
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid $gray-100;
+    background: $gray-50;
+  }
+}
+
+.form-group {
+  margin-bottom: 18px;
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: $gray-700;
+    margin-bottom: 6px;
+
+    .required {
+      color: $danger;
+    }
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid $gray-300;
+    border-radius: 10px;
+    font-size: 14px;
+    color: $gray-800;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.15);
+    }
+  }
+}
+
+.document-content {
+  font-size: 14px;
+  line-height: 1.7;
+  color: $gray-700;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+// ============ ANIMATIONS ============
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-pulse {
+  animation: pulse-badge 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.muted {
+  color: $gray-500;
+}
+
+// ============ RESPONSIVE ============
+@media (max-width: 1100px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rental-hero {
+    flex-direction: column;
+
+    .rental-hero-stats {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .contract-dashboard {
+    padding: 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contracts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rental-hero {
+    padding: 20px;
+
+    .rental-title {
+      font-size: 22px;
+    }
+
+    .rental-hero-stats {
+      flex-direction: column;
+    }
+  }
+
+  .expiring-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+// ============ TABS & REVIEWS ============
+.nav-tab-btn {
+  color: $gray-600;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba($primary, 0.05) !important;
+    color: $primary-dark;
+  }
+
+  &.active {
+    background: linear-gradient(135deg, $primary, $primary-dark) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba($primary, 0.3) !important;
+  }
+}
+
+.review-card {
+  transition: all 0.3s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: $gray-50;
+  border-radius: 16px;
+  border: 1px dashed $gray-300;
+  color: $gray-500;
+  font-size: 1rem;
+
+  .empty-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+}
+
+// ============ OCR UPLOAD ============
+.ocr-upload-block {
+  background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1px solid rgba($success, 0.2) !important;
+  box-shadow: 0 10px 25px -5px rgba($success, 0.15);
+
+  .icon-shield {
+    animation: bounce-gentle 2.5s infinite ease-in-out;
+  }
+}
+
+@keyframes bounce-gentle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.fancy-dropzone {
+  background-color: rgba(255, 255, 255, 0.6) !important;
+  border-color: $gray-400 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+
+  &:hover {
+    border-color: $success !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 8px 20px rgba($success, 0.1) !important;
+  }
+}

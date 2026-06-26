@@ -25,6 +25,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { OsmMapComponent } from '../../shared/osm-map/osm-map.component';
 import { ChatService } from '../../core/services/chat.service';
+import { SysUserService } from '../../core/services/sys-user.service';
 
 @Component({
   selector: 'app-home',
@@ -54,8 +55,10 @@ export class Home implements OnInit {
   private houseService = inject(HouseRoomManagementService);
   private cdr = inject(ChangeDetectorRef); // Ép Angular cập nhật UI ngay lập tức
   private chatService = inject(ChatService);
+  private sysUserService = inject(SysUserService);
 
   searchForm!: FormGroup;
+  preferencesForm!: FormGroup;
   listRooms = signal<any[]>([]);
   isLoading = signal(false);
   totalPages = signal(1); // Tổng số trang trả về từ API
@@ -76,6 +79,21 @@ export class Home implements OnInit {
   listCommune = signal<Commune[]>([]);
   filterProvinceText = signal('');
   filterCommuneText = signal('');
+
+  // DATA PROVINCE/COMMUNE TÌM KIẾM CHO PREFERENCES MODAL
+  preferencesCommunes = signal<Commune[]>([]);
+  preferencesProvinceText = signal('');
+  preferencesCommuneText = signal('');
+  filteredPreferencesProvinces = computed(() => {
+    const text = this.preferencesProvinceText().toLowerCase().trim();
+    return this.listProvince().filter((p) => p.name.toLowerCase().includes(text));
+  });
+  filteredPreferencesCommunes = computed(() => {
+    const text = this.preferencesCommuneText().toLowerCase().trim();
+    return this.preferencesCommunes().filter((c) => c.name.toLowerCase().includes(text));
+  });
+
+  isPreferencesModalOpen = signal(false);
 
   // --- STATE: MODAL GỬI YÊU CẦU HỢP ĐỒNG (DÀNH CHO NGƯỜI THUÊ) ---
   isRequestContractModalOpen = signal(false);
@@ -212,13 +230,27 @@ export class Home implements OnInit {
         this.getListSavedRoom();
         this.user.set(this.tokenService.getUserInfo() || null);
         console.log('user: ', this.user());
+
+        if (this.user()?.role === 'Người thuê trọ') {
+          if (this.user()?.searchPreferences) {
+            try {
+              const prefs = JSON.parse(this.user()!.searchPreferences!);
+              this.searchForm.patchValue(prefs);
+              this.preferencesForm.patchValue(prefs);
+            } catch (e) {
+              console.error('Failed to parse search preferences', e);
+            }
+          } else {
+            this.isPreferencesModalOpen.set(true);
+          }
+        }
       }
       this.getPublicRooms();
     });
   }
 
   initSearchForm() {
-    this.searchForm = this.fb.group({
+    const controls = {
       province: [null],
       commune: [null],
       min_area: [null],
@@ -251,7 +283,9 @@ export class Home implements OnInit {
       has_pet: [null],
       has_host: [null],
       has_rent: [false],
-    });
+    };
+    this.searchForm = this.fb.group(controls);
+    this.preferencesForm = this.fb.group({ ...controls, has_rent: [null] });
   }
 
   // --- API LOCATION ---
@@ -262,6 +296,16 @@ export class Home implements OnInit {
       next: (res) => {
         // this.isLoading.set(false);
         this.listProvince.set(res.listProvince || []);
+        
+        // Populate text for autocomplete if there's a selected province in search preferences
+        const selectedProvince = this.searchForm.get('province')?.value;
+        if (selectedProvince) {
+          const provinceObj = this.listProvince().find((p: any) => p.provinceCode === selectedProvince);
+          if (provinceObj) {
+            this.filterProvinceText.set(provinceObj.name);
+            this.fetchCommunesForFilter(selectedProvince, true); // Pass a flag to indicate it's from init
+          }
+        }
       },
       error: (err) => {
         // this.isLoading.set(false);
@@ -297,9 +341,20 @@ export class Home implements OnInit {
     });
   }
 
-  fetchCommunesForFilter(provinceCode: string) {
+  fetchCommunesForFilter(provinceCode: string, isInit: boolean = false) {
     this.houseService.findCommune({ province_code: provinceCode }).subscribe({
-      next: (res) => this.listCommune.set(res.listCommune || []),
+      next: (res) => {
+        this.listCommune.set(res.listCommune || []);
+        if (isInit) {
+          const selectedCommune = this.searchForm.get('commune')?.value;
+          if (selectedCommune) {
+            const communeObj = this.listCommune().find((c: any) => c.communeCode === selectedCommune);
+            if (communeObj) {
+              this.filterCommuneText.set(communeObj.name);
+            }
+          }
+        }
+      },
       error: (err) => console.error(err),
     });
   }
@@ -323,6 +378,102 @@ export class Home implements OnInit {
     } else {
       this.searchForm.patchValue({ [controlName]: null });
     }
+  }
+
+  getAmenityIcon(key: string): string {
+    const icons: { [key: string]: string } = {
+      parking_area: '🏍️',
+      elevator: '🛗',
+      security_camera: '📹',
+      security_24_7: '🛡️',
+      shared_laundry_area: '🧺',
+      shared_drying_area: '☀️',
+      dishwashing_area: '🚰',
+      table_and_chairs: '🪑',
+      air_conditioner: '❄️',
+      water_heater: '♨️',
+      washing_machine: '🧺',
+      private_bathroom: '🚿',
+      has_pet: '🐈',
+      has_host: '🔑',
+    };
+    return icons[key] || '✅';
+  }
+
+  // --- HÀM CHO MODAL PREFERENCES ---
+  fetchPreferencesCommunes(provinceCode: string) {
+    this.houseService.findCommune({ province_code: provinceCode }).subscribe({
+      next: (res) => this.preferencesCommunes.set(res.listCommune || []),
+      error: (err) => console.error(err),
+    });
+  }
+
+  selectPreferencesProvince(province: Province) {
+    this.preferencesForm.patchValue({ province: province.provinceCode, commune: null });
+    this.preferencesCommuneText.set('');
+    this.fetchPreferencesCommunes(province.provinceCode);
+  }
+
+  selectPreferencesCommune(commune: Commune) {
+    this.preferencesForm.patchValue({ commune: commune.communeCode });
+  }
+
+  togglePreferencesFilterState(controlName: string) {
+    const currentValue = this.preferencesForm.get(controlName)?.value;
+    if (currentValue === null || currentValue === undefined) {
+      this.preferencesForm.patchValue({ [controlName]: true });
+    } else if (currentValue === true) {
+      this.preferencesForm.patchValue({ [controlName]: false });
+    } else {
+      this.preferencesForm.patchValue({ [controlName]: null });
+    }
+  }
+
+  submitPreferences() {
+    this.isLoading.set(true);
+    const cleanedParams = this.cleanPayload(this.preferencesForm.value);
+    const payload = {
+      search_preferences: JSON.stringify(cleanedParams),
+    };
+
+    this.sysUserService.updateSearchPreferences(payload).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.isPreferencesModalOpen.set(false);
+        this.toast.success('Lưu tùy chọn thành công!', 'Thành công', {
+          timeOut: 3000,
+          progressBar: true,
+          positionClass: 'toast-top-right',
+        });
+
+        // Cập nhật Token Service
+        const currentUser = this.tokenService.getUserInfo();
+        if (currentUser) {
+          currentUser.searchPreferences = JSON.stringify(cleanedParams);
+          this.tokenService.setTokens(
+            this.tokenService.getAccessToken()!,
+            this.tokenService.getListPermission(),
+            currentUser,
+          );
+        }
+
+        // Fill data sang searchForm
+        this.searchForm.patchValue(cleanedParams);
+        this.onSearch();
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.toast.error(err.error?.message || 'Lỗi lưu tùy chọn', 'Lỗi', {
+          timeOut: 3000,
+          progressBar: true,
+          positionClass: 'toast-top-right',
+        });
+      },
+    });
+  }
+
+  skipPreferences() {
+    this.isPreferencesModalOpen.set(false);
   }
 
   resetSearch() {
@@ -349,6 +500,30 @@ export class Home implements OnInit {
   onSearch() {
     this.pageNumber.set(0);
     this.getPublicRooms();
+
+    // Lưu lại bộ lọc xuống backend và session nếu là Người thuê trọ
+    if (this.user()?.role === 'Người thuê trọ') {
+      const cleanedParams = this.cleanPayload(this.searchForm.value);
+      const payload = {
+        search_preferences: JSON.stringify(cleanedParams),
+      };
+
+      this.sysUserService.updateSearchPreferences(payload).subscribe({
+        next: () => {
+          // Update Token Service
+          const currentUser = this.tokenService.getUserInfo();
+          if (currentUser) {
+            currentUser.searchPreferences = JSON.stringify(cleanedParams);
+            this.tokenService.setTokens(
+              this.tokenService.getAccessToken()!,
+              this.tokenService.getListPermission(),
+              currentUser,
+            );
+          }
+        },
+        error: (err) => console.error('Failed to update search preferences', err),
+      });
+    }
 
     // Cuộn mượt xuống phần kết quả
     setTimeout(() => {

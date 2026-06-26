@@ -12,6 +12,7 @@ import { permissionGuard } from './core/guards/permission-guard';
 import { EPermission } from './enum/EPermission.enum';
 import { AdminLayout } from './layout/admin-layout/admin-layout';
 import { SavedRoom } from './pages/saved-room/saved-room';
+import { ContractDashboard } from './pages/contract-dashboard/contract-dashboard';
 
 export const routes: Routes = [
   // 1. Chuyển hướng chính từ root
@@ -69,6 +70,19 @@ export const routes: Routes = [
             EPermission.ADD_SAVED_ROOM,
             EPermission.DELETE_SAVED_ROOM,
             EPermission.FIND_SAVED_ROOM,
+          ],
+        },
+      },
+      {
+        path: 'contract-dashboard',
+        component: ContractDashboard,
+        canActivate: [authGuard, permissionGuard],
+        data: {
+          permission: [
+            EPermission.FIND_CONTRACT,
+            EPermission.GET_CONTRACT,
+            EPermission.UPDATE_CONTRACT,
+            EPermission.ADD_CONTRACT,
           ],
         },
       },

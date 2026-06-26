@@ -96,6 +96,12 @@ export class AdminLayout implements OnInit {
       EPermission.FIND_SAVED_ROOM,
     ]);
   }
+  get canManageContracts() {
+    return this.permissionService.hasAnyPermission([
+      EPermission.FIND_CONTRACT,
+      EPermission.GET_CONTRACT,
+    ]);
+  }
   get isLogin() {
     return this.tokenService.isLoggedIn();
   }

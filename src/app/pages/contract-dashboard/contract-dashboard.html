@@ -1,0 +1,891 @@
+@if (isLoading()) {
+  <div class="full-page-loader">
+    <svg class="spinner-large" viewBox="0 0 50 50">
+      <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+    </svg>
+    <div class="loading-text">Đang xử lý...</div>
+  </div>
+}
+
+<div class="contract-dashboard">
+  <!-- ==================== HEADER ==================== -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+          </path>
+        </svg>
+      </div>
+      <div>
+        <h1 class="header-title">Quản lý Hợp đồng</h1>
+        <p class="header-subtitle">
+          @if (isHost()) {
+            Tổng quan hợp đồng & quản lý nhà trọ của bạn
+          } @else {
+            Thông tin phòng trọ & hợp đồng thuê của bạn
+          }
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TABS ==================== -->
+  <nav class="profile-tabs section-card" style="margin: 0 1.5rem 1.5rem 1.5rem; display: flex; gap: 1rem; padding: 1rem; border-radius: 12px; margin-bottom: 24px;">
+    <button class="nav-tab-btn" [class.active]="activeTab() === 'contracts'" (click)="setTab('contracts')" style="padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer; background: transparent; font-weight: 600;">
+      Hợp đồng thuê
+    </button>
+    <button class="nav-tab-btn" [class.active]="activeTab() === 'reviews'" (click)="setTab('reviews')" style="padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer; background: transparent; font-weight: 600;">
+      Đánh giá
+    </button>
+    @if (isHost()) {
+      <button class="nav-tab-btn" [class.active]="activeTab() === 'ocr'" (click)="setTab('ocr')" style="padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer; background: transparent; font-weight: 600;">
+        Sinh hợp đồng tự động
+      </button>
+    }
+  </nav>
+
+  <div class="tab-content-area" style="padding: 0 1.5rem;">
+  @if (activeTab() === 'contracts') {
+  <!-- ==================== HOST DASHBOARD ==================== -->
+  @if (isHost()) {
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card stat-total">
+        <div class="stat-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+            </path>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ houseStats().total }}</span>
+          <span class="stat-label">Tổng phòng</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-rented">
+        <div class="stat-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
+            </path>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ houseStats().rented }}</span>
+          <span class="stat-label">Đã cho thuê</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-vacant">
+        <div class="stat-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+            </path>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ houseStats().vacant }}</span>
+          <span class="stat-label">Còn trống</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-contracts">
+        <div class="stat-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ activeContracts().length }}</span>
+          <span class="stat-label">HĐ đang hiệu lực</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert: Expiring Contracts -->
+    @if (expiringContracts().length > 0) {
+      <div class="alert-section alert-warning">
+        <div class="alert-header">
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z">
+            </path>
+          </svg>
+          <h3>Hợp đồng sắp hết hạn ({{ expiringContracts().length }})</h3>
+        </div>
+        <div class="alert-body">
+          @for (contract of expiringContracts(); track contract.id) {
+            <div class="expiring-item">
+              <div class="expiring-info">
+                <strong>{{ contract.tenant.name }}</strong>
+                <span class="muted">{{ contract.room.houseSet.name }} — {{ contract.room.name }}</span>
+              </div>
+              <div class="expiring-date">
+                Hết hạn: <strong>{{ formatDate(contract.endTime) }}</strong>
+              </div>
+              <button class="btn-action btn-renew" (click)="openRenewModal(contract.id)">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                  </path>
+                </svg>
+                Gia hạn
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Section: Unpaid Payments -->
+    @if (unpaidPayments().length > 0) {
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title-group">
+            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+              </path>
+            </svg>
+            <h3>Người thuê chưa thanh toán ({{ unpaidPayments().length }})</h3>
+          </div>
+        </div>
+        <div class="payment-table-wrapper">
+          <table class="payment-table">
+            <thead>
+              <tr>
+                <th>Người thuê</th>
+                <th>Phòng</th>
+                <th>Tháng</th>
+                <th>Số tiền</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of unpaidPayments(); track item.payment.id) {
+                <tr>
+                  <td>
+                    <div class="tenant-cell">
+                      <strong>{{ item.contract.tenant.name }}</strong>
+                      <span class="muted">{{ item.contract.tenant.phoneNumber }}</span>
+                    </div>
+                  </td>
+                  <td>{{ item.contract.room.name }}</td>
+                  <td>{{ item.payment.paymentMonth }}/{{ item.payment.paymentYear }}</td>
+                  <td class="amount-cell">{{ formatCurrency(item.payment.amount) }}</td>
+                  <td>
+                    <span class="status-badge" [class]="getPaymentStatusClass(item.payment.status)">
+                      {{ getPaymentStatusLabel(item.payment.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn-action btn-confirm" (click)="confirmPayment(item.payment.id)">
+                      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      Xác nhận
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- Section: All Contracts List (Host) -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-title-group">
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+            </path>
+          </svg>
+          <h3>Danh sách hợp đồng ({{ contracts().length }})</h3>
+        </div>
+        <button class="btn-action btn-secondary" (click)="goToManageHouse()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+            </path>
+          </svg>
+          Quản lý nhà trọ
+        </button>
+      </div>
+
+      @if (contracts().length === 0) {
+        <div class="empty-state">
+          <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" opacity="0.3">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
+          </svg>
+          <p>Chưa có hợp đồng nào</p>
+        </div>
+      } @else {
+        <div class="contracts-grid">
+          @for (contract of contracts(); track contract.id) {
+            <div class="contract-card">
+              <div class="contract-card-header">
+                <span class="contract-type-badge">{{ getContractTypeLabel(contract.contractType) }}</span>
+                <span class="status-badge" [class]="getContractStatusClass(contract.status)">
+                  {{ getContractStatusLabel(contract.status) }}
+                </span>
+              </div>
+              <div class="contract-card-body">
+                <div class="contract-tenant">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                    </path>
+                  </svg>
+                  <span>{{ contract.tenant.name }}</span>
+                </div>
+                <div class="contract-room">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                    </path>
+                  </svg>
+                  <span>{{ contract.room.houseSet.name }} — {{ contract.room.name }}</span>
+                </div>
+                <div class="contract-period">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                    </path>
+                  </svg>
+                  <span>{{ formatDate(contract.beginTime) }} — {{ formatDate(contract.endTime) }}</span>
+                </div>
+                <div class="contract-deposit">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                    </path>
+                  </svg>
+                  <span>Tiền cọc: {{ formatCurrency(contract.depositAmount) }}</span>
+                </div>
+              </div>
+              <div class="contract-card-actions" style="flex-wrap: wrap;">
+                <button class="btn-action btn-view" (click)="viewDocument(contract)">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                    </path>
+                  </svg>
+                  Xem HĐ
+                </button>
+                @if (contract.status === 'ACTIVE') {
+                  <button class="btn-action btn-renew" (click)="openRenewModal(contract.id)">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                      </path>
+                    </svg>
+                    Gia hạn
+                  </button>
+                }
+                @if (contract.status === 'PENDING' && isHost()) {
+                  <button class="btn-action btn-secondary" style="color: #ef4444; border-color: #ef4444;" (click)="rejectContract(contract.id)">
+                    ✕ Từ chối
+                  </button>
+                  <button class="btn-action btn-confirm" (click)="approveContract(contract.id)">
+                    ✍️ Ký duyệt
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ==================== ROOMER DASHBOARD ==================== -->
+  @if (isRoomer()) {
+    @if (hasActiveRental()) {
+      <!-- Active Rental Info -->
+      <div class="rental-hero">
+        <div class="rental-hero-content">
+          <div class="rental-status-bar">
+            <span class="status-badge status-active">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Đang thuê
+            </span>
+            @if (isExpiringSoon()) {
+              <span class="status-badge status-overdue animate-pulse">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z">
+                  </path>
+                </svg>
+                Còn {{ remainingMonths() }} tháng
+              </span>
+            }
+          </div>
+
+          <h2 class="rental-title">{{ myActiveContract()?.room?.houseSet?.name }}</h2>
+          <p class="rental-room">{{ myActiveContract()?.room?.name }}</p>
+          <p class="rental-address">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+              </path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            {{ myActiveContract()?.room?.houseSet?.address }}
+          </p>
+        </div>
+
+        <div class="rental-hero-stats">
+          <div class="rental-stat">
+            <span class="rental-stat-value">{{ formatCurrency(myActiveContract()?.room?.priceRoom) }}</span>
+            <span class="rental-stat-label">Tiền phòng/tháng</span>
+          </div>
+          <div class="rental-stat">
+            <span class="rental-stat-value">{{ formatCurrency(myActiveContract()?.depositAmount) }}</span>
+            <span class="rental-stat-label">Tiền cọc</span>
+          </div>
+          <div class="rental-stat">
+            <span class="rental-stat-value">{{ remainingMonths() }} tháng</span>
+            <span class="rental-stat-label">Còn lại</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contract Timeline -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title-group">
+            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+              </path>
+            </svg>
+            <h3>Thời hạn hợp đồng</h3>
+          </div>
+          <button class="btn-action btn-view" (click)="viewDocument(myActiveContract()!)">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+              </path>
+            </svg>
+            Xem hợp đồng
+          </button>
+        </div>
+
+        <div class="contract-timeline">
+          <div class="timeline-bar">
+            <div class="timeline-progress" [style.width.%]="contractProgress()"></div>
+            <div class="timeline-marker timeline-start">
+              <span>{{ formatDate(myActiveContract()?.beginTime || '') }}</span>
+            </div>
+            <div class="timeline-marker timeline-now" [style.left.%]="contractProgress()">
+              <span>Hôm nay</span>
+            </div>
+            <div class="timeline-marker timeline-end">
+              <span>{{ formatDate(myActiveContract()?.endTime || '') }}</span>
+            </div>
+          </div>
+        </div>
+
+        @if (isExpiringSoon()) {
+          <div class="expiry-actions">
+            <div class="expiry-message">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z">
+                </path>
+              </svg>
+              Hợp đồng sắp hết hạn! Bạn muốn gia hạn hay tìm phòng mới?
+            </div>
+            <div class="expiry-btns">
+              <button class="btn-action btn-renew" (click)="openRenewModal(myActiveContract()!.id)">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                  </path>
+                </svg>
+                Gia hạn hợp đồng
+              </button>
+              <button class="btn-action btn-secondary" (click)="goToSearchRoom()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
+                  </path>
+                </svg>
+                Tìm phòng mới
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Payment History -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title-group">
+            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+              </path>
+            </svg>
+            <h3>Lịch sử thanh toán</h3>
+          </div>
+        </div>
+
+        @if (myActiveContract()?.payment && myActiveContract()!.payment.length > 0) {
+          <div class="payment-table-wrapper">
+            <table class="payment-table">
+              <thead>
+                <tr>
+                  <th>Tháng</th>
+                  <th>Số tiền</th>
+                  <th>Trạng thái</th>
+                  <th>Ngày thông báo</th>
+                  <th>Ngày xác nhận</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (payment of myActiveContract()!.payment; track payment.id) {
+                  <tr>
+                    <td>{{ payment.paymentMonth }}/{{ payment.paymentYear }}</td>
+                    <td class="amount-cell">{{ formatCurrency(payment.amount) }}</td>
+                    <td>
+                      <span class="status-badge" [class]="getPaymentStatusClass(payment.status)">
+                        {{ getPaymentStatusLabel(payment.status) }}
+                      </span>
+                    </td>
+                    <td>{{ payment.notifiedAt ? formatDate(payment.notifiedAt) : '—' }}</td>
+                    <td>{{ payment.confirmedAt ? formatDate(payment.confirmedAt) : '—' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="empty-state small">
+            <p>Chưa có lịch sử thanh toán</p>
+          </div>
+        }
+      </div>
+
+      <!-- Contract History (expired ones) -->
+      @if (expiredContracts().length > 0) {
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title-group">
+              <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z">
+                </path>
+              </svg>
+              <h3>Hợp đồng đã kết thúc ({{ expiredContracts().length }})</h3>
+            </div>
+          </div>
+          <div class="contracts-grid">
+            @for (contract of expiredContracts(); track contract.id) {
+              <div class="contract-card contract-expired">
+                <div class="contract-card-header">
+                  <span class="contract-type-badge">{{ getContractTypeLabel(contract.contractType) }}</span>
+                  <span class="status-badge status-expired">Đã hết hạn</span>
+                </div>
+                <div class="contract-card-body">
+                  <div class="contract-room">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                      </path>
+                    </svg>
+                    <span>{{ contract.room.houseSet.name }} — {{ contract.room.name }}</span>
+                  </div>
+                  <div class="contract-period">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                      </path>
+                    </svg>
+                    <span>{{ formatDate(contract.beginTime) }} — {{ formatDate(contract.endTime) }}</span>
+                  </div>
+                </div>
+                <div class="contract-card-actions">
+                  <button class="btn-action btn-view" (click)="viewDocument(contract)">Xem HĐ</button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+    } @else {
+      <!-- No Rental - Redirect to Search -->
+      <div class="no-rental-hero">
+        <div class="no-rental-icon">
+          <svg width="80" height="80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
+            </path>
+          </svg>
+        </div>
+        <h2>Bạn chưa có phòng trọ</h2>
+        <p>Hãy tìm phòng trọ phù hợp với nhu cầu của bạn ngay bây giờ!</p>
+        <button class="btn-primary-large" (click)="goToSearchRoom()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
+            </path>
+          </svg>
+          Tìm phòng trọ ngay
+        </button>
+
+        @if (expiredContracts().length > 0) {
+          <div class="past-contracts-note">
+            <p>Bạn có {{ expiredContracts().length }} hợp đồng đã kết thúc trước đó.</p>
+          </div>
+        }
+      </div>
+    }
+    }
+  }
+  
+  @if (activeTab() === 'reviews') {
+        <section class="glass-card section-block fade-in">
+          <div class="section-header">
+            <h2>Đánh giá phòng trọ</h2>
+            <p>Chia sẻ trải nghiệm hoặc xem phản hồi từ khách thuê</p>
+          </div>
+
+          @if (isRoomer()) {
+            <div class="review-box">
+              <h3>✍️ Viết đánh giá của bạn</h3>
+              <p class="hint">
+                Đánh giá của bạn sẽ giúp cộng đồng TroFinder có cái nhìn chân thực nhất.
+              </p>
+
+              <form [formGroup]="reviewForm" (ngSubmit)="submitReview()" class="modern-form">
+                <mat-form-field appearance="outline" class="full-width custom-mat" style="width: 100%;">
+                  <mat-label>Chọn phòng bạn đã thuê</mat-label>
+                  <mat-select formControlName="room_id">
+                    @for (c of profile()?.contracts; track c.id) {
+                      <mat-option [value]="c.room?.id"
+                        >{{ c.room?.name }} -
+                        {{ c.room?.houseSet?.name || c.room?.house?.name }}</mat-option
+                      >
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width custom-mat" style="width: 100%;">
+                  <mat-label>Chất lượng phòng (1-5 Sao)</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="stars"
+                    min="1"
+                    max="5"
+                    aria-label="Số sao đánh giá"
+                    placeholder="Ví dụ: 5"
+                  />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width custom-mat" style="width: 100%;">
+                  <mat-label>Chi tiết trải nghiệm của bạn</mat-label>
+                  <textarea
+                    matInput
+                    rows="4"
+                    formControlName="content"
+                    placeholder="Phòng thoáng mát, chủ nhà thân thiện, điện nước giá nhà nước..."
+                  ></textarea>
+                </mat-form-field>
+
+                <div class="form-actions-row" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                  <label class="custom-checkbox">
+                    <input type="checkbox" formControlName="anonymous" />
+                    <span class="checkmark"></span>
+                    Đánh giá ẩn danh (Giấu tên của bạn)
+                  </label>
+                  <button type="submit" class="btn-action btn-confirm">Gửi đánh giá</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="review-list mt-4" style="margin-top: 2rem;">
+              <h3>Lịch sử đánh giá bạn đã viết</h3>
+              @if (!profile()?.reviews_written?.length) {
+                <p class="empty-state">Bạn chưa viết bài đánh giá nào.</p>
+              }
+              <div class="review-grid" style="display: grid; gap: 1rem;">
+                @for (r of profile()?.reviews_written; track r.id) {
+                  <div class="review-card" style="padding: 1rem; border: 1px solid #e2e8f0; border-radius: 12px; background: white;">
+                    <div class="r-header" style="display: flex; justify-content: space-between;">
+                      <div class="stars">
+                        @for (s of renderStars(r.stars); track s) {
+                          <span [style.color]="s <= r.stars ? '#f59e0b' : '#d1d5db'">★</span>
+                        }
+                      </div>
+                      <span class="r-date">{{ r.createdTime | date: 'dd/MM/yyyy' }}</span>
+                    </div>
+                    <p class="r-content" style="margin: 0.5rem 0;">"{{ r.content }}"</p>
+                    <span class="r-room" style="font-size: 0.9em; color: #666;">📍 Phòng: {{ r.roomName }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (isHost()) {
+            <div class="review-list mt-4" style="margin-top: 2rem;">
+              <h3>Nhận xét từ khách thuê</h3>
+              @if (!profile()?.reviews_received?.length) {
+                <div class="empty-state">
+                  <div class="empty-icon">⭐</div>
+                  <p>Chưa có khách thuê nào đánh giá phòng của bạn.</p>
+                </div>
+              }
+              <div class="review-grid" style="display: grid; gap: 1rem;">
+                @for (r of profile()?.reviews_received; track r.id) {
+                  <div class="review-card host-view" style="padding: 1rem; border: 1px solid #e2e8f0; border-radius: 12px; background: white;">
+                    <div class="r-header" style="display: flex; justify-content: space-between;">
+                      <div class="reviewer" style="font-weight: 600;">
+                        <strong>{{ r.tenant?.name }}</strong>
+                      </div>
+                      <div class="stars">
+                        @for (s of renderStars(r.stars); track s) {
+                          <span [style.color]="s <= r.stars ? '#f59e0b' : '#d1d5db'">★</span>
+                        }
+                      </div>
+                    </div>
+                    <p class="r-content" style="margin: 0.5rem 0;">"{{ r.content }}"</p>
+                    <div class="r-footer" style="font-size: 0.9em; color: #666; display: flex; justify-content: space-between;">
+                      <span class="r-room">{{ r.roomName }} - {{ r.houseName }}</span>
+                      <span class="r-date">{{ r.createdTime | date: 'dd/MM/yyyy' }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </section>
+  }
+
+  @if (activeTab() === 'ocr' && isHost()) {
+        <section class="glass-card section-block fade-in">
+          <div class="section-header">
+            <h2>AI Tạo Hợp Đồng Tự Động</h2>
+            <p>
+              Để sinh hợp đồng tự động, tài khoản của bạn phải xác minh danh tính. Sau đó, Hệ thống
+              sẽ đọc ảnh CCCD của khách thuê và điền dữ liệu tạo hợp đồng.
+            </p>
+          </div>
+
+          @if (profile()?.ocrIdentity || profile()?.user?.isOcr) {
+            <!-- @if (true) { -->
+            <form
+              [formGroup]="contractForm"
+              (ngSubmit)="submitContract()"
+              class="modern-form ocr-form"
+            >
+              <div class="form-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <mat-form-field appearance="outline" class="custom-mat">
+                  <mat-label>Chọn phòng cho thuê</mat-label>
+                  <mat-select formControlName="room_id">
+                    @for (room of getHostRooms(); track room.id) {
+                      <mat-option [value]="room.id"
+                        >{{ room.name }} — {{ room.houseName }}</mat-option
+                      >
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="custom-mat">
+                  <mat-label>Tài khoản khách thuê (Username)</mat-label>
+                  <input
+                    matInput
+                    formControlName="tenant_username"
+                    placeholder="VD: nguyenvana123"
+                  />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="custom-mat">
+                  <mat-label>Loại hợp đồng / Giấy tờ</mat-label>
+                  <mat-select formControlName="contract_type">
+                    @for (t of contractTypes; track t.value) {
+                      <mat-option [value]="t.value">{{ t.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="custom-mat">
+                  <mat-label>Tiền cọc (VNĐ)</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="deposit_amount"
+                    aria-label="Tiền cọc"
+                    placeholder="Ví dụ: 2000000"
+                  />
+                </mat-form-field>
+              </div>
+
+              <div class="form-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                <mat-form-field appearance="outline" class="custom-mat">
+                  <mat-label>Ngày bắt đầu</mat-label>
+                  <input
+                    matInput
+                    type="datetime-local"
+                    formControlName="begin_time"
+                    aria-label="Ngày bắt đầu"
+                  />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="custom-mat">
+                  <mat-label>Ngày kết thúc</mat-label>
+                  <input
+                    matInput
+                    type="datetime-local"
+                    formControlName="end_time"
+                    aria-label="Ngày kết thúc"
+                  />
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline" class="full-width custom-mat" style="width: 100%; margin-top: 1rem;">
+                <mat-label>Kênh gửi thông báo đóng tiền tự động</mat-label>
+                <mat-select formControlName="notify_channel">
+                  <mat-option value="EMAIL">Gửi qua Email</mat-option>
+                  <mat-option value="TELEGRAM">Nhắn tin qua Telegram Bot</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <div class="ocr-upload-block" style="border: 2px dashed #ccc; padding: 2rem; border-radius: 12px; text-align: center; margin-top: 1.5rem;">
+                <div class="ocr-header">
+                  <div class="icon-shield" style="font-size: 2rem;">📸</div>
+                  <h3>Tải lên CCCD khách thuê</h3>
+                  <p>Hỗ trợ ảnh định dạng JPG, PNG mặt trước thẻ Căn Cước</p>
+                </div>
+
+                <label class="custom-file-upload fancy-dropzone" style="cursor: pointer;">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    (change)="onContractCccdSelected($event)"
+                    hidden
+                  />
+                  <div class="upload-content">
+                    <span class="upload-title" style="display: block; font-weight: bold; margin-top: 1rem;">{{
+                      contractCccdFileName() || 'Nhấn để đính kèm ảnh CCCD'
+                    }}</span>
+                    <span class="upload-subtitle" style="color: #666;"
+                      >Hệ thống AI sẽ tự động đọc text sau khi bấm Tạo hợp đồng</span
+                    >
+                  </div>
+                </label>
+
+                <div class="action-center mt-4" style="margin-top: 2rem;">
+                  <button type="submit" class="btn-action btn-confirm" style="font-size: 1.1rem; padding: 0.8rem 1.5rem;">
+                    Xác thực OCR & Tạo hợp đồng ngay
+                  </button>
+                </div>
+              </div>
+            </form>
+          } @else {
+            <div class="unverified-alert-box fade-in" style="background: #fef2f2; padding: 1.5rem; border-radius: 8px; color: #b91c1c;">
+              <div class="alert-icon">⚠️</div>
+              <div class="alert-content">
+                <h4>Tài khoản chưa được xác minh danh tính</h4>
+                <p>
+                  Vì lý do bảo mật và tính pháp lý của hợp đồng, bạn cần tải lên mặt trước Thẻ Căn
+                  cước công dân (CCCD) để hệ thống TroFinder xác thực trước khi sử dụng tính năng
+                  này.
+                </p>
+              </div>
+            </div>
+          }
+        </section>
+  }
+  </div>
+</div>
+
+<!-- ==================== RENEW MODAL ==================== -->
+@if (showRenewModal()) {
+  <div class="modal-overlay" (click)="closeRenewModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+            </path>
+          </svg>
+          Gia hạn hợp đồng
+        </h3>
+        <button class="modal-close" (click)="closeRenewModal()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="renewEndTime">Ngày kết thúc mới <span class="required">*</span></label>
+          <input type="date" id="renewEndTime" class="form-input"
+            [ngModel]="renewNewEndTime()" (ngModelChange)="renewNewEndTime.set($event)" />
+        </div>
+        <div class="form-group">
+          <label for="renewDeposit">Tiền cọc mới (tùy chọn)</label>
+          <input type="number" id="renewDeposit" class="form-input" placeholder="Nhập số tiền cọc"
+            [ngModel]="renewDepositAmount()" (ngModelChange)="renewDepositAmount.set($event)" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action btn-secondary" (click)="closeRenewModal()">Hủy</button>
+        <button class="btn-action btn-renew" (click)="submitRenew()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Xác nhận gia hạn
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ==================== DOCUMENT VIEWER MODAL ==================== -->
+@if (showDocumentViewer()) {
+  <div class="modal-overlay" (click)="closeDocumentViewer()">
+    <div class="modal-container modal-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
+          </svg>
+          Nội dung hợp đồng
+        </h3>
+        <button class="modal-close" (click)="closeDocumentViewer()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body document-body">
+        <div class="document-content" [innerHTML]="documentContent()"></div>
+      </div>
+    </div>
+  </div>
+}

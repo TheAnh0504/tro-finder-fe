@@ -92,7 +92,7 @@
 
 .hero-info {
   flex: 1;
-  padding-bottom: 12px;
+  // padding-bottom: 12px;
 
   .header-title {
     display: flex;
@@ -121,7 +121,7 @@
   }
 
   .contact-row {
-    margin-top: 12px;
+    // margin-top: 12px;
     display: flex;
     flex-wrap: wrap;
     gap: 24px;
@@ -144,7 +144,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 16px;
+  // margin-top: 16px;
   padding: 8px 16px;
   background-color: #f0fdf4;
   border: 1px dashed var(--tf-primary);
@@ -1187,5 +1187,305 @@
   }
   100% {
     box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+  }
+}
+
+//GIAO DIỆN KIỂM TRA LẠI DỮ LIỆU OCR (REVIEW MỚI)
+.review-ocr-container {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid var(--tf-border);
+  overflow: hidden;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+
+  .alert-review {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: linear-gradient(to right, #eff6ff, #ffffff);
+    padding: 20px 24px;
+    border-bottom: 1px solid #bfdbfe;
+
+    .icon {
+      font-size: 28px;
+      animation: pulse-orange 2s infinite ease-in-out;
+    }
+    strong {
+      color: #1e3a8a;
+      font-size: 1.1rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+    p {
+      margin: 0;
+      color: #3b82f6;
+      font-size: 0.95rem;
+    }
+  }
+
+  .review-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+
+    .preview-col {
+      flex: 1;
+      min-width: 300px;
+      max-width: 400px;
+      padding: 24px;
+      background: #f8fafc;
+      border-right: 1px dashed var(--tf-border);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+
+      .img-wrapper {
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid #cbd5e1;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        img {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+      }
+
+      .action-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: auto;
+      }
+
+      .btn-cancel-outline {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: transparent;
+        border: 2px solid #cbd5e1;
+        color: #475569;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        &:hover {
+          background: #f1f5f9;
+          border-color: #94a3b8;
+          color: #0f172a;
+        }
+      }
+    }
+
+    .data-col {
+      flex: 2;
+      min-width: 350px;
+      padding: 24px;
+
+      .data-grid-review {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+
+        .d-item {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          padding: 14px 16px;
+          border-radius: 10px;
+          transition: all 0.2s;
+
+          &:hover {
+            border-color: var(--tf-primary-light);
+            background: #f0fdf4;
+          }
+
+          label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--tf-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 6px;
+          }
+
+          .val {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--tf-secondary);
+            line-height: 1.4;
+          }
+
+          &.full-w {
+            grid-column: 1 / -1;
+          }
+
+          &.highlight-field {
+            background: #f0fdf4;
+            border-color: var(--tf-primary);
+            .val {
+              color: var(--tf-primary-dark);
+              font-size: 1.2rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// MODAL CHỌN PHƯƠNG THỨC OCR CHUYÊN NGHIỆP
+.modal-overlay.custom-fade-in {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+
+  .method-modal-content {
+    background: #ffffff;
+    width: 100%;
+    max-width: 550px;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+    position: relative;
+    padding: 32px;
+    animation: slideUpFade 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    .btn-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #f1f5f9;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      color: #64748b;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      &:hover {
+        background: #ef4444;
+        color: white;
+        transform: rotate(90deg);
+      }
+    }
+
+    .modal-header {
+      text-align: center;
+      margin-bottom: 32px;
+
+      .h-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+      }
+      h3 {
+        margin: 0 0 8px;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--tf-secondary);
+      }
+      p {
+        margin: 0;
+        color: var(--tf-text-muted);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+    }
+
+    .methods-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .method-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: #ffffff;
+        border: 2px solid #e2e8f0;
+        padding: 20px;
+        border-radius: 16px;
+        cursor: pointer;
+        text-align: left;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+          border-color: var(--tf-primary);
+          background: #f0fdf4;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 16px rgba(16, 185, 129, 0.1);
+
+          .m-arrow {
+            transform: translateX(4px);
+            color: var(--tf-primary);
+          }
+        }
+
+        .m-icon {
+          width: 52px;
+          height: 52px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
+          flex-shrink: 0;
+
+          &.bg-blue {
+            background: #eff6ff;
+          }
+          &.bg-green {
+            background: #dcfce7;
+          }
+          &.bg-purple {
+            background: #f3e8ff;
+          }
+        }
+
+        .m-text {
+          flex: 1;
+          h4 {
+            margin: 0 0 4px;
+            color: var(--tf-secondary);
+            font-size: 1.05rem;
+            font-weight: 700;
+          }
+          p {
+            margin: 0;
+            color: var(--tf-text-muted);
+            font-size: 0.85rem;
+            line-height: 1.4;
+          }
+        }
+
+        .m-arrow {
+          font-size: 18px;
+          color: #cbd5e1;
+          font-weight: bold;
+          transition: all 0.2s;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .review-ocr-container .review-layout {
+    flex-direction: column;
+    .preview-col {
+      border-right: none;
+      border-bottom: 1px dashed var(--tf-border);
+    }
   }
 }

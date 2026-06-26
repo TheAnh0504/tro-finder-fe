@@ -28,7 +28,23 @@ export class ContractService {
     return this.http.post('/api/ocr/contract', formData);
   }
 
-  scanCccd(formData: FormData): Observable<any> {
+  scanCccd(formData: any): Observable<any> {
     return this.http.post('/api/ocr/cccd', formData);
+  }
+
+  confirmCccd(data: any): Observable<any> {
+    return this.http.post('/api/ocr/confirm-cccd', data);
+  }
+
+  renewContract(data: {
+    contractId: string;
+    newEndTime: string;
+    depositAmount?: number;
+  }): Observable<any> {
+    return this.http.post('/api/contract/renew', data);
+  }
+
+  updateContract(data: any): Observable<any> {
+    return this.http.post('/api/contract/update', data);
   }
 }

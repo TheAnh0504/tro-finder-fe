@@ -31,6 +31,11 @@
               }
             ],
             "styles": ["src/styles.scss", "node_modules/ngx-toastr/toastr.css", "node_modules/leaflet/dist/leaflet.css"],
+            "allowedCommonJsDependencies": [
+              "leaflet",
+              "@stomp/stompjs",
+              "sockjs-client"
+            ],
             "security": {
               "allowedHosts": []
             }
@@ -51,8 +56,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "40kB",
-                  "maximumError": "80kB"
+                  "maximumWarning": "100kB",
+                  "maximumError": "200kB"
                 }
               ],
               "outputHashing": "all"

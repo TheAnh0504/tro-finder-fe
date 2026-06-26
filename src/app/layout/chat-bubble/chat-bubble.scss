@@ -10,6 +10,7 @@
 
   /* Nút bong bóng nổi */
   .bubble-btn {
+    position: relative;
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -22,6 +23,24 @@
     justify-content: center;
     align-items: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    .bubble-badge-total {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background-color: #ef4444; /* Màu đỏ */
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 6px;
+      border-radius: 20px;
+      border: 2px solid white; /* Viền trắng để phân cách */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+      min-width: 14px;
+      text-align: center;
+      animation: zoomInImage 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
     &:hover {
       transform: scale(1.05);
@@ -113,6 +132,11 @@
           }
           &.text-count {
             color: #94a3b8;
+          }
+          .unread-text-header {
+            color: #fb7185; /* Đỏ nhạt để nổi trên nền đen của Header */
+            font-weight: 700;
+            margin-left: 4px;
           }
         }
       }
@@ -219,12 +243,31 @@
               overflow: hidden;
               text-overflow: ellipsis;
               margin-bottom: 2px;
+              /* In đậm tên nhóm nếu có tin nhắn chưa đọc */
+              &.unread-highlight {
+                font-weight: 800;
+                color: #0f172a;
+              }
             }
 
             .group-type {
               font-size: 11px;
               color: #64748b;
             }
+          }
+
+          /* BADGE SỐ LƯỢNG TRONG TỪNG LIST ITEM */
+          .unread-badge {
+            background-color: #ef4444; /* Màu đỏ nổi bật */
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 12px;
+            margin-right: 8px;
+            min-width: 16px;
+            text-align: center;
+            display: inline-block;
           }
 
           .arrow-indicator {
@@ -257,7 +300,11 @@
             object-fit: cover; /* Cắt cúp ảnh cho gọn gàng */
             margin-bottom: 4px;
             display: block;
-            cursor: pointer;
+            cursor: zoom-in !important; /* Đổi con trỏ chuột để người dùng biết có thể bấm */
+            transition: opacity 0.2s;
+            &:hover {
+              opacity: 0.9;
+            }
           }
 
           p {
@@ -362,6 +409,125 @@
 }
 
 @keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// GIAO DIỆN MODAL XEM ẢNH FULL MÀN HÌNH (IMAGE VIEWER)
+.image-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000; /* Nổi lên trên tất cả mọi thứ */
+  background-color: rgba(15, 23, 42, 0.9); /* Nền tối, làm mờ phía sau */
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInModal 0.2s ease-out;
+
+  /* Nút đóng trên góc */
+  .btn-close-modal {
+    position: absolute;
+    top: 24px;
+    right: 32px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 2;
+
+    &:hover {
+      background: #ef4444; /* Chuyển màu đỏ khi hover */
+      transform: scale(1.1) rotate(90deg);
+    }
+  }
+
+  .image-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    max-width: 90vw;
+    max-height: 90vh;
+    position: relative;
+
+    img {
+      max-width: 100%;
+      max-height: 75vh; /* Chừa không gian cho nút bấm bên dưới */
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      animation: zoomInImage 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .btn-download {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 28px;
+      border-radius: 50px;
+      background: #10b981; /* Nút xanh lá đồng bộ thương hiệu */
+      color: white;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideUpFade 0.4s ease-out 0.2s both; /* Trễ 0.2s cho đẹp */
+
+      &:hover {
+        background: #059669;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
+      }
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+}
+
+/* Các Animation cho mượt mà */
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomInImage {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUpFade {
   from {
     opacity: 0;
     transform: translateY(20px);

@@ -220,6 +220,7 @@ export class SignIn implements OnInit, OnDestroy {
           });
         },
         error: (err) => {
+          this.countSendOtpCode.set(this.countSendOtpCode() + 1);
           this.isLoading.set(false);
           this.toast.error(err.error?.message, 'Lỗi', {
             timeOut: 3000,
@@ -303,10 +304,20 @@ export class SignIn implements OnInit, OnDestroy {
           phoneNumber: res.phoneNumber,
           urlImage: res.urlImage,
           isOcr: res.isOcr,
+          searchPreferences: res.searchPreferences,
         };
         this.tokenService.setTokens(res.access_token, res.listPermission, currentUser);
-
-        this.router.navigate(['/home']);
+        if (currentUser.role === 'Người thuê trọ') {
+          this.router.navigate(['/home']);
+        } else if (currentUser.role === 'Chủ nhà trọ') {
+          this.router.navigate(['/manager-house']);
+        } else if (currentUser.role === 'Chủ trọ & Người thuê') {
+          this.router.navigate(['/home']);
+        } else if (currentUser.role === 'Quản trị viên') {
+          this.router.navigate(['/sys-user']);
+        } else {
+          this.router.navigate(['/home']);
+        }
       },
       error: (err) => {
         this.isLoading.set(false);

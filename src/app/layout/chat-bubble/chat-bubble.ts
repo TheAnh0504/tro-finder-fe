@@ -8,6 +8,7 @@ import {
   ViewChild,
   OnDestroy,
   computed,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +16,7 @@ import { ChatService } from '../../core/services/chat.service';
 import { TokenService } from '../../core/services/token.service';
 import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { HouseRoomManagementService } from '../../core/services/house-room-management.service';
 
 @Component({
   selector: 'app-chat-bubble',
@@ -27,6 +29,8 @@ export class ChatBubble implements OnInit, OnDestroy {
   private chatService = inject(ChatService);
   private tokenService = inject(TokenService);
   private toast = inject(ToastrService);
+  private houseService = inject(HouseRoomManagementService);
+  private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('scrollMe') private myScrollContainer!: ElementRef;
 
@@ -39,13 +43,21 @@ export class ChatBubble implements OnInit, OnDestroy {
   currentUsername = signal('');
   listGroupMessage = signal<any[]>([]);
 
+  // --- THÊM BIẾN CHO MODAL ẢNH ---
+  isImageModalOpen = signal(false);
+  selectedImage = signal<string | null>(null);
+
   // Tự động tìm thông tin của nhóm đang chat để hiển thị lên Header
   activeGroupInfo = computed(() => {
     return this.listGroupMessage().find((g) => g.groupId === this.activeGroupId());
   });
 
+  totalUnreadCount = computed(() => {
+    return this.listGroupMessage().reduce((sum, group) => sum + (group.isNotRead || 0), 0);
+  });
+
   private wsSubscription?: Subscription;
-  private currentRoomSub: any;
+  private groupSubscriptions = new Map<string, any>();
 
   @ViewChild('fileInput') fileInput!: ElementRef;
 
@@ -66,27 +78,52 @@ export class ChatBubble implements OnInit, OnDestroy {
     // 1. Khởi động kết nối ngầm WebSocket khi component load
     this.chatService.connectWebSocket();
 
-    // 2. Lắng nghe luồng tin nhắn mới từ WebSocket
+    // 1. NGAY KHI SOCKET CONNECT XONG -> ĐĂNG KÝ NGHE TẤT CẢ CÁC NHÓM
+    this.chatService.isConnected$.subscribe((connected) => {
+      if (connected) {
+        this.subscribeToAllGroups(this.listGroupMessage());
+      }
+    });
+
+    // 2. XỬ LÝ LẮNG NGHE TIN NHẮN CHUNG TỪ TẤT CẢ CÁC PHÒNG
     this.wsSubscription = this.chatService.messageReceived$.subscribe((newMsg) => {
-      if (newMsg.groupId === this.activeGroupId()) {
-        if (newMsg.mediaType === 'VIDEO_MP4') {
-          this.messages.update((msgs) => [...msgs, newMsg]);
-        } else if (newMsg.mediaType === 'TEXT') {
+      // Kiểm tra xem User có đang ĐANG MỞ trực tiếp nhóm có tin nhắn tới không
+      const isViewingActiveRoom =
+        this.isOpen() && this.viewMode() === 'room' && this.activeGroupId() === newMsg.groupId;
+
+      if (isViewingActiveRoom) {
+        // TRƯỜNG HỢP 1: Đang mở chat box -> Ném vào màn hình chat
+        if (newMsg.mediaType === 'VIDEO_MP4' || newMsg.mediaType === 'TEXT') {
           this.messages.update((msgs) => [...msgs, newMsg]);
         } else {
           this.chatService.getImage({ id: newMsg.content }).subscribe({
             next: (blob: any) => {
-              const objectUrl = URL.createObjectURL(blob);
-              newMsg.contentNew = objectUrl; // Gán URL của ảnh vào content để hiển thị
+              newMsg.contentNew = URL.createObjectURL(blob);
               this.messages.update((msgs) => [...msgs, newMsg]);
             },
-            error: (err) => {
-              this.toast.error(err.error?.message, 'Lỗi', {
-                timeOut: 3000,
-                progressBar: true,
-                positionClass: 'toast-top-right',
-              });
-            },
+          });
+        }
+
+        // Ép isNotRead về 0 ngay lập tức
+        this.listGroupMessage.update((groups) =>
+          groups.map((g) => (g.groupId === newMsg.groupId ? { ...g, isNotRead: 0 } : g)),
+        );
+      } else {
+        // TRƯỜNG HỢP 2: Chat box đang đóng, hoặc đang nhắn với nhóm khác
+        // -> CỘNG DỒN BIẾN isNotRead LÊN 1 (nếu không phải tin do chính mình gửi)
+        if (newMsg.createdBy !== this.currentUsername()) {
+          this.listGroupMessage.update((groups) => {
+            const exists = groups.some((g) => g.groupId === newMsg.groupId);
+
+            if (exists) {
+              return groups.map((g) =>
+                g.groupId === newMsg.groupId ? { ...g, isNotRead: (g.isNotRead || 0) + 1 } : g,
+              );
+            } else {
+              // Nếu nhóm hoàn toàn mới (chưa có trong list), tải lại toàn bộ list
+              this.getListGroupMessage();
+              return groups;
+            }
           });
         }
       }
@@ -98,7 +135,28 @@ export class ChatBubble implements OnInit, OnDestroy {
 
       this.chatService.getListGroupMessage().subscribe({
         next: (res: any) => {
-          this.listGroupMessage.set(res);
+          this.listGroupMessage.set([]);
+          res.forEach((chatData: any, index: number) => {
+            if (chatData.urlAvatar) {
+              this.houseService.getImageRoom({ id: chatData.urlAvatar }).subscribe({
+                next: (blob: any) => {
+                  const objectUrl = URL.createObjectURL(blob);
+                  chatData.urlAvatarShow = objectUrl;
+                  this.listGroupMessage.update((list) =>
+                    list.map((item) =>
+                      item.groupId === chatData.groupId
+                        ? {
+                            ...item,
+                            urlAvatarShow: objectUrl,
+                          }
+                        : item,
+                    ),
+                  );
+                },
+                error: (err) => console.error(err),
+              });
+            }
+          });
           // Hàm selectGroup của bạn đã có sẵn logic set ID, set mode 'room' và gọi openChatRoom() rồi
           this.selectGroup(groupId);
         },
@@ -124,8 +182,23 @@ export class ChatBubble implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.wsSubscription) this.wsSubscription.unsubscribe();
     if (this.openChatSub) this.openChatSub.unsubscribe(); // Nhớ hủy lắng nghe để tránh rò rỉ bộ nhớ
-    this.leaveChatRoom();
     this.chatService.disconnectWebSocket();
+  }
+
+  // --- HÀM MỚI: ĐĂNG KÝ LẮNG NGHE CHO TẤT CẢ CÁC NHÓM ---
+  subscribeToAllGroups(groups: any[]) {
+    // Chỉ chạy nếu WebSocket đã sẵn sàng
+    if (!this.chatService.isConnected$.value) return;
+
+    groups.forEach((g) => {
+      // Nếu chưa đăng ký nhóm này thì mới đăng ký
+      if (!this.groupSubscriptions.has(g.groupId)) {
+        const sub = this.chatService.subscribeToGroup(g.groupId);
+        if (sub) {
+          this.groupSubscriptions.set(g.groupId, sub);
+        }
+      }
+    });
   }
 
   onFileSelected(event: any) {
@@ -165,17 +238,27 @@ export class ChatBubble implements OnInit, OnDestroy {
   getListGroupMessage() {
     this.chatService.getListGroupMessage().subscribe({
       next: (res: any) => {
-        this.listGroupMessage.set(res);
+        this.listGroupMessage.set([]);
+        res.forEach((chatData: any) => {
+          if (chatData.urlAvatar) {
+            this.houseService.getImageRoom({ id: chatData.urlAvatar }).subscribe({
+              next: (blob: any) => {
+                chatData.urlAvatarShow = URL.createObjectURL(blob);
+                this.listGroupMessage.update((list) => [...list, chatData]);
+
+                // Vừa tải nhóm xong thì gọi hàm đăng ký lắng nghe luôn
+                this.subscribeToAllGroups([chatData]);
+              },
+            });
+          } else {
+            this.listGroupMessage.update((list) => [...list, chatData]);
+            this.subscribeToAllGroups([chatData]);
+          }
+        });
       },
       error: (err) => {
         if ('1036' === err.error?.status_code) {
-          this.listGroupMessage.set([]); // Nếu chưa có nhóm nào, set mảng rỗng để tránh lỗi
-        } else {
-          this.toast.error(err.error?.message || 'Không thể tải danh sách cuộc trò chuyện', 'Lỗi', {
-            timeOut: 3000,
-            progressBar: true,
-            positionClass: 'toast-top-right',
-          });
+          this.listGroupMessage.set([]);
         }
       },
     });
@@ -194,6 +277,12 @@ export class ChatBubble implements OnInit, OnDestroy {
   selectGroup(groupId: string) {
     this.activeGroupId.set(groupId);
     this.viewMode.set('room');
+
+    // Mở nhóm nào thì reset số đếm thông báo nhóm đó về 0
+    this.listGroupMessage.update((groups) =>
+      groups.map((g) => (g.groupId === groupId ? { ...g, isNotRead: 0 } : g)),
+    );
+
     this.openChatRoom();
   }
 
@@ -245,68 +334,40 @@ export class ChatBubble implements OnInit, OnDestroy {
     const groupId = this.activeGroupId();
     if (!groupId) return;
 
-    // 1. Tải lịch sử tin nhắn cũ qua REST
     this.chatService.getHistoryMessages(groupId).subscribe({
       next: (res: any) => {
         this.currentUsername.set(res.username);
 
-        // Tạo ra một mảng copy ban đầu, gắn sẵn trường contentNew để tránh lỗi undefined trên HTML
         const initialMessages = (res.listMessage || []).map((msg: any) => ({
           ...msg,
-          // Nếu là TEXT hoặc VIDEO thì contentNew = content gốc. Nếu là ẢNH thì tạm để rỗng chờ load
           contentNew: msg.mediaType === 'TEXT' || msg.mediaType === 'VIDEO_MP4' ? msg.content : '',
         }));
-
         this.messages.set(initialMessages);
 
-        // Lặp qua để tải file Blob cho những tin nhắn là ẢNH
         if (initialMessages.length > 0) {
           initialMessages.forEach((msg: any) => {
-            if (msg.mediaType === 'VIDEO_MP4' || msg.mediaType === 'TEXT') {
-              // Không làm gì thêm
-            } else {
-              // Gọi API lấy blob ảnh
+            if (msg.mediaType !== 'VIDEO_MP4' && msg.mediaType !== 'TEXT') {
               this.chatService.getImage({ id: msg.content }).subscribe({
                 next: (blob: any) => {
                   const objectUrl = URL.createObjectURL(blob);
-
-                  // BẮT BUỘC DÙNG .update() CỦA SIGNAL ĐỂ GIAO DIỆN CẬP NHẬT LẠI ẢNH
                   this.messages.update((msgs) =>
                     msgs.map((m) =>
                       m.messId === msg.messId ? { ...m, contentNew: objectUrl } : m,
                     ),
                   );
                 },
-                error: (err) => {
-                  this.toast.error(err.error?.message, 'Lỗi tải ảnh', {
-                    timeOut: 3000,
-                    progressBar: true,
-                    positionClass: 'toast-top-right',
-                  });
-                },
               });
             }
           });
         }
-        console.log('Lịch sử tin nhắn:', initialMessages);
       },
     });
 
-    // 2. Hủy theo dõi phòng cũ (nếu có)
-    this.leaveChatRoom();
-
-    // 3. Đăng ký nhận tin nhắn Realtime cho phòng mới
-    setTimeout(() => {
-      this.currentRoomSub = this.chatService.subscribeToGroup(groupId);
-    }, 300);
+    // CHÚ Ý: ĐÃ XÓA `this.leaveChatRoom()` VÀ `setTimeout` Ở ĐÂY.
+    // Vì bây giờ mình đã subscribe tất cả các phòng vĩnh viễn ở hàm subscribeToAllGroups rồi!
   }
 
-  leaveChatRoom() {
-    if (this.currentRoomSub) {
-      this.currentRoomSub.unsubscribe();
-      this.currentRoomSub = null;
-    }
-  }
+  leaveChatRoom() {}
 
   sendMessage() {
     const groupId = this.activeGroupId();
@@ -321,5 +382,34 @@ export class ChatBubble implements OnInit, OnDestroy {
       this.myScrollContainer.nativeElement.scrollTop =
         this.myScrollContainer.nativeElement.scrollHeight;
     } catch (err) {}
+  }
+
+  // Mở modal xem ảnh
+  openImageModal(imageUrl: string) {
+    if (imageUrl) {
+      this.selectedImage.set(imageUrl);
+      this.isImageModalOpen.set(true);
+    }
+  }
+
+  // Đóng modal xem ảnh
+  closeImageModal() {
+    this.isImageModalOpen.set(false);
+    this.selectedImage.set(null);
+  }
+
+  // Tải ảnh xuống
+  downloadImage() {
+    const url = this.selectedImage();
+    if (!url) return;
+
+    // Tạo một thẻ <a> ảo để kích hoạt hành động download của trình duyệt
+    const a = document.createElement('a');
+    a.href = url;
+    // Tên file mặc định khi tải (có thể sinh ngẫu nhiên theo timestamp)
+    a.download = `TroFinder_Image_${new Date().getTime()}.jpg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 }
