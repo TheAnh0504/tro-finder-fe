@@ -1,0 +1,94 @@
+@if (open && contract) {
+  <div class="sign-overlay" (click)="close()">
+    <div class="sign-modal" (click)="$event.stopPropagation()">
+      <div class="sign-header">
+        <div>
+          <h2>In PDF & ký số hợp đồng</h2>
+          <p>{{ contract.room?.houseSet?.name }} — {{ contract.room?.name }}</p>
+        </div>
+        <button type="button" class="icon-btn" (click)="close()">✕</button>
+      </div>
+
+      <form [formGroup]="signForm" class="sign-body" (ngSubmit)="submit()">
+        <aside class="sign-config">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nhà cung cấp chữ ký</mat-label>
+            <mat-select formControlName="provider_id" (selectionChange)="loadCertificates()">
+              @for (provider of providers(); track provider.id) {
+                <mat-option [value]="provider.id">{{ provider.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Username ký</mat-label>
+            <input matInput formControlName="username" (blur)="loadCertificates()" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Chứng thư số</mat-label>
+            <mat-select formControlName="certificate_id">
+              @for (cert of certificates(); track cert.id) {
+                <mat-option [value]="cert.id">
+                  {{ cert.subjectName }} — {{ cert.serialNumber }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <div class="position-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Trang</mat-label>
+              <input matInput type="number" formControlName="page" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>X</mat-label>
+              <input matInput type="number" formControlName="x" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Y</mat-label>
+              <input matInput type="number" formControlName="y" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Rộng</mat-label>
+              <input matInput type="number" formControlName="width" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Cao</mat-label>
+              <input matInput type="number" formControlName="height" />
+            </mat-form-field>
+          </div>
+
+          <button type="submit" class="btn-sign-submit" [disabled]="isLoading()">
+            {{ isLoading() ? 'Đang gửi ký...' : 'Gửi ký' }}
+          </button>
+          <button type="button" class="btn-print-preview" (click)="printPreview()">
+            In / lưu PDF
+          </button>
+          <button type="button" class="btn-print-preview secondary" (click)="downloadPreviewHtml()">
+            Tải bản HTML
+          </button>
+        </aside>
+
+        <section class="pdf-preview">
+          <div class="preview-toolbar">
+            <span>Preview bản hợp đồng sẽ in PDF và ký số</span>
+            <small>Click trên văn bản để chọn vị trí chữ ký</small>
+          </div>
+          <div class="preview-page" (click)="choosePosition($event)">
+            <div class="contract-html" [innerHTML]="contract.documentContent"></div>
+            <div
+              class="signature-box"
+              [style.left.px]="signForm.value.x"
+              [style.top.px]="signForm.value.y"
+              [style.width.px]="signForm.value.width"
+              [style.height.px]="signForm.value.height"
+            >
+              Vị trí ký
+            </div>
+          </div>
+        </section>
+      </form>
+    </div>
+  </div>
+}

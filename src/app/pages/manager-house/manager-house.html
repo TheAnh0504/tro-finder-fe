@@ -38,6 +38,33 @@
         </div>
       </div>
 
+      <div class="rent-status-tabs">
+        <button
+          type="button"
+          class="rent-status-tab"
+          [class.active]="rentStatusFilter() === 'ALL'"
+          (click)="setRentStatusFilter('ALL')"
+        >
+          Tất cả
+        </button>
+        <button
+          type="button"
+          class="rent-status-tab vacant"
+          [class.active]="rentStatusFilter() === 'VACANT'"
+          (click)="setRentStatusFilter('VACANT')"
+        >
+          Phòng trống
+        </button>
+        <button
+          type="button"
+          class="rent-status-tab rented"
+          [class.active]="rentStatusFilter() === 'RENTED'"
+          (click)="setRentStatusFilter('RENTED')"
+        >
+          Đã cho thuê
+        </button>
+      </div>
+
       @if (isFilterExpanded()) {
         <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="filter-section mb-4">
           <div class="filter-grid">

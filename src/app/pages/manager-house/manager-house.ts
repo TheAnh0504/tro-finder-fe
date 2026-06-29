@@ -121,6 +121,7 @@ export class ManagerHouse implements OnInit {
 
   // --- BIẾN CHO TÌM KIẾM & PHÂN TRANG ---
   isFilterExpanded = signal(false);
+  rentStatusFilter = signal<'ALL' | 'VACANT' | 'RENTED'>('ALL');
 
   searchForm!: FormGroup;
   totalPages = signal(1); // Tổng số trang trả về từ API
@@ -594,6 +595,11 @@ export class ManagerHouse implements OnInit {
   getListHouse() {
     this.isLoading.set(true);
     const rawFilterData = this.searchForm ? this.searchForm.value : {};
+    if (this.rentStatusFilter() === 'VACANT') {
+      rawFilterData.has_rent = false;
+    } else if (this.rentStatusFilter() === 'RENTED') {
+      rawFilterData.has_rent = true;
+    }
 
     const cleanedParams = this.cleanPayload(rawFilterData);
     console.log('search room:', cleanedParams);
@@ -768,9 +774,21 @@ export class ManagerHouse implements OnInit {
 
   onResetSearch() {
     this.searchForm.reset();
+    this.rentStatusFilter.set('ALL');
     this.filterProvinceText.set('');
     this.filterCommuneText.set('');
     this.pageNumber.set(0);
+    this.getListHouse();
+  }
+
+  setRentStatusFilter(status: 'ALL' | 'VACANT' | 'RENTED') {
+    this.rentStatusFilter.set(status);
+    this.pageNumber.set(0);
+    if (status === 'ALL') {
+      this.searchForm.patchValue({ has_rent: null });
+    } else {
+      this.searchForm.patchValue({ has_rent: status === 'RENTED' });
+    }
     this.getListHouse();
   }
 

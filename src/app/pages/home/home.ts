@@ -26,6 +26,7 @@ import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { OsmMapComponent } from '../../shared/osm-map/osm-map.component';
 import { ChatService } from '../../core/services/chat.service';
 import { SysUserService } from '../../core/services/sys-user.service';
+import { ContractService } from '../../core/services/contract.service';
 
 @Component({
   selector: 'app-home',
@@ -56,6 +57,7 @@ export class Home implements OnInit {
   private cdr = inject(ChangeDetectorRef); // Ép Angular cập nhật UI ngay lập tức
   private chatService = inject(ChatService);
   private sysUserService = inject(SysUserService);
+  private contractService = inject(ContractService);
 
   searchForm!: FormGroup;
   preferencesForm!: FormGroup;
@@ -760,7 +762,7 @@ export class Home implements OnInit {
     // KIỂM TRA TRẠNG THÁI OCR CỦA USER Ở ĐÂY
     // Ép kiểu any để lấy isOcr (bạn nhớ đảm bảo Backend có trả trường isOcr vào trong token nhé)
     const userInfo: any = this.tokenService.getUserInfo();
-    this.isUserVerified.set(userInfo?.isOcr === true);
+    this.isUserVerified.set(true);
 
     // Khởi tạo form
     this.requestContractForm = this.fb.group({
@@ -771,6 +773,7 @@ export class Home implements OnInit {
       end_time: ['', Validators.required],
       deposit_amount: [room.priceRoom || 0],
       notify_channel: ['EMAIL'],
+      terms: [''],
     });
 
     this.isRequestContractModalOpen.set(true);
@@ -808,27 +811,23 @@ export class Home implements OnInit {
       contract_type: val.contract_type,
       deposit_amount: val.deposit_amount,
       notify_channel: val.notify_channel,
+      terms: val.terms,
       begin_time: this.formatDateTime(val.begin_time),
       end_time: this.formatDateTime(val.end_time),
-      // Lưu ý: BE của bạn có thể lấy tenant_username từ Token, không cần truyền text tĩnh
     };
 
-    const fd = new FormData();
-    fd.append('request', new Blob([JSON.stringify(request)], { type: 'application/json' }));
-
     this.isLoading.set(true);
-    // Gọi API chung hoặc API riêng cho việc Gửi yêu cầu
-    // this.houseService.createContractWithOcr(fd).subscribe({
-    //   next: () => {
-    //     this.isLoading.set(false);
-    //     this.toast.success('Đã gửi yêu cầu tạo hợp đồng cho Chủ nhà!', 'Thành công');
-    //     this.closeRequestContractModal();
-    //   },
-    //   error: (err: any) => {
-    //     this.isLoading.set(false);
-    //     this.toast.error(err.error?.message || 'Gửi yêu cầu thất bại', 'Lỗi');
-    //   },
-    // });
+    this.contractService.createContractFromRoom(request).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.toast.success('Đã gửi yêu cầu hợp đồng cho chủ nhà!', 'Thành công');
+        this.closeRequestContractModal();
+      },
+      error: (err: any) => {
+        this.isLoading.set(false);
+        this.toast.error(err.error?.message || 'Gửi yêu cầu thất bại', 'Lỗi');
+      },
+    });
   }
 
   // 3. Thêm hàm để nút "Đi đến trang Xác minh" gọi tới

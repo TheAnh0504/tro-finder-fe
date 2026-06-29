@@ -82,6 +82,7 @@ export const routes: Routes = [
             EPermission.FIND_CONTRACT,
             EPermission.GET_CONTRACT,
             EPermission.UPDATE_CONTRACT,
+            EPermission.SIGN_CONTRACT,
             EPermission.ADD_CONTRACT,
           ],
         },

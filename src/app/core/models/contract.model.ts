@@ -1,7 +1,12 @@
 // --- Enums ---
 export enum EContractStatus {
-  DRAFT = 'DRAFT',
-  ACTIVE = 'ACTIVE',
+  PROPOSED_BY_TENANT = 'PROPOSED_BY_TENANT',
+  PROPOSED_BY_HOST = 'PROPOSED_BY_HOST',
+  COUNTERPARTY_CONFIRMED = 'COUNTERPARTY_CONFIRMED',
+  TENANT_SIGNED = 'TENANT_SIGNED',
+  HOST_SIGNED = 'HOST_SIGNED',
+  COMPLETED = 'COMPLETED',
+  REJECTED = 'REJECTED',
   EXPIRED = 'EXPIRED',
 }
 
@@ -45,6 +50,15 @@ export interface ContractRoomDTO {
     id: string;
     name: string;
     address: string;
+    owner?: {
+      id: string;
+      username: string;
+      name: string;
+      email: string;
+      phoneNumber: string;
+      paymentQrImage?: string;
+      paymentQrImageShow?: string;
+    };
     province?: { name: string };
     commune?: { name: string };
   };
@@ -71,6 +85,16 @@ export interface ContractDTO {
   endTime: string;
   depositAmount: number;
   status: string; // EContractStatus
+  createdByRole: string;
+  terms: string;
+  confirmedByTenant: boolean;
+  confirmedByHost: boolean;
+  tenantSignedAt: string | null;
+  hostSignedAt: string | null;
+  unsignedPdfFile: string | null;
+  signedPdfFile: string | null;
+  tenantSignatureMeta: string | null;
+  hostSignatureMeta: string | null;
   notifyChannel: string;
   file: string;
   documentContent: string;

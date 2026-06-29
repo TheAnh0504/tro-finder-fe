@@ -1,6 +1,12 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { TokenService } from '../../core/services/token.service';
@@ -19,10 +25,19 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { ContractSignModalComponent } from '../../shared/contract-sign-modal/contract-sign-modal.component';
 
 @Component({
   selector: 'app-contract-dashboard',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    ContractSignModalComponent,
+  ],
   templateUrl: './contract-dashboard.html',
   styleUrl: './contract-dashboard.scss',
 })
@@ -39,6 +54,8 @@ export class ContractDashboard implements OnInit {
 
   // --- State ---
   isLoading = signal(false);
+  isVerified = signal(false); // Trạng thái xác minh danh tính
+  showVerificationModal = signal(false); // Trạng thái hiển thị modal bắt buộc xác minh
   userRole = signal<string>('');
   contracts = signal<ContractDTO[]>([]);
   houseStats = signal<{ total: number; rented: number; vacant: number }>({
@@ -77,16 +94,47 @@ export class ContractDashboard implements OnInit {
   showDocumentViewer = signal(false);
   documentContent = signal('');
 
+  showSignModal = signal(false);
+  signingContract = signal<ContractDTO | null>(null);
+  paymentQrFileName = signal('');
+  selectedPaymentContractId = signal('');
+  selectedPaymentYear = signal(new Date().getFullYear());
+  selectedPaymentMonth = signal(new Date().getMonth() + 1);
+  showTempFormModal = signal(false);
+  tempFormContract = signal<ContractDTO | null>(null);
+  tempFormType = signal<'TEMP_RESIDENCE' | 'TEMP_ABSENCE'>('TEMP_RESIDENCE');
+  tempFormFromTime = signal('');
+  tempFormToTime = signal('');
+  tempFormReason = signal('');
+  tempFormDestinationAddress = signal('');
+
   // --- Computed values ---
-  isHost = computed(() => this.userRole() === ERole.ROLE_HOST);
-  isRoomer = computed(() => this.userRole() === ERole.ROLE_ROOMER);
+  isHost = computed(
+    () => this.userRole() === 'Chủ nhà trọ' || this.userRole() === 'Chủ trọ & Người thuê',
+  );
+  isRoomer = computed(
+    () => this.userRole() === 'Người thuê trọ' || this.userRole() === 'Chủ trọ & Người thuê',
+  );
 
   activeContracts = computed(() =>
-    this.contracts().filter((c) => c.status === EContractStatus.ACTIVE),
+    this.contracts().filter((c) => c.status === EContractStatus.COMPLETED),
   );
 
   expiredContracts = computed(() =>
     this.contracts().filter((c) => c.status === EContractStatus.EXPIRED),
+  );
+
+  pendingConfirmContracts = computed(() => this.contracts().filter((c) => this.canConfirm(c)));
+  waitingMySignatureContracts = computed(() => this.contracts().filter((c) => this.canSign(c)));
+  waitingOtherSignatureContracts = computed(() =>
+    this.contracts().filter(
+      (c) =>
+        [
+          EContractStatus.COUNTERPARTY_CONFIRMED,
+          EContractStatus.TENANT_SIGNED,
+          EContractStatus.HOST_SIGNED,
+        ].includes(c.status as EContractStatus) && !this.canSign(c),
+    ),
   );
 
   // Hợp đồng sắp hết hạn (trong 3 tháng tới)
@@ -129,8 +177,7 @@ export class ContractDashboard implements OnInit {
     const end = this.parseDate(contract.endTime);
     if (!end) return 0;
     const now = new Date();
-    const months =
-      (end.getFullYear() - now.getFullYear()) * 12 + (end.getMonth() - now.getMonth());
+    const months = (end.getFullYear() - now.getFullYear()) * 12 + (end.getMonth() - now.getMonth());
     return Math.max(0, months);
   });
 
@@ -158,9 +205,20 @@ export class ContractDashboard implements OnInit {
       return;
     }
 
-    const userInfo = this.tokenService.getUserInfo();
+    const userInfo: any = this.tokenService.getUserInfo();
     if (userInfo) {
       this.userRole.set(userInfo.role);
+
+      // Kiểm tra xác minh danh tính (isOcr)
+      if (userInfo.isOcr === true) {
+        this.isVerified.set(true);
+        this.showVerificationModal.set(false);
+      } else {
+        this.isVerified.set(false);
+        this.showVerificationModal.set(true);
+        // Không load data khi chưa xác minh
+        return;
+      }
     }
 
     this.loadContracts();
@@ -184,9 +242,21 @@ export class ContractDashboard implements OnInit {
       end_time: ['', Validators.required],
       deposit_amount: [0],
       notify_channel: ['EMAIL'],
+      terms: [''],
     });
 
     this.loadProfile();
+  }
+
+  // --- Verification ---
+  goToProfileToVerify(): void {
+    this.showVerificationModal.set(false);
+    this.router.navigate(['/profile']);
+  }
+
+  goBackHome(): void {
+    this.showVerificationModal.set(false);
+    this.router.navigate(['/home']);
   }
 
   loadProfile(): void {
@@ -194,7 +264,7 @@ export class ContractDashboard implements OnInit {
       next: (res) => {
         this.profile.set(res);
       },
-      error: () => {}
+      error: () => {},
     });
   }
 
@@ -204,7 +274,9 @@ export class ContractDashboard implements OnInit {
     this.contractService.findContracts().subscribe({
       next: (res: any) => {
         this.isLoading.set(false);
-        this.contracts.set(res.listContract || []);
+        const contracts = res.listContract || [];
+        this.contracts.set(contracts);
+        this.loadPaymentQrImages(contracts);
       },
       error: (err) => {
         this.isLoading.set(false);
@@ -246,6 +318,51 @@ export class ContractDashboard implements OnInit {
   }
 
   // --- Actions ---
+  onPaymentQrSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('file', file);
+    this.paymentQrFileName.set(file.name);
+    this.isLoading.set(true);
+    this.contractService.uploadPaymentQr(fd).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.toast.success('Đã tải lên QR thanh toán của chủ nhà!', 'Thành công');
+        this.loadContracts();
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.toast.error(err.error?.message || 'Không tải lên được QR thanh toán', 'Lỗi');
+      },
+    });
+  }
+
+  loadPaymentQrImages(contracts: ContractDTO[]): void {
+    const loaded = new Set<string>();
+    for (const contract of contracts) {
+      const owner = contract.room?.houseSet?.owner;
+      const qrKey = owner?.paymentQrImage;
+      if (!owner || !qrKey || loaded.has(qrKey)) continue;
+      loaded.add(qrKey);
+      this.houseService.getImageRoom({ id: qrKey }).subscribe({
+        next: (blob) => {
+          const objectUrl = URL.createObjectURL(blob);
+          this.contracts.update((items) => {
+            for (const item of items) {
+              if (item.room?.houseSet?.owner?.paymentQrImage === qrKey) {
+                item.room.houseSet.owner.paymentQrImageShow = objectUrl;
+              }
+            }
+            return [...items];
+          });
+        },
+        error: () => {},
+      });
+    }
+  }
+
   confirmPayment(paymentId: string): void {
     if (!confirm('Xác nhận người thuê đã thanh toán khoản này?')) return;
 
@@ -269,6 +386,38 @@ export class ContractDashboard implements OnInit {
         });
       },
     });
+  }
+
+  confirmPaymentForSelectedPeriod(): void {
+    if (!this.selectedPaymentContractId()) {
+      this.toast.warning('Vui lòng chọn hợp đồng/phòng cần xác nhận', 'Chú ý');
+      return;
+    }
+    if (
+      !confirm(
+        `Xác nhận đã đóng tiền tháng ${this.selectedPaymentMonth()}/${this.selectedPaymentYear()}?`,
+      )
+    ) {
+      return;
+    }
+    this.isLoading.set(true);
+    this.contractService
+      .confirmPaymentByPeriod({
+        contract_id: this.selectedPaymentContractId(),
+        payment_year: Number(this.selectedPaymentYear()),
+        payment_month: Number(this.selectedPaymentMonth()),
+      })
+      .subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.toast.success('Đã xác nhận thanh toán theo tháng!', 'Thành công');
+          this.loadContracts();
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.toast.error(err.error?.message || 'Lỗi xác nhận thanh toán', 'Lỗi');
+        },
+      });
   }
 
   openRenewModal(contractId: string): void {
@@ -295,7 +444,7 @@ export class ContractDashboard implements OnInit {
     this.isLoading.set(true);
     const data: any = {
       contractId: this.renewContractId(),
-      newEndTime: this.renewNewEndTime(),
+      newEndTime: this.formatDateTime(this.renewNewEndTime()),
     };
     if (this.renewDepositAmount() !== null) {
       data.depositAmount = this.renewDepositAmount();
@@ -330,6 +479,90 @@ export class ContractDashboard implements OnInit {
 
   closeDocumentViewer(): void {
     this.showDocumentViewer.set(false);
+  }
+
+  printDocument(): void {
+    const content = this.documentContent();
+    const win = window.open('', '_blank', 'width=900,height=1100');
+    if (!win) return;
+    win.document.write(this.buildPrintableHtml(content));
+    win.document.close();
+    win.focus();
+    win.print();
+  }
+
+  downloadDocumentHtml(): void {
+    const blob = new Blob([this.buildPrintableHtml(this.documentContent())], {
+      type: 'text/html;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'don-hop-dong-co-the-in-pdf.html';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private buildPrintableHtml(content: string): string {
+    return `<!doctype html><html><head><meta charset="utf-8"><title>Tài liệu TroFinder</title><style>
+      body{font-family:"Times New Roman",serif;padding:32px;color:#111;line-height:1.55}
+      .national-title{text-align:center;margin-bottom:14px}
+      h1{text-align:center;font-size:22px;margin:12px 0 28px;text-transform:uppercase}
+      h3{font-size:16px;margin:18px 0 8px}
+      table{width:100%;border-collapse:collapse;margin:8px 0 14px}
+      td{border:1px solid #d1d5db;padding:8px;vertical-align:top}
+      ul{margin-top:6px}
+      .terms{border:1px dashed #cbd5e1;padding:10px;min-height:48px}
+      .signature-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:48px;text-align:center}
+      @page{size:A4;margin:18mm}
+    </style></head><body>${content}</body></html>`;
+  }
+
+  openTempFormModal(contract: ContractDTO, type: 'TEMP_RESIDENCE' | 'TEMP_ABSENCE'): void {
+    this.tempFormContract.set(contract);
+    this.tempFormType.set(type);
+    this.tempFormFromTime.set('');
+    this.tempFormToTime.set('');
+    this.tempFormReason.set(
+      type === 'TEMP_RESIDENCE' ? 'Đăng ký tạm trú theo hợp đồng thuê phòng.' : '',
+    );
+    this.tempFormDestinationAddress.set('');
+    this.showTempFormModal.set(true);
+  }
+
+  closeTempFormModal(): void {
+    this.showTempFormModal.set(false);
+    this.tempFormContract.set(null);
+  }
+
+  submitTempForm(): void {
+    const contract = this.tempFormContract();
+    if (!contract) return;
+    const data: any = {
+      contract_id: contract.id,
+      form_type: this.tempFormType(),
+      reason: this.tempFormReason(),
+      destination_address: this.tempFormDestinationAddress(),
+    };
+    if (this.tempFormFromTime()) data.from_time = this.formatDateTime(this.tempFormFromTime());
+    if (this.tempFormToTime()) data.to_time = this.formatDateTime(this.tempFormToTime());
+
+    this.isLoading.set(true);
+    this.contractService.createTemporaryResidenceForm(data).subscribe({
+      next: (created) => {
+        this.isLoading.set(false);
+        this.closeTempFormModal();
+        this.toast.success('Đã tạo đơn. Bên còn lại có thể xác nhận và ký số.', 'Thành công');
+        this.loadContracts();
+        if (created?.documentContent) {
+          this.viewDocument(created);
+        }
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.toast.error(err.error?.message || 'Không tạo được đơn tạm trú/tạm vắng', 'Lỗi');
+      },
+    });
   }
 
   goToSearchRoom(): void {
@@ -416,27 +649,24 @@ export class ContractDashboard implements OnInit {
       end_time: this.formatDateTime(val.end_time),
     };
 
-    const fd = new FormData();
-    fd.append('request', new Blob([JSON.stringify(request)], { type: 'application/json' }));
-    const cccd = this.contractCccdFile();
-    if (cccd) {
-      fd.append('cccd_image', cccd);
-    }
-
     this.isLoading.set(true);
-    this.contractService.createContractWithOcr(fd).subscribe({
-      next: () => {
+    this.contractService.createContractFromDashboard(request).subscribe({
+      next: (created) => {
         this.isLoading.set(false);
-        this.toast.success('Tạo hợp đồng thành công!', 'Thành công');
+        this.toast.success('Đã tạo mẫu hợp đồng và gửi cho bên thuê xác nhận!', 'Thành công');
         this.contractForm.reset({
           contract_type: 'LEASE',
           notify_channel: 'EMAIL',
           deposit_amount: 0,
+          terms: '',
         });
         this.contractCccdFile.set(null);
         this.contractCccdFileName.set('');
         this.loadContracts();
         this.setTab('contracts');
+        if (created?.documentContent) {
+          this.viewDocument(created);
+        }
       },
       error: (err) => {
         this.isLoading.set(false);
@@ -446,13 +676,13 @@ export class ContractDashboard implements OnInit {
   }
 
   approveContract(contractId: string) {
-    if (!confirm('Bạn có chắc chắn muốn KÝ DUYỆT hợp đồng này?')) return;
+    if (!confirm('Bạn có chắc chắn muốn xác nhận điều khoản hợp đồng này?')) return;
 
     this.isLoading.set(true);
-    this.contractService.confirmPayment(contractId).subscribe({
+    this.contractService.confirmContract(contractId).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.toast.success('Hợp đồng đã được ký duyệt!', 'Thành công');
+        this.toast.success('Đã xác nhận hợp đồng. Hai bên có thể bắt đầu ký.', 'Thành công');
         this.loadContracts();
       },
       error: (err: any) => {
@@ -466,7 +696,7 @@ export class ContractDashboard implements OnInit {
     if (!confirm('Bạn có chắc chắn muốn TỪ CHỐI hợp đồng này?')) return;
 
     this.isLoading.set(true);
-    this.contractService.confirmPayment(contractId).subscribe({
+    this.contractService.rejectContract(contractId).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.toast.info('Đã từ chối hợp đồng', 'Thông báo');
@@ -482,6 +712,11 @@ export class ContractDashboard implements OnInit {
   // --- Utilities ---
   parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
+    const match = dateStr.match(/^(\d{2})-(\d{2})-(\d{4})(?:\s+(\d{2}):(\d{2}):(\d{2}))?$/);
+    if (match) {
+      const [, dd, mm, yyyy, hh = '00', min = '00', ss = '00'] = match;
+      return new Date(+yyyy, +mm - 1, +dd, +hh, +min, +ss);
+    }
     const d = new Date(dateStr);
     return isNaN(d.getTime()) ? null : d;
   }
@@ -519,6 +754,49 @@ export class ContractDashboard implements OnInit {
     return rooms;
   }
 
+  canConfirm(contract: ContractDTO): boolean {
+    if (contract.status === EContractStatus.PROPOSED_BY_TENANT) {
+      return this.isHost();
+    }
+    if (contract.status === EContractStatus.PROPOSED_BY_HOST) {
+      return this.isRoomer();
+    }
+    return false;
+  }
+
+  canSign(contract: ContractDTO): boolean {
+    if (contract.status === EContractStatus.COUNTERPARTY_CONFIRMED) {
+      return contract.createdByRole === ERole.ROLE_HOST ? this.isHost() : this.isRoomer();
+    }
+    if (contract.status === EContractStatus.TENANT_SIGNED) {
+      return this.isHost();
+    }
+    if (contract.status === EContractStatus.HOST_SIGNED) {
+      return this.isRoomer();
+    }
+    return false;
+  }
+
+  openSignModal(contract: ContractDTO): void {
+    this.signingContract.set(contract);
+    this.showSignModal.set(true);
+  }
+
+  closeSignModal(): void {
+    this.showSignModal.set(false);
+    this.signingContract.set(null);
+  }
+
+  onSigned(): void {
+    this.closeSignModal();
+    this.loadContracts();
+  }
+
+  defaultSignUsername(): string {
+    const info: any = this.tokenService.getUserInfo();
+    return info?.username || '';
+  }
+
   getPaymentStatusLabel(status: string): string {
     switch (status) {
       case EPaymentStatus.PENDING:
@@ -547,12 +825,22 @@ export class ContractDashboard implements OnInit {
 
   getContractStatusLabel(status: string): string {
     switch (status) {
-      case EContractStatus.ACTIVE:
-        return 'Đang hiệu lực';
+      case EContractStatus.PROPOSED_BY_TENANT:
+        return 'Người thuê đề xuất';
+      case EContractStatus.PROPOSED_BY_HOST:
+        return 'Chủ nhà đề xuất';
+      case EContractStatus.COUNTERPARTY_CONFIRMED:
+        return 'Đã xác nhận điều khoản';
+      case EContractStatus.TENANT_SIGNED:
+        return 'Người thuê đã ký';
+      case EContractStatus.HOST_SIGNED:
+        return 'Chủ nhà đã ký';
+      case EContractStatus.COMPLETED:
+        return 'Hoàn thành';
+      case EContractStatus.REJECTED:
+        return 'Đã từ chối';
       case EContractStatus.EXPIRED:
         return 'Đã hết hạn';
-      case EContractStatus.DRAFT:
-        return 'Bản nháp';
       default:
         return status;
     }
@@ -560,11 +848,17 @@ export class ContractDashboard implements OnInit {
 
   getContractStatusClass(status: string): string {
     switch (status) {
-      case EContractStatus.ACTIVE:
+      case EContractStatus.COMPLETED:
         return 'status-active';
       case EContractStatus.EXPIRED:
         return 'status-expired';
-      case EContractStatus.DRAFT:
+      case EContractStatus.REJECTED:
+        return 'status-overdue';
+      case EContractStatus.PROPOSED_BY_TENANT:
+      case EContractStatus.PROPOSED_BY_HOST:
+      case EContractStatus.COUNTERPARTY_CONFIRMED:
+      case EContractStatus.TENANT_SIGNED:
+      case EContractStatus.HOST_SIGNED:
         return 'status-draft';
       default:
         return '';

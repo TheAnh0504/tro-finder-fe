@@ -45,6 +45,43 @@
   }
 }
 
+.rent-status-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+
+.rent-status-tab {
+  border: 1px solid #cbd5e1;
+  background: rgba(255, 255, 255, 0.85);
+  color: #334155;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+  }
+
+  &.active {
+    border-color: transparent;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #fff;
+  }
+
+  &.vacant.active {
+    background: linear-gradient(135deg, #10b981, #059669);
+  }
+
+  &.rented.active {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+  }
+}
+
 /* === BẢNG DANH SÁCH (CĂN CHỈNH HOÀN THIỆN) === */
 .table-container {
   width: 100%;
