@@ -1,378 +1,179 @@
-==================== HƯỚNG DẪN SỬ DỤNG ====================
-File này chứa các lệnh PlantUML dùng để vẽ lại hình cho báo cáo DATN.
-Sau khi xuất ảnh, nên lưu vào thư mục hình vẽ của báo cáo với tên gợi ý ở mỗi khối.
-Các chú thích trong sơ đồ bám theo chức năng thực tế của frontend Angular và backend Spring Boot:
-- Frontend: home, manager-house, contract-dashboard, profile, chat, admin pages.
-- Backend: HouseRoomService, ContractService, PaymentReminderService, ReviewService, OCR, MinIO, WebSocket.
-
-==================== Begin use case tổng quát ====================
-Tên file ảnh gợi ý: use_case_tq.png
-Chú thích: Biểu đồ mô tả toàn bộ tác nhân và các nhóm chức năng chính của Hệ thống tìm kiếm và quản lý nhà trọ trực tuyến.
+--------------------Begin use case tổng quát -----------------
 
 @startuml
 left to right direction
 skinparam packageStyle rectangle
 
+' Định nghĩa 5 tác nhân
 actor "Khách vãng lai" as Guest
 actor "Người dùng" as User
 actor "Người thuê" as Tenant
 actor "Chủ trọ" as Landlord
 actor "Quản trị viên" as Admin
 
+' Mối quan hệ kế thừa giữa các tác nhân
 User --|> Guest
 Tenant --|> User
 Landlord --|> User
 
-rectangle "Hệ thống tìm kiếm và quản lý nhà trọ trực tuyến" {
+rectangle "Hệ thống Tìm kiếm và Quản lý Nhà trọ Trực tuyến" {
+
+    ' Các Use Case cho Khách vãng lai (Quyền xem công khai)
     usecase "Tìm kiếm và lọc phòng trọ" as UC_Search
-    usecase "Xem bản đồ vị trí phòng" as UC_Map
-    usecase "Xem chi tiết phòng và đánh giá" as UC_ViewRoom
+    usecase "Xem thông tin phòng trọ" as UC_ViewRoom
     usecase "Xem thông tin chủ trọ" as UC_ViewLandlord
 
-    usecase "Đăng ký, đăng nhập,\nSSO và OTP" as UC_Auth
-    usecase "Định danh tài khoản\nbằng OCR CCCD" as UC_OCR
-    usecase "Lưu phòng quan tâm" as UC_SaveRoom
-    usecase "Trao đổi trực tiếp\nqua Chat" as UC_Chat
+    ' Các Use Case chung cho Người dùng đã đăng nhập
+    usecase "Xác thực tài khoản\n(Đăng ký/Đăng nhập SSO/OTP)" as UC_Auth
+    usecase "Định danh tài khoản (OCR)" as UC_VerifyIdentity
+    usecase "Trao đổi trực tiếp (Chat)" as UC_Chat
+    usecase "Lưu lại phòng trọ" as UC_TrackRoom
+    usecase "Tạo hợp đồng điện tử" as UC_CreateContract
+    usecase "Ký xác nhận hợp đồng" as UC_SignContract
 
-    usecase "Quản lý nhà trọ,\nphòng trọ và tiện ích" as UC_ManageRoom
-    usecase "Chọn vị trí nhà trọ\ntrên OpenStreetMap" as UC_SetLocation
-    usecase "Lọc phòng trống\nvà đã cho thuê" as UC_FilterRent
+    ' Các Use Case đặc thù cho Người thuê
+    usecase "Đánh giá phòng trọ" as UC_Review
 
-    usecase "Tạo hợp đồng HTML\nvà xem trước" as UC_CreateContract
-    usecase "In/lưu PDF hợp đồng" as UC_PrintPdf
-    usecase "Ký số hợp đồng" as UC_Sign
-    usecase "Tạo đơn tạm trú,\ntạm vắng" as UC_TempForm
-    usecase "Theo dõi thanh toán\nvà QR chủ nhà" as UC_Payment
-    usecase "Nhắc hạn hợp đồng\nvà gợi ý phòng" as UC_Reminder
-    usecase "Đánh giá phòng sau hợp đồng" as UC_Review
+    ' Các Use Case đặc thù cho Chủ nhà
+    usecase "Quản lý danh sách phòng cùng cơ sở vật chất" as UC_ManageRoom
 
-    usecase "Quản lý tài khoản" as UC_AdminUsers
+    ' Các Use Case cho Admin
+    usecase "Quản lý tài khoản người dùng" as UC_AdminUsers
     usecase "Thiết lập phân quyền" as UC_AdminRoles
 }
 
+' Kết nối Khách vãng lai
 Guest --> UC_Search
-Guest --> UC_Map
 Guest --> UC_ViewRoom
 Guest --> UC_ViewLandlord
 
+' Kết nối Người dùng
 User --> UC_Auth
-User --> UC_OCR
-User --> UC_SaveRoom
+User --> UC_VerifyIdentity
 User --> UC_Chat
+User --> UC_TrackRoom
 User --> UC_CreateContract
-User --> UC_PrintPdf
-User --> UC_Sign
-User --> UC_TempForm
+User --> UC_SignContract
 
-Tenant --> UC_Payment
-Tenant --> UC_Reminder
+' Kết nối Người thuê
 Tenant --> UC_Review
 
+' Kết nối Chủ trọ
 Landlord --> UC_ManageRoom
-Landlord --> UC_SetLocation
-Landlord --> UC_FilterRent
-Landlord --> UC_Payment
-Landlord --> UC_Reminder
 
+' Kết nối Admin
 Admin --> UC_AdminUsers
 Admin --> UC_AdminRoles
-
-UC_CreateContract ..> UC_PrintPdf : <<include>>
-UC_CreateContract ..> UC_Sign : <<extend>>
-UC_TempForm ..> UC_Sign : <<extend>>
-UC_Payment ..> UC_Reminder : <<extend>>
 @enduml
 
-==================== End use case tổng quát ====================
+--------------------End use case tổng quát -----------------
 
-==================== Begin use case Phân rã Xác thực và định danh ====================
-Tên file ảnh gợi ý: use_case_xac_thuc_tai_khoan.png
-Chú thích: Biểu đồ mô tả đăng nhập, SSO, OTP, khôi phục mật khẩu và OCR CCCD dùng cho tài khoản giao dịch hợp đồng.
-
+--------------------Begen use case Phân rã Xác thực tài khoản -----------------
 @startuml
 left to right direction
 skinparam packageStyle rectangle
 actor "Người dùng" as User
 
-rectangle "Xác thực và định danh tài khoản" {
-    usecase "Đăng nhập Username/Password" as UC_Login
-    usecase "Đăng nhập Google/Facebook SSO" as UC_SSO
+rectangle "Phân rã Xác thực tài khoản\n(Đăng ký/Đăng nhập SSO/OTP)" {
+    usecase "Đăng nhập bằng Username/Password" as UC_Login
+    usecase "Đăng nhập bằng Google/Facebook (SSO)" as UC_SSO
     usecase "Đăng ký tài khoản mới" as UC_Register
-    usecase "Xác thực OTP qua Email" as UC_OTP
+    usecase "Xác thực mã OTP" as UC_OTP
     usecase "Khôi phục mật khẩu" as UC_Forgot
-    usecase "Tải ảnh CCCD" as UC_UploadCccd
-    usecase "Trích xuất thông tin OCR" as UC_ParseCccd
-    usecase "Xác nhận hồ sơ định danh" as UC_ConfirmIdentity
     usecase "Đăng xuất" as UC_Logout
+
+    UC_Register ..> UC_OTP : <<include>>
+    UC_Forgot ..> UC_OTP : <<include>>
+    UC_Login ..> UC_OTP : <<include>>
 }
 
 User --> UC_Login
 User --> UC_SSO
 User --> UC_Register
 User --> UC_Forgot
-User --> UC_UploadCccd
 User --> UC_Logout
-
-UC_Register ..> UC_OTP : <<include>>
-UC_Forgot ..> UC_OTP : <<include>>
-UC_Login ..> UC_OTP : <<extend>>
-UC_UploadCccd ..> UC_ParseCccd : <<include>>
-UC_ParseCccd ..> UC_ConfirmIdentity : <<include>>
-
-note right of UC_ParseCccd
-  Backend gọi OCR service.
-  Thông tin hợp lệ được lưu để
-  tự động điền vào hợp đồng.
-end note
 @enduml
+--------------------End use case Phân rã Xác thực tài khoản -----------------
 
-==================== End use case Phân rã Xác thực và định danh ====================
-
-==================== Begin use case Phân rã Quản lý phòng trọ ====================
-Tên file ảnh gợi ý: use_case_quan_ly_ds_phong_csvc.png
-Chú thích: Biểu đồ mô tả chức năng manager-house của chủ trọ: tạo/cập nhật nhà, phòng, tiện ích, ảnh, vị trí và trạng thái thuê.
+--------------------Begin use case Phân rã Quản lý danh sách phòng cùng cơ sở vật chất -----------------
 
 @startuml
 left to right direction
 skinparam packageStyle rectangle
 actor "Chủ trọ" as Landlord
 
-rectangle "Quản lý nhà trọ, phòng trọ và cơ sở vật chất" {
-    usecase "Thêm nhà trọ và phòng mới" as UC_AddRoom
-    usecase "Cập nhật thông tin phòng" as UC_EditRoom
-    usecase "Upload ảnh phòng" as UC_UploadImages
-    usecase "Chọn tọa độ trên bản đồ" as UC_SetMap
-    usecase "Quản lý tiện ích\nvà vật dụng" as UC_Facilities
-    usecase "Lọc tất cả/phòng trống/đã thuê" as UC_FilterStatus
-    usecase "Xóa phòng hoặc nhà trọ" as UC_DeleteRoom
+rectangle "Phân rã Quản lý danh sách phòng cùng cơ sở vật chất" {
+    usecase "Thêm phòng trọ mới" as UC_AddRoom
+    usecase "Tìm kiếm phòng trọ " as UC_FindRoom
+    usecase "Cập nhật thông tin phòng trọ" as UC_EditRoom
+    usecase "Quản lý tiện ích, cơ sở vật chất phòng trọ" as UC_Facilities
+    usecase "Xóa phòng trọ" as UC_DeleteRoom
 }
 
 Landlord --> UC_AddRoom
 Landlord --> UC_EditRoom
-Landlord --> UC_FilterStatus
+Landlord --> UC_Facilities
 Landlord --> UC_DeleteRoom
+Landlord --> UC_FindRoom
+@enduml
 
-UC_AddRoom ..> UC_UploadImages : <<include>>
-UC_AddRoom ..> UC_SetMap : <<include>>
-UC_AddRoom ..> UC_Facilities : <<include>>
-UC_EditRoom ..> UC_UploadImages : <<extend>>
-UC_EditRoom ..> UC_SetMap : <<extend>>
-UC_EditRoom ..> UC_Facilities : <<include>>
+--------------------End use case Phân rã Quản lý danh sách phòng cùng cơ sở vật chất -----------------
 
-note bottom of UC_FilterStatus
-  Frontend gửi has_rent hoặc lọc theo trạng thái.
-  Backend trả danh sách phòng của chủ trọ.
+--------------------Begin use case Phân rã Tạo hợp đồng điện tử -----------------
+
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Người dùng" as User
+
+rectangle "Phân rã Tạo hợp đồng điện tử" {
+    usecase "Khởi tạo biểu mẫu hợp đồng" as UC_Init
+    usecase "Thiết lập điều khoản hợp đồng" as UC_SetTerms
+    usecase "Xem trước bản nháp hợp đồng" as UC_Preview
+    usecase "Gửi yêu cầu ký kết" as UC_Send
+}
+
+User --> UC_Init
+User --> UC_SetTerms
+User --> UC_Preview
+User --> UC_Send
+
+note top of UC_Init
+  Tiền điều kiện:
+  Tài khoản đã được định danh OCR (isOcr = true)
 end note
 @enduml
 
-==================== End use case Phân rã Quản lý phòng trọ ====================
+--------------------End use case Phân rã Tạo hợp đồng điện tử -----------------
 
-==================== Begin use case Phân rã Tìm kiếm phòng ====================
-Tên file ảnh gợi ý: use_case_tim_kiem_phong.png
-Chú thích: Biểu đồ mô tả luồng home page: tìm phòng, xem bản đồ, xem đánh giá, lưu phòng và liên hệ chủ trọ.
-
-@startuml
-left to right direction
-skinparam packageStyle rectangle
-actor "Khách vãng lai" as Guest
-actor "Người thuê" as Tenant
-
-Tenant --|> Guest
-
-rectangle "Tìm kiếm và xem phòng trọ" {
-    usecase "Nhập bộ lọc tìm kiếm" as UC_Filter
-    usecase "Xem danh sách phòng" as UC_List
-    usecase "Xem vị trí OpenStreetMap" as UC_Map
-    usecase "Xem chi tiết phòng" as UC_Detail
-    usecase "Xem sao và nội dung đánh giá" as UC_ReviewList
-    usecase "Lưu phòng quan tâm" as UC_Save
-    usecase "Nhắn tin với chủ trọ" as UC_Chat
-    usecase "Gửi yêu cầu thuê" as UC_RentNow
-}
-
-Guest --> UC_Filter
-Guest --> UC_List
-Guest --> UC_Map
-Guest --> UC_Detail
-Guest --> UC_ReviewList
-
-Tenant --> UC_Save
-Tenant --> UC_Chat
-Tenant --> UC_RentNow
-
-UC_Detail ..> UC_Map : <<include>>
-UC_Detail ..> UC_ReviewList : <<include>>
-UC_RentNow ..> UC_Detail : <<extend>>
-@enduml
-
-==================== End use case Phân rã Tìm kiếm phòng ====================
-
-==================== Begin use case Phân rã Hợp đồng điện tử ====================
-Tên file ảnh gợi ý: use_case_tao_hop_dong_dien_tu.png
-Chú thích: Biểu đồ mô tả hợp đồng HTML/PDF/ký số. Người thuê có thể khởi tạo từ home, chủ trọ có thể khởi tạo từ contract-dashboard.
+--------------------Begin use case Ký xác nhận hợp đồng -----------------
 
 @startuml
 left to right direction
 skinparam packageStyle rectangle
 
-actor "Người thuê" as Tenant
-actor "Chủ trọ" as Landlord
+actor "Người dùng" as User
 
-rectangle "Tạo và xử lý hợp đồng điện tử" {
-    usecase "Khởi tạo đề xuất từ phòng" as UC_FromRoom
-    usecase "Khởi tạo đề xuất từ dashboard" as UC_FromDashboard
-    usecase "Nhập thời hạn, tiền cọc\nvà điều khoản" as UC_Terms
-    usecase "Sinh mẫu hợp đồng HTML" as UC_RenderHtml
-    usecase "Xem trước hợp đồng" as UC_Preview
-    usecase "In hoặc lưu PDF" as UC_PrintPdf
-    usecase "Bên còn lại xác nhận điều khoản" as UC_Confirm
-    usecase "Từ chối hợp đồng" as UC_Reject
-    usecase "Ký số tuần tự hai bên" as UC_Sign
-    usecase "Hoàn thành hợp đồng\nvà cập nhật phòng đã thuê" as UC_Complete
+rectangle "Phân rã Ký xác nhận hợp đồng" {
+    usecase "Xem chi tiết hợp đồng chờ ký" as UC_ViewPending
+    usecase "Xác nhận ký hợp đồng" as UC_Accept
+    usecase "Từ chối và yêu cầu hủy" as UC_Reject
 }
 
-Tenant --> UC_FromRoom
-Landlord --> UC_FromDashboard
-Tenant --> UC_Confirm
-Landlord --> UC_Confirm
-Tenant --> UC_Reject
-Landlord --> UC_Reject
-Tenant --> UC_Sign
-Landlord --> UC_Sign
+User --> UC_ViewPending
+User --> UC_Accept
+User --> UC_Reject
 
-UC_FromRoom ..> UC_Terms : <<include>>
-UC_FromDashboard ..> UC_Terms : <<include>>
-UC_Terms ..> UC_RenderHtml : <<include>>
-UC_RenderHtml ..> UC_Preview : <<include>>
-UC_Preview ..> UC_PrintPdf : <<extend>>
-UC_Confirm ..> UC_Sign : <<include>>
-UC_Sign ..> UC_Complete : <<include>>
-
-note right of UC_RenderHtml
-  Backend ContractService điền thông tin
-  chủ nhà, người thuê, phòng, giá và
-  điều khoản vào mẫu HTML chung.
+note top of UC_ViewPending
+  Tiền điều kiện:
+  Tài khoản đã được định danh OCR (isOcr = true)
 end note
 @enduml
 
-==================== End use case Phân rã Hợp đồng điện tử ====================
+--------------------End use case Ký xác nhận hợp đồng -----------------
 
-==================== Begin use case Phân rã Ký số hợp đồng ====================
-Tên file ảnh gợi ý: use_case_ky_xac_nhan_hop_dong.png
-Chú thích: Biểu đồ mô tả modal ký số gồm chọn provider, chứng thư, vị trí ký và gửi yêu cầu ký về backend.
-
-@startuml
-left to right direction
-skinparam packageStyle rectangle
-actor "Người dùng ký" as User
-actor "Nhà cung cấp ký số" as SignProvider
-
-rectangle "Ký số tài liệu hợp đồng" {
-    usecase "Mở hợp đồng chờ ký" as UC_Open
-    usecase "In/lưu PDF bản xem trước" as UC_Print
-    usecase "Chọn nhà cung cấp chữ ký" as UC_Provider
-    usecase "Nhập username ký" as UC_Username
-    usecase "Chọn chứng thư số" as UC_Cert
-    usecase "Chọn vị trí chữ ký" as UC_Position
-    usecase "Gửi yêu cầu ký" as UC_SendSign
-    usecase "Cập nhật trạng thái hợp đồng" as UC_UpdateStatus
-}
-
-User --> UC_Open
-User --> UC_Print
-User --> UC_Provider
-User --> UC_Username
-User --> UC_Cert
-User --> UC_Position
-User --> UC_SendSign
-SignProvider --> UC_SendSign
-
-UC_Provider ..> UC_Cert : <<include>>
-UC_SendSign ..> UC_UpdateStatus : <<include>>
-@enduml
-
-==================== End use case Phân rã Ký số hợp đồng ====================
-
-==================== Begin use case Phân rã Thanh toán và nhắc việc ====================
-Tên file ảnh gợi ý: use_case_quan_ly_thanh_toan.png
-Chú thích: Biểu đồ mô tả QR chủ nhà, xác nhận tiền thuê theo tháng và các tác vụ nhắc hạn hợp đồng/thanh toán.
-
-@startuml
-left to right direction
-skinparam packageStyle rectangle
-
-actor "Người thuê" as Tenant
-actor "Chủ trọ" as Landlord
-actor "Tác vụ nền" as Scheduler
-
-rectangle "Quản lý thanh toán và nhắc việc" {
-    usecase "Upload QR thanh toán chủ nhà" as UC_UploadQr
-    usecase "Xem QR và tiền thuê tháng" as UC_ViewQr
-    usecase "Tạo khoản thanh toán đầu tháng" as UC_CreatePayment
-    usecase "Nhắc người thuê đóng tiền" as UC_RemindTenant
-    usecase "Chủ trọ xác nhận đã đóng\ncho hợp đồng/tháng" as UC_ConfirmPayment
-    usecase "Tổng hợp người chưa thanh toán" as UC_UnpaidSummary
-    usecase "Nhắc hợp đồng còn 1/2 tháng" as UC_ExpireReminder
-    usecase "Gợi ý phòng trống phù hợp" as UC_SuggestRoom
-}
-
-Landlord --> UC_UploadQr
-Tenant --> UC_ViewQr
-Landlord --> UC_ConfirmPayment
-
-Scheduler --> UC_CreatePayment
-Scheduler --> UC_RemindTenant
-Scheduler --> UC_UnpaidSummary
-Scheduler --> UC_ExpireReminder
-Scheduler --> UC_SuggestRoom
-
-UC_CreatePayment ..> UC_RemindTenant : <<include>>
-UC_UnpaidSummary ..> UC_ConfirmPayment : <<extend>>
-UC_ExpireReminder ..> UC_SuggestRoom : <<extend>>
-@enduml
-
-==================== End use case Phân rã Thanh toán và nhắc việc ====================
-
-==================== Begin use case Phân rã Đơn tạm trú, tạm vắng ====================
-Tên file ảnh gợi ý: use_case_tam_tru_tam_vang.png
-Chú thích: Biểu đồ mô tả tạo mẫu CT01/CT03 từ hợp đồng thuê đang hiệu lực, sau đó dùng chung luồng xem trước, in PDF và ký số.
-
-@startuml
-left to right direction
-skinparam packageStyle rectangle
-
-actor "Người thuê" as Tenant
-actor "Chủ trọ" as Landlord
-
-rectangle "Tạo đơn tạm trú, tạm vắng" {
-    usecase "Chọn hợp đồng đang hiệu lực" as UC_SelectContract
-    usecase "Chọn mẫu CT01 tạm trú" as UC_CT01
-    usecase "Chọn mẫu CT03 tạm vắng" as UC_CT03
-    usecase "Nhập thời gian và lý do" as UC_FormData
-    usecase "Sinh đơn HTML" as UC_RenderForm
-    usecase "Xem trước/In PDF" as UC_PrintForm
-    usecase "Ký số đơn" as UC_SignForm
-}
-
-Tenant --> UC_SelectContract
-Landlord --> UC_SelectContract
-Tenant --> UC_CT01
-Tenant --> UC_CT03
-Landlord --> UC_CT01
-Landlord --> UC_CT03
-
-UC_CT01 ..> UC_FormData : <<include>>
-UC_CT03 ..> UC_FormData : <<include>>
-UC_FormData ..> UC_RenderForm : <<include>>
-UC_RenderForm ..> UC_PrintForm : <<include>>
-UC_RenderForm ..> UC_SignForm : <<extend>>
-@enduml
-
-==================== End use case Phân rã Đơn tạm trú, tạm vắng ====================
-
-==================== Begin use case Quản lý tài khoản người dùng ====================
-Tên file ảnh gợi ý: use_case_quan_ly_tai_khoan_nguoi_dung.png
-Chú thích: Biểu đồ mô tả các chức năng quản trị tài khoản trong trang admin.
+--------------------Begin use case Quản lý tài khoản người dùng -----------------
 
 @startuml
 left to right direction
@@ -380,7 +181,7 @@ skinparam packageStyle rectangle
 
 actor "Quản trị viên" as Admin
 
-rectangle "Quản lý tài khoản người dùng" {
+rectangle "Phân rã Quản lý tài khoản người dùng" {
     usecase "Thêm tài khoản mới" as UC_AddAccount
     usecase "Lọc và tìm kiếm tài khoản" as UC_SearchAccount
     usecase "Xem chi tiết tài khoản" as UC_ViewAccount
@@ -397,11 +198,9 @@ Admin --> UC_ToggleLock
 Admin --> UC_DeleteAccount
 @enduml
 
-==================== End use case Quản lý tài khoản người dùng ====================
+--------------------End use case Quản lý tài khoản người dùng -----------------
 
-==================== Begin use case Thiết lập phân quyền ====================
-Tên file ảnh gợi ý: use_case_thiet_lap_phan_quyen.png
-Chú thích: Biểu đồ mô tả quản lý nhóm quyền và danh sách quyền trong backend/frontend admin.
+--------------------Begin use case Thiết lập phân quyền -----------------
 
 @startuml
 left to right direction
@@ -409,7 +208,7 @@ skinparam packageStyle rectangle
 
 actor "Quản trị viên" as Admin
 
-rectangle "Thiết lập phân quyền" {
+rectangle "Phân rã Thiết lập phân quyền" {
     usecase "Tạo nhóm quyền mới" as UC_CreateRole
     usecase "Lọc và tìm kiếm nhóm quyền" as UC_SearchRole
     usecase "Xem chi tiết nhóm quyền" as UC_ViewRole
@@ -424,100 +223,62 @@ Admin --> UC_EditPermission
 Admin --> UC_DeleteRole
 @enduml
 
-==================== End use case Thiết lập phân quyền ====================
+--------------------End use case Thiết lập phân quyền -----------------
 
-==================== Begin luồng chính thuê phòng và ký hợp đồng ====================
-Tên file ảnh gợi ý: bp_thue_nha.png
-Chú thích: Activity diagram mô tả luồng nghiệp vụ khép kín từ tìm phòng đến hợp đồng hoàn thành, đúng trạng thái backend hiện tại.
+
+--------------------Begin luồng chính -----------------
 
 @startuml
 skinparam conditionStyle Inside
-title Quy trình tìm phòng, tạo hợp đồng HTML/PDF và ký số
+title Quy trình nghiệp vụ tìm phòng và ký kết hợp đồng khép kín
 
-|Người thuê|
+|Bên khởi tạo (Chủ trọ / Người thuê)|
 start
-:Tìm kiếm phòng theo bộ lọc và bản đồ;
-:Xem chi tiết phòng, đánh giá và QR/chủ trọ nếu có;
-:Trao đổi với chủ trọ qua Chat;
-
-if (Người thuê muốn chủ động đề xuất?) then (Có)
-    :Nhấn thuê ngay và nhập điều khoản đề xuất;
-    |Hệ thống|
-    :Tạo hợp đồng trạng thái PROPOSED_BY_TENANT;
-else (Không)
-    |Chủ trọ|
-    :Tạo hợp đồng từ dashboard và nhập username người thuê;
-    |Hệ thống|
-    :Tạo hợp đồng trạng thái PROPOSED_BY_HOST;
-endif
+:Tìm kiếm và thảo luận điều khoản qua Khung Chat;
+:Chọn chức năng Tạo hợp đồng điện tử;
 
 |Hệ thống|
-:Điền thông tin chủ nhà, người thuê, phòng và điều khoản vào mẫu HTML;
-:Hiển thị bản xem trước, hỗ trợ in/lưu PDF;
-:Gửi hợp đồng cho bên còn lại xác nhận;
+:Truy xuất dữ liệu định danh OCR sẵn có;
+:Tự động điền thông tin cá nhân của hai bên;
 
-|Bên còn lại|
-if (Đồng ý điều khoản?) then (Có)
-    :Xác nhận hợp đồng;
+|Bên khởi tạo (Chủ trọ / Người thuê)|
+:Nhập giá thuê, tiền cọc và thời hạn;
+if (Lựa chọn thời điểm ký hợp đồng?) then (Ký trước khi gửi)
+    :Thực hiện Ký xác nhận hợp đồng;
     |Hệ thống|
-    :Chuyển trạng thái COUNTERPARTY_CONFIRMED;
-else (Không)
-    :Từ chối hợp đồng;
+    :Lưu hợp đồng (Trạng thái: Khởi tạo đã ký);
+else (Gửi bản nháp rà soát sau)
+    |Bên khởi tạo (Chủ trọ / Người thuê)|
+    :Nhấn nút Gửi bản nháp hợp đồng;
     |Hệ thống|
-    :Chuyển trạng thái REJECTED;
+    :Lưu hợp đồng (Trạng thái: Chờ rà soát);
+endif
+
+:Gửi thông báo đến tài khoản Bên tiếp nhận;
+
+|Bên tiếp nhận (Người thuê / Chủ trọ)|
+:Truy cập không gian làm việc số để rà soát hợp đồng;
+if (Đồng ý với các điều khoản?) then (Có)
+    :Thực hiện Ký xác nhận hợp đồng;
+    |Hệ thống|
+    if (Hợp đồng đã thu thập đủ 2 chữ ký?) then (Chưa đủ (Bên khởi tạo chưa ký))
+        :Cập nhật trạng thái (Chờ bên khởi tạo ký);
+        |Bên khởi tạo (Chủ trọ / Người thuê)|
+        :Nhận thông báo phản hồi và thực hiện Ký xác nhận;
+        |Hệ thống|
+    else (Đã đủ 2 chữ ký)
+    endif
+    :Hợp đồng chính thức chuyển sang trạng thái "Hoàn thành";
+    :Lưu trữ tài liệu hợp đồng điện tử an toàn;
+    :Cập nhật trạng thái phòng sang "Đã cho thuê";
+    stop
+else (Không đồng ý)
+    |Bên tiếp nhận (Người thuê / Chủ trọ)|
+    :Nhấn Từ chối ký và yêu cầu hủy bỏ/sửa đổi;
+    |Hệ thống|
+    :Cập nhật trạng thái hợp đồng thành "Đã hủy";
     stop
 endif
-
-|Bên ký thứ nhất|
-:Mở modal ký số, chọn provider, chứng thư và vị trí ký;
-:Gửi yêu cầu ký;
-|Hệ thống|
-if (Bên ký là người thuê?) then (Có)
-    :Chuyển trạng thái TENANT_SIGNED;
-else (Không)
-    :Chuyển trạng thái HOST_SIGNED;
-endif
-
-|Bên ký thứ hai|
-:Rà soát bản PDF/HTML và ký số;
-|Hệ thống|
-:Chuyển trạng thái COMPLETED;
-:Cập nhật phòng thành đã cho thuê;
-:Khởi tạo/ghi nhận lịch thanh toán tháng;
-stop
 @enduml
 
-==================== End luồng chính thuê phòng và ký hợp đồng ====================
-
-==================== Begin luồng nhắc hạn và gợi ý phòng ====================
-Tên file ảnh gợi ý: bp_nhac_han_thanh_toan.png
-Chú thích: Activity diagram mô tả các job trong PaymentReminderService.
-
-@startuml
-skinparam conditionStyle Inside
-title Luồng nhắc thanh toán, nhắc hạn hợp đồng và gợi ý phòng
-
-|Tác vụ nền|
-start
-if (Ngày đầu tháng?) then (Có)
-    :Tạo khoản RoomPayment tháng hiện tại nếu chưa có;
-    :Gửi email nhắc đóng tiền cho người thuê;
-    :Kiểm tra hợp đồng còn 1/2 tháng;
-    :Gửi nhắc gia hạn hoặc tìm phòng mới;
-    :Gửi gợi ý phòng trống phù hợp;
-endif
-
-if (Ngày cuối tháng?) then (Có)
-    :Tổng hợp RoomPayment PENDING/OVERDUE;
-    :Gửi danh sách người chưa thanh toán cho chủ trọ;
-    :Gửi lại nhắc hợp đồng còn 1/2 tháng;
-endif
-
-if (Hằng ngày có hợp đồng hết hạn?) then (Có)
-    :Chuyển hợp đồng COMPLETED quá hạn sang EXPIRED;
-    :Cập nhật phòng thành còn trống;
-endif
-stop
-@enduml
-
-==================== End luồng nhắc hạn và gợi ý phòng ====================
+--------------------End luồng chính -----------------
