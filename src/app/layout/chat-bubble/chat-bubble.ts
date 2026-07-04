@@ -135,7 +135,7 @@ export class ChatBubble implements OnInit, OnDestroy {
 
       this.chatService.getListGroupMessage().subscribe({
         next: (res: any) => {
-          this.listGroupMessage.set([]);
+          this.listGroupMessage.set(res);
           res.forEach((chatData: any, index: number) => {
             if (chatData.urlAvatar) {
               this.houseService.getImageRoom({ id: chatData.urlAvatar }).subscribe({

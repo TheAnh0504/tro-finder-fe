@@ -282,3 +282,77 @@ endif
 @enduml
 
 --------------------End luồng chính -----------------
+
+
+@startuml
+' Cấu hình giao diện chuẩn cho biểu đồ Package
+skinparam packageStyle rectangle
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam linetype polyline
+
+package "com.datn.tro.finder" {
+
+    package "config" {
+        class SecurityConfig << (C,#ADD1B2) >>
+        class JwtAuthFilter << (C,#ADD1B2) >>
+        class WebSocketConfig << (C,#ADD1B2) >>
+    }
+
+    package "controller" {
+        class AuthenticateController << (C,#ADD1B2) >>
+        class HouseAndRoomManagementController << (C,#ADD1B2) >>
+        class ContractController << (C,#ADD1B2) >>
+        class OCRController << (C,#ADD1B2) >>
+    }
+
+    package "payload" {
+        package "request" {
+        }
+        package "response" {
+        }
+    }
+
+    package "service" {
+        class AuthenticateService << (C,#ADD1B2) >>
+        class HouseRoomService << (C,#ADD1B2) >>
+        class ContractService << (C,#ADD1B2) >>
+        class OcrService << (C,#ADD1B2) >>
+    }
+
+    package "utils" {
+        package "exception" {
+        }
+        class SecurityUtils << (C,#ADD1B2) >>
+        class FileUtils << (C,#ADD1B2) >>
+    }
+
+    package "repository" {
+        interface SystemUserRepository << (I,#B4A7E5) >>
+        interface HouseRepository << (I,#B4A7E5) >>
+        interface RoomRepository << (I,#B4A7E5) >>
+        interface ContractRepository << (I,#B4A7E5) >>
+    }
+
+    package "entity" {
+        class SystemUser << (C,#ADD1B2) >>
+        class House << (C,#ADD1B2) >>
+        class Room << (C,#ADD1B2) >>
+        class Contract << (C,#ADD1B2) >>
+    }
+}
+
+' Định nghĩa luồng phụ thuộc (Dependencies)
+config ..> controller : intercepts / secures
+controller ..> service : uses
+controller ..> payload : parses/returns
+
+service ..> repository : accesses
+service ..> payload : uses/returns
+service ..> utils : helper
+
+repository ..> entity : manages
+service ..> entity : processes
+
+@enduml
+

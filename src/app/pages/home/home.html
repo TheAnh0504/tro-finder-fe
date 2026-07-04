@@ -895,20 +895,24 @@
         >
           <div class="modal-body-scroll">
             <div class="form-grid-2">
-              <mat-form-field
-                appearance="outline"
-                class="full-width custom-mat date-field"
-                (click)="beginInput.showPicker()"
-              >
+              <!-- SỬA LẠI: Input thời gian bắt đầu -->
+              <mat-form-field appearance="outline" class="custom-mat date-field">
                 <mat-label>Thời gian bắt đầu thuê</mat-label>
                 <input
                   #beginInput
                   matInput
-                  type="date"
+                  type="text"
+                  placeholder="dd/mm/yyyy"
+                  (focus)="beginInput.type = 'date'; beginInput.showPicker()"
+                  (blur)="!beginInput.value ? (beginInput.type = 'text') : null"
                   formControlName="begin_time"
                   aria-label="Thời gian bắt đầu thuê"
                 />
-                <span matSuffix class="calendar-icon">
+                <span
+                  matSuffix
+                  class="calendar-icon"
+                  (click)="beginInput.type = 'date'; beginInput.showPicker()"
+                >
                   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
@@ -920,20 +924,24 @@
                 </span>
               </mat-form-field>
 
-              <mat-form-field
-                appearance="outline"
-                class="full-width custom-mat date-field"
-                (click)="endInput.showPicker()"
-              >
+              <!-- SỬA LẠI: Input thời gian kết thúc -->
+              <mat-form-field appearance="outline" class="custom-mat date-field">
                 <mat-label>Thời gian kết thúc</mat-label>
                 <input
                   #endInput
                   matInput
-                  type="date"
+                  type="text"
+                  placeholder="dd/mm/yyyy"
+                  (focus)="endInput.type = 'date'; endInput.showPicker()"
+                  (blur)="!endInput.value ? (endInput.type = 'text') : null"
                   formControlName="end_time"
                   aria-label="Thời gian kết thúc"
                 />
-                <span matSuffix class="calendar-icon">
+                <span
+                  matSuffix
+                  class="calendar-icon"
+                  (click)="endInput.type = 'date'; endInput.showPicker()"
+                >
                   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
@@ -959,26 +967,85 @@
                 <mat-label>Đề xuất tiền cọc (VNĐ)</mat-label>
                 <input
                   matInput
-                  type="number"
+                  type="text"
                   formControlName="deposit_amount"
+                  mask="separator.0"
+                  thousandSeparator=","
                   aria-label="Đề xuất tiền cọc"
                 />
               </mat-form-field>
             </div>
 
-            <mat-form-field appearance="outline" class="custom-mat full-width terms-field">
-              <mat-label>Điều khoản thuê phòng đề xuất</mat-label>
-              <textarea
-                matInput
-                rows="5"
-                formControlName="terms"
-                placeholder="VD: thanh toán trước ngày 05 hàng tháng, giữ gìn vệ sinh chung, không tự ý chuyển nhượng phòng..."
-              ></textarea>
-            </mat-form-field>
+            <!-- SỬA LẠI: Bọc riêng thẻ textarea ra ngoài và đảm bảo có class full-width -->
+            <div class="full-width-container">
+              <mat-form-field appearance="outline" class="custom-mat full-width terms-field">
+                <mat-label>Điều khoản thuê phòng đề xuất</mat-label>
+                <textarea
+                  matInput
+                  rows="5"
+                  formControlName="terms"
+                  placeholder="VD: thanh toán trước ngày 05 hàng tháng, giữ gìn vệ sinh chung, không tự ý chuyển nhượng phòng..."
+                ></textarea>
+              </mat-form-field>
+            </div>
           </div>
 
-          <div class="modal-footer-sticky">
+          <!-- <div class="modal-footer-sticky">
             <button type="submit" class="btn-submit-glow">
+              <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                ></path>
+              </svg>
+              Gửi yêu cầu cho Chủ nhà
+            </button>
+          </div> -->
+          @if (previewPdfUrl) {
+            <div class="pdf-preview-container">
+              <h4>Bản xem trước hợp đồng:</h4>
+              <iframe
+                [src]="previewPdfUrl"
+                type="application/pdf"
+                width="100%"
+                height="400px"
+              ></iframe>
+            </div>
+          }
+
+          <div class="modal-footer-sticky split-buttons">
+            <!-- Nút Xem trước (Gọi API lấy PDF) -->
+            <button
+              type="button"
+              class="btn-preview-outline"
+              (click)="previewContractPdf()"
+              [disabled]="requestContractForm.invalid || isPreviewing"
+            >
+              @if (isPreviewing) {
+                <span class="spinner-border spinner-border-sm mr-2"></span> Đang tạo...
+              } @else {
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  ></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  ></path>
+                </svg>
+                Xem trước hợp đồng
+              }
+            </button>
+
+            <!-- Nút Submit (Bị disable nếu chưa xem trước PDF) -->
+            <button type="submit" class="btn-submit-glow" [disabled]="!hasPreviewedContract">
               <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"

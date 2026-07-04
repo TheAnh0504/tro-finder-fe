@@ -108,6 +108,11 @@ export class Home implements OnInit {
   // trạng thái xác minh OCR
   isUserVerified = signal<boolean>(false);
 
+  // Cờ kiểm soát trạng thái preview PDF hợp đồng
+  isPreviewing: boolean = false;
+  hasPreviewedContract: boolean = false;
+  previewPdfUrl: string | null = null;
+
   amenityFields = [
     { key: 'parking_area', label: 'Chỗ để xe' },
     { key: 'elevator', label: 'Thang máy' },
@@ -249,6 +254,39 @@ export class Home implements OnInit {
       }
       this.getPublicRooms();
     });
+
+    this.requestContractForm.valueChanges.subscribe(() => {
+      this.hasPreviewedContract = false;
+      this.previewPdfUrl = null;
+    });
+  }
+
+  // Gọi API Preview
+  previewContractPdf() {
+    if (this.requestContractForm.invalid) {
+      // Show toast error: Vui lòng điền đủ thông tin
+      return;
+    }
+
+    this.isPreviewing = true;
+    const requestData = {
+      ...this.requestContractForm.value,
+      roomId: this.selectedRoom().id,
+    };
+
+    // Gọi API bạn vừa tạo ở bước 1
+    // this.contractService.previewContractPdf(requestData).subscribe({
+    //   next: (res: any) => {
+    //     // Giả sử API trả về URL qua trường urlImage
+    //     this.previewPdfUrl = res.urlImage;
+    //     this.hasPreviewedContract = true;
+    //     this.isPreviewing = false;
+    //   },
+    //   error: (err) => {
+    //     this.isPreviewing = false;
+    //     // Show toast error
+    //   }
+    // });
   }
 
   initSearchForm() {
@@ -298,11 +336,13 @@ export class Home implements OnInit {
       next: (res) => {
         // this.isLoading.set(false);
         this.listProvince.set(res.listProvince || []);
-        
+
         // Populate text for autocomplete if there's a selected province in search preferences
         const selectedProvince = this.searchForm.get('province')?.value;
         if (selectedProvince) {
-          const provinceObj = this.listProvince().find((p: any) => p.provinceCode === selectedProvince);
+          const provinceObj = this.listProvince().find(
+            (p: any) => p.provinceCode === selectedProvince,
+          );
           if (provinceObj) {
             this.filterProvinceText.set(provinceObj.name);
             this.fetchCommunesForFilter(selectedProvince, true); // Pass a flag to indicate it's from init
@@ -350,7 +390,9 @@ export class Home implements OnInit {
         if (isInit) {
           const selectedCommune = this.searchForm.get('commune')?.value;
           if (selectedCommune) {
-            const communeObj = this.listCommune().find((c: any) => c.communeCode === selectedCommune);
+            const communeObj = this.listCommune().find(
+              (c: any) => c.communeCode === selectedCommune,
+            );
             if (communeObj) {
               this.filterCommuneText.set(communeObj.name);
             }
@@ -803,6 +845,15 @@ export class Home implements OnInit {
   submitContractRequest(): void {
     if (this.requestContractForm.invalid) {
       this.requestContractForm.markAllAsTouched();
+      return;
+    }
+    if (!this.hasPreviewedContract) {
+      // Show toast error: Cần xem trước hợp đồng trước khi gửi
+      this.toast.warning('Vui lòng xem trước hợp đồng trước khi gửi yêu cầu.', 'Chú ý', {
+        timeOut: 3000,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+      });
       return;
     }
     const val = this.requestContractForm.value;
