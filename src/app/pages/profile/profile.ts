@@ -319,6 +319,11 @@ export class Profile implements OnInit {
         this.cancelOcrReview();
         // Load lại profile để cập nhật trạng thái Đã xác minh
         this.loadProfile();
+        let currentUser = this.tokenService.getUserInfo();
+        if (currentUser) {
+          currentUser.isOcr = true;
+          this.tokenService.setUserInfo(currentUser);
+        }
       },
       error: (err: any) => {
         this.isLoading.set(false);

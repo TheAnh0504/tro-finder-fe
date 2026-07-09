@@ -24,6 +24,7 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
               phoneNumber: res.phoneNumber,
               urlImage: res.urlImage,
               isOcr: res.isOcr,
+              isRent: res.isRent,
             };
             tokenService.setTokens(res.access_token, res.listPermission, currentUser);
 

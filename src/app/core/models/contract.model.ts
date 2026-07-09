@@ -1,5 +1,6 @@
 // --- Enums ---
 export enum EContractStatus {
+  DRAFT = 'DRAFT',
   PROPOSED_BY_TENANT = 'PROPOSED_BY_TENANT',
   PROPOSED_BY_HOST = 'PROPOSED_BY_HOST',
   COUNTERPARTY_CONFIRMED = 'COUNTERPARTY_CONFIRMED',
@@ -34,6 +35,36 @@ export interface RoomPaymentDTO {
   notifiedAt: string | null;
   confirmedAt: string | null;
   confirmedBy: string | null;
+  electricityUnits?: number | null;
+  waterUnits?: number | null;
+  occupantCount?: number | null;
+  rentAmount?: number | null;
+  electricityAmount?: number | null;
+  waterAmount?: number | null;
+  internetAmount?: number | null;
+  washingMachineAmount?: number | null;
+  generalCleaningAmount?: number | null;
+  generalElectricityAmount?: number | null;
+  filledBy?: string | null;
+  filledByRole?: string | null;
+}
+
+export interface PaymentBreakdownInput {
+  electricityUnits: number;
+  waterUnits: number;
+  occupantCount: number;
+}
+
+export interface PaymentBreakdownResult {
+  rentAmount: number;
+  electricityAmount: number;
+  waterAmount: number;
+  internetAmount: number;
+  washingMachineAmount: number;
+  generalCleaningAmount: number;
+  generalElectricityAmount: number;
+  totalAmount: number;
+  waterPerPerson: boolean;
 }
 
 export interface ContractTenantDTO {

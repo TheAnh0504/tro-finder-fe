@@ -308,6 +308,7 @@ export class SignUp implements OnInit, OnDestroy {
           phoneNumber: res.phoneNumber,
           urlImage: res.urlImage,
           isOcr: res.isOcr,
+          isRent: res.isRent,
         };
         this.tokenService.setTokens(res.access_token, res.listPermission, currentUser);
 

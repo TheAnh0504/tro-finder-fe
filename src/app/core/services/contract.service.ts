@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ContractService {
@@ -16,12 +16,33 @@ export class ContractService {
     return this.http.post('/api/contract/request/from-room', data);
   }
 
+  previewContractPdf(data: any): Observable<any> {
+    return this.http.post('/api/contract/request/preview-pdf', data);
+  }
+
+  submitDraftContract(contractId: string): Observable<any> {
+    return this.http.post('/api/contract/request/submit', { contract_id: contractId });
+  }
+
+  deleteDraftContract(contractId: string): Observable<any> {
+    return this.http.post('/api/contract/request/delete-draft', { contract_id: contractId });
+  }
+
+  getContractPdfFile(minioKey: string): Observable<Blob> {
+    return this.http.post('/api/contract/file', { id: minioKey }, { responseType: 'blob' });
+  }
+
   createContractFromDashboard(data: any): Observable<any> {
     return this.http.post('/api/contract/request/from-dashboard', data);
   }
 
   findContracts(): Observable<any> {
-    return this.http.post('/api/contract/find', {});
+    return this.http.post('/api/contract/find', {}).pipe(
+      map((res: any) => ({
+        ...res,
+        listContract: res.listContract ?? res.list_contract ?? [],
+      })),
+    );
   }
 
   getContract(id: string): Observable<any> {
@@ -38,6 +59,30 @@ export class ContractService {
     payment_month: number;
   }): Observable<any> {
     return this.http.post('/api/contract/payment/confirm', data);
+  }
+
+  notifyTenantPayment(data: {
+    contract_id: string;
+    payment_year?: number;
+    payment_month?: number;
+    note?: string;
+    electricity_units?: number;
+    water_units?: number;
+    occupant_count?: number;
+  }): Observable<any> {
+    return this.http.post('/api/contract/payment/notify-paid', data);
+  }
+
+  savePaymentBreakdown(data: {
+    contract_id: string;
+    payment_year?: number;
+    payment_month?: number;
+    electricity_units?: number;
+    water_units?: number;
+    occupant_count?: number;
+    note?: string;
+  }): Observable<any> {
+    return this.http.post('/api/contract/payment/breakdown', data);
   }
 
   uploadPaymentQr(formData: FormData): Observable<any> {
@@ -91,7 +136,41 @@ export class ContractService {
     });
   }
 
+  fetchCertificates(providerId: string, username: string): Observable<any> {
+    return this.getCertificates(providerId, username);
+  }
+
   signContract(data: any): Observable<any> {
     return this.http.post('/api/contract/sign', data);
+  }
+
+  /** Poll IDP sign status via backend */
+  checkSignStatus(
+    contractId: string,
+    username: string,
+  ): Observable<{ signed: boolean; signPending?: boolean; contract?: any }> {
+    return this.http
+      .post('/api/contract/sign/status', {
+        contract_id: contractId,
+        username,
+      })
+      .pipe(
+        map((res: any) => {
+          const payload = res?.data ?? res;
+          return {
+            signed: !!payload?.signed,
+            signPending: payload?.sign_pending ?? payload?.signPending ?? false,
+            contract: payload?.contract,
+          };
+        }),
+      );
+  }
+
+  triggerRoomSuggestions(): Observable<any> {
+    return this.http.post('/api/reminder/room-suggestions', {});
+  }
+
+  triggerHostPaymentReminders(): Observable<any> {
+    return this.http.post('/api/reminder/host-payment-reminders', {});
   }
 }

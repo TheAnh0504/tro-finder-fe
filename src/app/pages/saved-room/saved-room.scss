@@ -1830,3 +1830,149 @@
     }
   }
 }
+
+.full-width-container {
+  width: 100%;
+  display: block;
+}
+
+.full-width {
+  width: 100% !important;
+  display: block;
+}
+
+.mat-mdc-form-field.full-width {
+  width: 100%;
+}
+
+.terms-field textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.calendar-icon {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  transition: color 0.2s;
+}
+
+.calendar-icon:hover {
+  color: #10b981;
+}
+
+.contract-request-modal .split-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.contract-modal-locked {
+  pointer-events: auto;
+}
+
+.contract-request-modal {
+  position: relative;
+}
+
+.contract-modal-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.82);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: inherit;
+
+  p {
+    color: #334155;
+    font-weight: 600;
+  }
+}
+
+.loading-spinner {
+  width: 42px;
+  height: 42px;
+  border: 4px solid #dbeafe;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: contract-spin 0.8s linear infinite;
+}
+
+@keyframes contract-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.contract-pdf-preview-modal {
+  width: min(920px, 96vw);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.contract-pdf-preview-frame {
+  width: 100%;
+  min-height: 70vh;
+  border: none;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.pdf-preview-overlay {
+  z-index: 100001;
+}
+
+.btn-preview-outline.sign-now {
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+
+.btn-preview-outline {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  background: transparent;
+  color: #2563eb;
+  border: 2px solid #bfdbfe;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-preview-outline.btn-danger-outline {
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.btn-preview-outline:hover:not(:disabled) {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+.btn-preview-outline:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-submit-glow {
+  flex: 1;
+}
+
+.btn-submit-glow:disabled {
+  background: #cbd5e1 !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+  transform: translateY(0) !important;
+}

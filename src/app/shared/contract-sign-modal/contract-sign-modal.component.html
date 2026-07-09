@@ -1,94 +1,211 @@
 @if (open && contract) {
-  <div class="sign-overlay" (click)="close()">
+  <div class="sign-overlay" (click)="showWaitingModal() ? null : close()">
     <div class="sign-modal" (click)="$event.stopPropagation()">
       <div class="sign-header">
         <div>
-          <h2>In PDF & ký số hợp đồng</h2>
+          <h2>Ký số hợp đồng PDF</h2>
           <p>{{ contract.room?.houseSet?.name }} — {{ contract.room?.name }}</p>
         </div>
-        <button type="button" class="icon-btn" (click)="close()">✕</button>
+        <button type="button" class="icon-btn" [disabled]="showWaitingModal()" (click)="close()">
+          ✕
+        </button>
       </div>
 
-      <form [formGroup]="signForm" class="sign-body" (ngSubmit)="submit()">
-        <aside class="sign-config">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Nhà cung cấp chữ ký</mat-label>
-            <mat-select formControlName="provider_id" (selectionChange)="loadCertificates()">
-              @for (provider of providers(); track provider.id) {
-                <mat-option [value]="provider.id">{{ provider.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Username ký</mat-label>
-            <input matInput formControlName="username" (blur)="loadCertificates()" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Chứng thư số</mat-label>
-            <mat-select formControlName="certificate_id">
-              @for (cert of certificates(); track cert.id) {
-                <mat-option [value]="cert.id">
-                  {{ cert.subjectName }} — {{ cert.serialNumber }}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <div class="position-grid">
-            <mat-form-field appearance="outline">
-              <mat-label>Trang</mat-label>
-              <input matInput type="number" formControlName="page" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>X</mat-label>
-              <input matInput type="number" formControlName="x" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Y</mat-label>
-              <input matInput type="number" formControlName="y" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Rộng</mat-label>
-              <input matInput type="number" formControlName="width" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Cao</mat-label>
-              <input matInput type="number" formControlName="height" />
-            </mat-form-field>
-          </div>
-
-          <button type="submit" class="btn-sign-submit" [disabled]="isLoading()">
-            {{ isLoading() ? 'Đang gửi ký...' : 'Gửi ký' }}
-          </button>
-          <button type="button" class="btn-print-preview" (click)="printPreview()">
-            In / lưu PDF
-          </button>
-          <button type="button" class="btn-print-preview secondary" (click)="downloadPreviewHtml()">
-            Tải bản HTML
-          </button>
-        </aside>
-
-        <section class="pdf-preview">
-          <div class="preview-toolbar">
-            <span>Preview bản hợp đồng sẽ in PDF và ký số</span>
-            <small>Click trên văn bản để chọn vị trí chữ ký</small>
-          </div>
-          <div class="preview-page" (click)="choosePosition($event)">
-            <div class="contract-html" [innerHTML]="contract.documentContent"></div>
-            <div
-              class="signature-box"
-              [style.left.px]="signForm.value.x"
-              [style.top.px]="signForm.value.y"
-              [style.width.px]="signForm.value.width"
-              [style.height.px]="signForm.value.height"
-            >
-              Vị trí ký
+      @if (step() === 1) {
+        <div class="sign-body single-column">
+          <section class="pdf-preview">
+            <div class="preview-toolbar">
+              <span>Bước 1: Chọn vị trí chữ ký trên Hợp đồng</span>
+              <small>Click trực tiếp trên trang để tạo và chọn vùng ký</small>
             </div>
+
+            @if (isRenderingPdf()) {
+              <div class="pdf-loading">Đang tải PDF...</div>
+            } @else if (pdfPages().length) {
+              <div class="pdf-pages-scroll">
+                @for (page of pdfPages(); track page.pageNumber) {
+                  <div class="pdf-page-block">
+                    <div class="pdf-page-label">Trang {{ page.pageNumber }}</div>
+                    <div
+                      class="pdf-page-canvas-wrap"
+                      [style.width.px]="page.displayWidth"
+                      [style.height.px]="page.displayHeight"
+                    >
+                      <canvas
+                        [id]="'pdf-page-canvas-' + page.pageNumber"
+                        class="pdf-page-canvas"
+                        [style.width.px]="page.displayWidth"
+                        [style.height.px]="page.displayHeight"
+                        (click)="choosePosition($event, page)"
+                      ></canvas>
+                      @if (selectedPosition()?.page === page.pageNumber) {
+                        <img
+                          class="signature-marker"
+                          [src]="signatureImageUrl"
+                          alt="Vị trí chữ ký"
+                          [style.left.%]="markerLeftPercent(page)"
+                          [style.top.%]="markerTopPercent(page)"
+                          [style.width.%]="markerWidthPercent(page)"
+                          [style.height.%]="markerHeightPercent(page)"
+                        />
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+              <div class="position-info">
+                @if (hasSelectedPosition()) {
+                  Trang {{ signForm.value.page }} — X: {{ signForm.value.x }} — Y:
+                  {{ signForm.value.y }}
+                } @else {
+                  Chưa chọn vị trí chữ ký
+                }
+              </div>
+            } @else {
+              <div class="pdf-loading">Không có file PDF để hiển thị.</div>
+            }
+          </section>
+
+          <div class="step-actions">
+            <button
+              type="button"
+              class="btn-sign-submit"
+              [disabled]="!hasSelectedPosition() || isRenderingPdf()"
+              (click)="goToSignStep()"
+            >
+              Tiếp tục — Chọn nhà cung cấp CTS
+            </button>
           </div>
-        </section>
-      </form>
+        </div>
+      } @else {
+        <form [formGroup]="signForm" class="sign-body step-two" (ngSubmit)="submit()">
+          <aside class="sign-config">
+            <p class="step-label">Bước 2: Chọn nhà cung cấp CTS và tài khoản ký số</p>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nhà cung cấp CTS</mat-label>
+              <mat-select
+                formControlName="provider_id"
+                (selectionChange)="onProviderOrUsernameChange()"
+              >
+                @for (provider of providers(); track provider.id) {
+                  <mat-option [value]="provider.id">{{ provider.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Số giấy tờ tùy thân</mat-label>
+              <input matInput formControlName="username" (input)="onProviderOrUsernameChange()" />
+            </mat-form-field>
+
+            <button
+              type="button"
+              class="btn-fetch-certs"
+              [disabled]="isFetchingCerts()"
+              (click)="fetchCertificates()"
+            >
+              {{ isFetchingCerts() ? 'Đang lấy CTS...' : 'Lấy thông tin CTS' }}
+            </button>
+
+            @if (certificatesLoaded()) {
+              @if (certificates().length) {
+                <div class="cert-list">
+                  @for (cert of certificates(); track cert.id) {
+                    <button
+                      type="button"
+                      class="cert-item"
+                      [class.selected]="signForm.value.certificate_id === cert.id"
+                      (click)="selectCertificate(cert.id, cert.serialNumber, cert.userId)"
+                    >
+                      <strong>{{ cert.subjectName }}</strong>
+                      <span>{{ cert.userId }}</span>
+                      <span>{{ cert.serialNumber }}</span>
+                      <small
+                        >{{ cert.validFrom | date: 'dd/MM/yyyy' }} —
+                        {{ cert.validTo | date: 'dd/MM/yyyy' }}</small
+                      >
+                    </button>
+                  }
+                </div>
+              } @else {
+                <p class="cert-empty">Không có chứng thư số khả dụng.</p>
+              }
+            }
+
+            <!-- <div class="position-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Trang</mat-label>
+                <input matInput type="number" formControlName="page" readonly />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>sigX</mat-label>
+                <input matInput type="number" formControlName="x" readonly />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>sigY</mat-label>
+                <input matInput type="number" formControlName="y" readonly />
+              </mat-form-field>
+            </div> -->
+
+            <div class="step-actions column">
+              <button type="button" class="btn-back" (click)="backToPositionStep()">
+                Quay lại chọn vị trí
+              </button>
+              <button type="submit" class="btn-sign-submit" [disabled]="!canSubmitSign()">
+                {{ isLoading() ? 'Đang gửi ký...' : 'Gửi ký' }}
+              </button>
+            </div>
+          </aside>
+
+          <section class="pdf-preview compact">
+            @if (pdfPages().length) {
+              <div class="pdf-pages-scroll compact-scroll">
+                @for (page of pdfPages(); track page.pageNumber) {
+                  <div class="pdf-page-block compact">
+                    <div class="pdf-page-label">Trang {{ page.pageNumber }}</div>
+                    <div
+                      class="pdf-page-canvas-wrap readonly"
+                      [style.width.px]="page.displayWidth"
+                      [style.height.px]="page.displayHeight"
+                    >
+                      <canvas
+                        [id]="'pdf-page-canvas-' + page.pageNumber"
+                        class="pdf-page-canvas"
+                        [style.width.px]="page.displayWidth"
+                        [style.height.px]="page.displayHeight"
+                      ></canvas>
+                      @if (selectedPosition()?.page === page.pageNumber) {
+                        <img
+                          class="signature-marker"
+                          [src]="signatureImageUrl"
+                          alt="Vị trí chữ ký"
+                          [style.left.%]="markerLeftPercent(page)"
+                          [style.top.%]="markerTopPercent(page)"
+                          [style.width.%]="markerWidthPercent(page)"
+                          [style.height.%]="markerHeightPercent(page)"
+                        />
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </section>
+        </form>
+      }
+
+      @if (showWaitingModal()) {
+        <div class="sign-wait-overlay">
+          <div class="sign-wait-modal">
+            <div class="wait-spinner" aria-hidden="true"></div>
+            <h3>Chờ xác nhận ký</h3>
+            <p>Vui lòng xác nhận ký trên thiết bị hoặc ứng dụng CTS của bạn.</p>
+            <div class="countdown">{{ formatCountdown(remainingSeconds()) }}</div>
+            <p class="wait-hint">Hệ thống tự kiểm tra trạng thái ký mỗi 5 giây</p>
+          </div>
+        </div>
+      }
     </div>
   </div>
 }

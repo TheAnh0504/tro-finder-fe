@@ -27,6 +27,10 @@ import { OsmMapComponent } from '../../shared/osm-map/osm-map.component';
 import { ChatService } from '../../core/services/chat.service';
 import { SysUserService } from '../../core/services/sys-user.service';
 import { ContractService } from '../../core/services/contract.service';
+import { ContractSignModalComponent } from '../../shared/contract-sign-modal/contract-sign-modal.component';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ContractDTO } from '../../core/models/contract.model';
+import { ProfileService } from '../../core/services/profile.service';
 
 @Component({
   selector: 'app-home',
@@ -41,6 +45,7 @@ import { ContractService } from '../../core/services/contract.service';
     MatSelectModule,
     NgxMaskDirective,
     OsmMapComponent,
+    ContractSignModalComponent,
   ],
   providers: [provideNgxMask()],
   templateUrl: './home.html',
@@ -58,6 +63,10 @@ export class Home implements OnInit {
   private chatService = inject(ChatService);
   private sysUserService = inject(SysUserService);
   private contractService = inject(ContractService);
+  private sanitizer = inject(DomSanitizer);
+  private profileService = inject(ProfileService);
+
+  profile = signal<any>(null);
 
   searchForm!: FormGroup;
   preferencesForm!: FormGroup;
@@ -99,6 +108,7 @@ export class Home implements OnInit {
 
   // --- STATE: MODAL GỬI YÊU CẦU HỢP ĐỒNG (DÀNH CHO NGƯỜI THUÊ) ---
   isRequestContractModalOpen = signal(false);
+  requestModalHiddenForSubflow = signal(false);
   requestContractForm!: FormGroup;
   requestCccdFile = signal<File | null>(null);
   requestCccdFileName = signal<string>('');
@@ -109,9 +119,17 @@ export class Home implements OnInit {
   isUserVerified = signal<boolean>(false);
 
   // Cờ kiểm soát trạng thái preview PDF hợp đồng
-  isPreviewing: boolean = false;
-  hasPreviewedContract: boolean = false;
-  previewPdfUrl: string | null = null;
+  isPreviewing = false;
+  isContractModalLoading = signal(false);
+  hasPreviewedContract = false;
+  previewPdfUrl: SafeResourceUrl | null = null;
+  showContractPdfPreviewModal = signal(false);
+  draftContractId: string | null = null;
+  draftContract = signal<ContractDTO | null>(null);
+  showSignModal = signal(false);
+  signPdfBlobUrl: string | null = null;
+  private previewObjectUrl: string | null = null;
+  private contractFormSnapshot = '';
 
   amenityFields = [
     { key: 'parking_area', label: 'Chỗ để xe' },
@@ -216,6 +234,7 @@ export class Home implements OnInit {
               phoneNumber: res.phoneNumber,
               urlImage: res.urlImage,
               isOcr: res.isOcr,
+              isRent: res.isRent,
             };
             this.tokenService.setTokens(res.access_token, res.listPermission, currentUser);
             window.location.href = '/home';
@@ -236,7 +255,7 @@ export class Home implements OnInit {
       if (this.tokenService.isLoggedIn()) {
         this.getListSavedRoom();
         this.user.set(this.tokenService.getUserInfo() || null);
-        console.log('user: ', this.user());
+        this.loadProfile();
 
         if (this.user()?.role === 'Người thuê trọ') {
           if (this.user()?.searchPreferences) {
@@ -254,39 +273,116 @@ export class Home implements OnInit {
       }
       this.getPublicRooms();
     });
+  }
 
-    this.requestContractForm.valueChanges.subscribe(() => {
-      this.hasPreviewedContract = false;
-      this.previewPdfUrl = null;
+  loadProfile(): void {
+    this.profileService.getProfile().subscribe({
+      next: (res) => this.profile.set(res),
+      error: () => {},
     });
+  }
+
+  private resetContractDraftState(): void {
+    this.hasPreviewedContract = false;
+    this.isPreviewing = false;
+    this.isContractModalLoading.set(false);
+    this.revokePreviewUrl();
+    this.draftContractId = null;
+    this.draftContract.set(null);
+    this.showContractPdfPreviewModal.set(false);
+    this.showSignModal.set(false);
+    this.requestModalHiddenForSubflow.set(false);
+    this.signPdfBlobUrl = null;
+    this.contractFormSnapshot = '';
+  }
+
+  private buildContractRequestPayload() {
+    const val = this.requestContractForm.value;
+    const depositRaw = val.deposit_amount;
+    const deposit =
+      depositRaw != null && depositRaw !== ''
+        ? Number(String(depositRaw).replace(/[^\d]/g, ''))
+        : null;
+    return {
+      room_id: val.room_id || this.selectedRoom()?.id,
+      contract_type: val.contract_type,
+      deposit_amount: deposit != null && !Number.isNaN(deposit) ? deposit : null,
+      notify_channel: val.notify_channel,
+      terms: val.terms,
+      begin_time: this.formatDateTime(val.begin_time),
+      end_time: this.formatDateTime(val.end_time),
+    };
+  }
+
+  private revokePreviewUrl(): void {
+    if (this.previewObjectUrl) {
+      URL.revokeObjectURL(this.previewObjectUrl);
+      this.previewObjectUrl = null;
+    }
+    this.previewPdfUrl = null;
   }
 
   // Gọi API Preview
   previewContractPdf() {
     if (this.requestContractForm.invalid) {
-      // Show toast error: Vui lòng điền đủ thông tin
+      this.requestContractForm.markAllAsTouched();
+      this.toast.warning('Vui lòng điền đủ thông tin hợp đồng.', 'Chú ý');
       return;
     }
 
     this.isPreviewing = true;
-    const requestData = {
-      ...this.requestContractForm.value,
-      roomId: this.selectedRoom().id,
-    };
+    this.isContractModalLoading.set(true);
+    this.revokePreviewUrl();
+    const requestData = this.buildContractRequestPayload();
 
-    // Gọi API bạn vừa tạo ở bước 1
-    // this.contractService.previewContractPdf(requestData).subscribe({
-    //   next: (res: any) => {
-    //     // Giả sử API trả về URL qua trường urlImage
-    //     this.previewPdfUrl = res.urlImage;
-    //     this.hasPreviewedContract = true;
-    //     this.isPreviewing = false;
-    //   },
-    //   error: (err) => {
-    //     this.isPreviewing = false;
-    //     // Show toast error
-    //   }
-    // });
+    this.contractService.previewContractPdf(requestData).subscribe({
+      next: (res: any) => {
+        const contractId = res.idContract;
+        const urlKey = res.urlContract;
+        this.draftContractId = contractId;
+        this.draftContract.set({
+          id: contractId,
+          unsignedPdfFile: urlKey,
+          room: this.selectedRoom(),
+        } as ContractDTO);
+
+        this.contractService.getContractPdfFile(urlKey).subscribe({
+          next: (blob) => {
+            this.previewObjectUrl = URL.createObjectURL(blob);
+            this.previewPdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+              this.previewObjectUrl,
+            );
+            this.hasPreviewedContract = true;
+            this.contractFormSnapshot = JSON.stringify(this.requestContractForm.getRawValue());
+            this.isPreviewing = false;
+            this.isContractModalLoading.set(false);
+            this.requestModalHiddenForSubflow.set(true);
+            this.showContractPdfPreviewModal.set(true);
+          },
+          error: (err) => {
+            this.isPreviewing = false;
+            this.isContractModalLoading.set(false);
+            this.toast.error(err.error?.message || 'Không tải được PDF hợp đồng', 'Lỗi');
+          },
+        });
+      },
+      error: (err) => {
+        this.isPreviewing = false;
+        this.isContractModalLoading.set(false);
+        this.toast.error(err.error?.message || 'Không tạo được bản xem trước hợp đồng', 'Lỗi');
+      },
+    });
+  }
+
+  closeContractPdfPreviewModal(): void {
+    this.showContractPdfPreviewModal.set(false);
+    if (!this.showSignModal()) {
+      this.requestModalHiddenForSubflow.set(false);
+    }
+  }
+
+  regenerateContractPdf(): void {
+    this.previewContractPdf();
   }
 
   initSearchForm() {
@@ -638,11 +734,11 @@ export class Home implements OnInit {
                     }
                   },
                   error: (err) => {
-                    this.toast.error(err.error?.message, 'Lỗi', {
-                      timeOut: 3000,
-                      progressBar: true,
-                      positionClass: 'toast-top-right',
-                    });
+                    // this.toast.error(err.error?.message, 'Lỗi', {
+                    //   timeOut: 3000,
+                    //   progressBar: true,
+                    //   positionClass: 'toast-top-right',
+                    // });
                   },
                 });
               });
@@ -800,13 +896,11 @@ export class Home implements OnInit {
     if (!room) return;
 
     this.closeOwnerModal();
+    this.resetContractDraftState();
 
-    // KIỂM TRA TRẠNG THÁI OCR CỦA USER Ở ĐÂY
-    // Ép kiểu any để lấy isOcr (bạn nhớ đảm bảo Backend có trả trường isOcr vào trong token nhé)
     const userInfo: any = this.tokenService.getUserInfo();
-    this.isUserVerified.set(true);
+    this.isUserVerified.set(userInfo?.isOcr === true);
 
-    // Khởi tạo form
     this.requestContractForm = this.fb.group({
       room_id: [room.id, Validators.required],
       tenant_username: [this.tokenService.getUserInfo()?.name || '', Validators.required],
@@ -818,13 +912,30 @@ export class Home implements OnInit {
       terms: [''],
     });
 
+    this.requestContractForm.valueChanges.subscribe(() => {
+      const snapshot = JSON.stringify(this.requestContractForm.getRawValue());
+      if (
+        this.contractFormSnapshot &&
+        snapshot !== this.contractFormSnapshot &&
+        this.hasPreviewedContract
+      ) {
+        this.hasPreviewedContract = false;
+        this.revokePreviewUrl();
+        this.draftContractId = null;
+        this.draftContract.set(null);
+      }
+    });
+
     this.isRequestContractModalOpen.set(true);
   }
 
   closeRequestContractModal() {
+    if (this.isContractModalLoading()) return;
     this.isRequestContractModalOpen.set(false);
+    this.requestModalHiddenForSubflow.set(false);
     this.requestCccdFile.set(null);
     this.requestCccdFileName.set('');
+    this.resetContractDraftState();
   }
 
   onRequestCccdSelected(event: Event): void {
@@ -847,8 +958,7 @@ export class Home implements OnInit {
       this.requestContractForm.markAllAsTouched();
       return;
     }
-    if (!this.hasPreviewedContract) {
-      // Show toast error: Cần xem trước hợp đồng trước khi gửi
+    if (!this.hasPreviewedContract || !this.draftContractId) {
       this.toast.warning('Vui lòng xem trước hợp đồng trước khi gửi yêu cầu.', 'Chú ý', {
         timeOut: 3000,
         progressBar: true,
@@ -856,29 +966,85 @@ export class Home implements OnInit {
       });
       return;
     }
-    const val = this.requestContractForm.value;
-    const request = {
-      room_id: val.room_id,
-      contract_type: val.contract_type,
-      deposit_amount: val.deposit_amount,
-      notify_channel: val.notify_channel,
-      terms: val.terms,
-      begin_time: this.formatDateTime(val.begin_time),
-      end_time: this.formatDateTime(val.end_time),
-    };
 
-    this.isLoading.set(true);
-    this.contractService.createContractFromRoom(request).subscribe({
+    this.isContractModalLoading.set(true);
+    this.contractService.submitDraftContract(this.draftContractId).subscribe({
       next: () => {
-        this.isLoading.set(false);
+        this.isContractModalLoading.set(false);
         this.toast.success('Đã gửi yêu cầu hợp đồng cho chủ nhà!', 'Thành công');
+        this.toast.info('Xem và theo dõi hợp đồng tại Quản lý hợp đồng.', 'Gợi ý');
         this.closeRequestContractModal();
       },
       error: (err: any) => {
-        this.isLoading.set(false);
+        this.isContractModalLoading.set(false);
         this.toast.error(err.error?.message || 'Gửi yêu cầu thất bại', 'Lỗi');
       },
     });
+  }
+
+  openSignFromPreview(): void {
+    if (!this.hasPreviewedContract || !this.draftContract()) {
+      this.toast.warning('Vui lòng xem trước hợp đồng trước khi ký.', 'Chú ý');
+      return;
+    }
+    this.showContractPdfPreviewModal.set(false);
+    this.requestModalHiddenForSubflow.set(true);
+    this.signPdfBlobUrl = this.previewObjectUrl;
+    this.showSignModal.set(true);
+  }
+
+  viewPreviewAgain(): void {
+    if (this.previewPdfUrl) {
+      this.requestModalHiddenForSubflow.set(true);
+      this.showContractPdfPreviewModal.set(true);
+    } else {
+      this.previewContractPdf();
+    }
+  }
+
+  closeSignModal(): void {
+    this.showSignModal.set(false);
+    this.signPdfBlobUrl = null;
+    this.requestModalHiddenForSubflow.set(false);
+  }
+
+  onContractSigned(): void {
+    this.closeSignModal();
+    this.closeRequestContractModal();
+    this.toast.success('Đã ký và gửi hợp đồng cho chủ nhà!', 'Thành công');
+  }
+
+  deleteDraftContract(): void {
+    if (!this.draftContractId) return;
+    if (!confirm('Xóa bản nháp hợp đồng này? Hành động không thể hoàn tác.')) return;
+
+    this.isContractModalLoading.set(true);
+    this.contractService.deleteDraftContract(this.draftContractId).subscribe({
+      next: () => {
+        this.isContractModalLoading.set(false);
+        this.toast.success('Đã xóa bản nháp hợp đồng', 'Thành công');
+        this.resetContractDraftState();
+        this.isRequestContractModalOpen.set(false);
+        this.requestModalHiddenForSubflow.set(false);
+      },
+      error: (err) => {
+        this.isContractModalLoading.set(false);
+        this.toast.error(err.error?.message || 'Không xóa được bản nháp', 'Lỗi');
+      },
+    });
+  }
+
+  defaultSignUsername(): string {
+    const fromProfile = this.profile()?.user?.username;
+    if (fromProfile) return fromProfile;
+    const token = this.tokenService.getAccessToken();
+    if (!token) return '';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.sub || payload.username || '';
+    } catch {
+      return '';
+    }
   }
 
   // 3. Thêm hàm để nút "Đi đến trang Xác minh" gọi tới

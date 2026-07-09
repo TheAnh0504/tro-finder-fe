@@ -865,10 +865,22 @@
   </div>
 }
 
-@if (isRequestContractModalOpen() && selectedRoom()) {
-  <div class="owner-modal-overlay" (click)="closeRequestContractModal()">
+@if (isRequestContractModalOpen() && selectedRoom() && !requestModalHiddenForSubflow()) {
+  <div class="owner-modal-overlay contract-modal-locked">
     <div class="owner-modal-content contract-request-modal" (click)="$event.stopPropagation()">
-      <button class="btn-close-owner" (click)="closeRequestContractModal()">✕</button>
+      @if (isContractModalLoading()) {
+        <div class="contract-modal-loading-overlay">
+          <div class="loading-spinner"></div>
+          <p>Đang xử lý hợp đồng...</p>
+        </div>
+      }
+      <button
+        class="btn-close-owner"
+        (click)="closeRequestContractModal()"
+        [disabled]="isContractModalLoading()"
+      >
+        ✕
+      </button>
 
       <div class="modal-header-brand">
         <div class="brand-icon-circle">
@@ -1003,49 +1015,59 @@
               Gửi yêu cầu cho Chủ nhà
             </button>
           </div> -->
-          @if (previewPdfUrl) {
-            <div class="pdf-preview-container">
-              <h4>Bản xem trước hợp đồng:</h4>
-              <iframe
-                [src]="previewPdfUrl"
-                type="application/pdf"
-                width="100%"
-                height="400px"
-              ></iframe>
-            </div>
-          }
 
           <div class="modal-footer-sticky split-buttons">
-            <!-- Nút Xem trước (Gọi API lấy PDF) -->
             <button
               type="button"
               class="btn-preview-outline"
-              (click)="previewContractPdf()"
-              [disabled]="requestContractForm.invalid || isPreviewing"
+              (click)="hasPreviewedContract ? viewPreviewAgain() : previewContractPdf()"
+              [disabled]="requestContractForm.invalid || isPreviewing || isContractModalLoading()"
             >
               @if (isPreviewing) {
-                <span class="spinner-border spinner-border-sm mr-2"></span> Đang tạo...
+                Đang tạo PDF...
+              } @else if (hasPreviewedContract) {
+                Xem lại PDF
               } @else {
-                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  ></path>
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  ></path>
-                </svg>
                 Xem trước hợp đồng
               }
             </button>
 
-            <!-- Nút Submit (Bị disable nếu chưa xem trước PDF) -->
-            <button type="submit" class="btn-submit-glow" [disabled]="!hasPreviewedContract">
+            <!-- @if (hasPreviewedContract) {
+              <button
+                type="button"
+                class="btn-preview-outline"
+                (click)="regenerateContractPdf()"
+                [disabled]="isPreviewing || isContractModalLoading()"
+              >
+                Sinh lại hợp đồng
+              </button>
+            }
+
+            @if (hasPreviewedContract && draftContractId) {
+              <button
+                type="button"
+                class="btn-preview-outline btn-danger-outline"
+                (click)="deleteDraftContract()"
+                [disabled]="isContractModalLoading()"
+              >
+                Xóa bản nháp
+              </button>
+            } -->
+
+            <button
+              type="button"
+              class="btn-preview-outline sign-now"
+              (click)="openSignFromPreview()"
+              [disabled]="!hasPreviewedContract || isContractModalLoading()"
+            >
+              Ký luôn
+            </button>
+
+            <button
+              type="submit"
+              class="btn-submit-glow"
+              [disabled]="!hasPreviewedContract || isContractModalLoading()"
+            >
               <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
@@ -1340,3 +1362,44 @@
     </div>
   </div>
 }
+
+@if (showContractPdfPreviewModal() && previewPdfUrl) {
+  <div class="owner-modal-overlay contract-modal-locked pdf-preview-overlay">
+    <div class="owner-modal-content contract-pdf-preview-modal" (click)="$event.stopPropagation()">
+      <button class="btn-close-owner" (click)="closeContractPdfPreviewModal()">✕</button>
+      <div class="modal-header-brand">
+        <h2>Xem trước hợp đồng PDF</h2>
+        <!-- <p>Đọc kỹ nội dung trước khi gửi hoặc ký số</p> -->
+      </div>
+      <iframe
+        [src]="previewPdfUrl"
+        class="contract-pdf-preview-frame"
+        title="Xem trước hợp đồng"
+      ></iframe>
+      <div class="modal-footer-sticky split-buttons">
+        @if (draftContractId) {
+          <button
+            type="button"
+            class="btn-preview-outline btn-danger-outline"
+            (click)="deleteDraftContract()"
+            [disabled]="isContractModalLoading()"
+          >
+            Xóa bản nháp
+          </button>
+        }
+        <button type="button" class="btn-preview-outline" (click)="closeContractPdfPreviewModal()">
+          Tiếp tục
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<app-contract-sign-modal
+  [open]="showSignModal()"
+  [contract]="draftContract()"
+  [username]="defaultSignUsername()"
+  [pdfUrl]="signPdfBlobUrl"
+  (closed)="closeSignModal()"
+  (signed)="onContractSigned()"
+/>

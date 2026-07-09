@@ -153,7 +153,11 @@
 
       <!-- Workflow Stepper -->
       <div class="workflow-stepper">
-        <div class="step-item" [class.has-count]="pendingConfirmContracts().length > 0">
+        <div
+          class="step-item clickable"
+          [class.has-count]="pendingConfirmContracts().length > 0"
+          (click)="openWorkflowList('pending_confirm')"
+        >
           <div class="step-circle">
             <span class="step-count">{{ pendingConfirmContracts().length }}</span>
           </div>
@@ -161,10 +165,19 @@
         </div>
         <div class="step-arrow">
           <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            ></path>
           </svg>
         </div>
-        <div class="step-item" [class.has-count]="waitingMySignatureContracts().length > 0">
+        <div
+          class="step-item clickable"
+          [class.has-count]="waitingMySignatureContracts().length > 0"
+          (click)="openWorkflowList('waiting_my_sign')"
+        >
           <div class="step-circle">
             <span class="step-count">{{ waitingMySignatureContracts().length }}</span>
           </div>
@@ -172,10 +185,19 @@
         </div>
         <div class="step-arrow">
           <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            ></path>
           </svg>
         </div>
-        <div class="step-item" [class.has-count]="waitingOtherSignatureContracts().length > 0">
+        <div
+          class="step-item clickable"
+          [class.has-count]="waitingOtherSignatureContracts().length > 0"
+          (click)="openWorkflowList('waiting_other_sign')"
+        >
           <div class="step-circle">
             <span class="step-count">{{ waitingOtherSignatureContracts().length }}</span>
           </div>
@@ -183,12 +205,21 @@
         </div>
         <div class="step-arrow">
           <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            ></path>
           </svg>
         </div>
-        <div class="step-item step-complete" [class.has-count]="activeContracts().length > 0">
+        <div
+          class="step-item step-complete clickable"
+          [class.has-count]="completedWorkflowContracts().length > 0"
+          (click)="openWorkflowList('completed')"
+        >
           <div class="step-circle">
-            <span class="step-count">{{ activeContracts().length }}</span>
+            <span class="step-count">{{ completedWorkflowContracts().length }}</span>
           </div>
           <span class="step-label">Hoàn thành</span>
         </div>
@@ -203,8 +234,12 @@
         (click)="setTab('contracts')"
       >
         <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          ></path>
         </svg>
         Hợp đồng thuê
       </button>
@@ -214,20 +249,24 @@
         (click)="setTab('reviews')"
       >
         <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+          ></path>
         </svg>
         Đánh giá
       </button>
       @if (isHost()) {
-        <button
-          class="tab-btn"
-          [class.active]="activeTab() === 'ocr'"
-          (click)="setTab('ocr')"
-        >
+        <button class="tab-btn" [class.active]="activeTab() === 'ocr'" (click)="setTab('ocr')">
           <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            ></path>
           </svg>
           Sinh HĐ tự động
         </button>
@@ -244,8 +283,12 @@
             <div class="stat-card stat-total">
               <div class="stat-icon">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  ></path>
                 </svg>
               </div>
               <div class="stat-info">
@@ -257,8 +300,12 @@
             <div class="stat-card stat-rented">
               <div class="stat-icon">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
                 </svg>
               </div>
               <div class="stat-info">
@@ -270,8 +317,12 @@
             <div class="stat-card stat-vacant">
               <div class="stat-icon">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                  ></path>
                 </svg>
               </div>
               <div class="stat-info">
@@ -283,8 +334,12 @@
             <div class="stat-card stat-contracts">
               <div class="stat-icon">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  ></path>
                 </svg>
               </div>
               <div class="stat-info">
@@ -294,66 +349,125 @@
             </div>
           </div>
 
+          <ng-template #hostQrUploadCard>
           <!-- QR Upload -->
           <div class="section-card qr-upload-card">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon blue">
                   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                    ></path>
                   </svg>
                 </div>
                 <div>
                   <h3>QR thanh toán của chủ nhà</h3>
-                  <p class="muted">Người thuê sẽ thấy QR này trong tab Hợp đồng để chuyển khoản tiền phòng.</p>
+                  <p class="muted">
+                    Người thuê sẽ thấy QR này trong tab Hợp đồng để chuyển khoản tiền phòng.
+                  </p>
                 </div>
               </div>
             </div>
-            <div class="qr-upload-row">
-              <label class="btn-action btn-primary-outline" for="paymentQrFile">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                </svg>
-                Tải lên QR
-              </label>
-              <input
-                id="paymentQrFile"
-                type="file"
-                accept="image/*"
-                hidden
-                (change)="onPaymentQrSelected($event)"
-              />
-              <span class="muted file-name-text">{{ paymentQrFileName() || 'Chưa chọn file QR' }}</span>
+            <div class="qr-upload-body">
+              @if (hostPaymentQrImageShow()) {
+                <div class="qr-upload-preview">
+                  <img [src]="hostPaymentQrImageShow()!" alt="QR thanh toán chủ nhà" />
+                  <div class="qr-upload-status">
+                    <span class="status-badge status-active">Đã tải QR</span>
+                    <span class="muted small">Người thuê sẽ thấy mã này khi thanh toán</span>
+                  </div>
+                </div>
+              } @else if (hostPaymentQrImage()) {
+                <div class="qr-upload-preview">
+                  <div class="qr-upload-placeholder">Đang tải QR...</div>
+                  <div class="qr-upload-status">
+                    <span class="status-badge status-active">Đã tải QR</span>
+                  </div>
+                </div>
+              }
+              <div class="qr-upload-row">
+                <label class="btn-action btn-primary-outline" for="paymentQrFile">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                    ></path>
+                  </svg>
+                  {{ hostPaymentQrImage() ? 'Tải lại QR' : 'Tải lên QR' }}
+                </label>
+                <input
+                  id="paymentQrFile"
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  [disabled]="isUploadingPaymentQr()"
+                  (change)="onPaymentQrSelected($event)"
+                />
+                @if (!hostPaymentQrImage()) {
+                  <span class="muted file-name-text">{{
+                    paymentQrFileName() || 'Chưa chọn file QR'
+                  }}</span>
+                }
+                @if (isUploadingPaymentQr()) {
+                  <span class="muted small">Đang tải lên...</span>
+                }
+              </div>
             </div>
           </div>
+          </ng-template>
+
+          @if (!hostPaymentQrImage()) {
+            <ng-container *ngTemplateOutlet="hostQrUploadCard"></ng-container>
+          }
 
           <!-- Alert: Expiring Contracts -->
-          @if (expiringContracts().length > 0) {
+          @if (hostExpiringLeases().length > 0) {
             <div class="alert-section alert-warning">
               <div class="alert-header">
                 <div class="alert-icon-wrap warning">
                   <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
+                    ></path>
                   </svg>
                 </div>
-                <h3>Hợp đồng sắp hết hạn ({{ expiringContracts().length }})</h3>
+                <h3>Hợp đồng sắp hết hạn ({{ hostExpiringLeases().length }})</h3>
               </div>
               <div class="alert-body">
-                @for (contract of expiringContracts(); track contract.id) {
+                @for (contract of hostExpiringLeases(); track contract.id) {
                   <div class="expiring-item">
                     <div class="expiring-info">
                       <strong>{{ contract.tenant.name }}</strong>
-                      <span class="muted">{{ contract.room.houseSet.name }} — {{ contract.room.name }}</span>
+                      <span class="muted"
+                        >{{ contract.room.houseSet.name }} — {{ contract.room.name }}</span
+                      >
                     </div>
                     <div class="expiring-date">
                       Hết hạn: <strong>{{ formatDate(contract.endTime) }}</strong>
                     </div>
                     <button class="btn-action btn-renew" (click)="openRenewModal(contract.id)">
-                      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                      <svg
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        ></path>
                       </svg>
                       Gia hạn
                     </button>
@@ -363,56 +477,154 @@
             </div>
           }
 
-          <!-- Section: Unpaid Payments -->
+          <!-- Section: Payments by month -->
           <div class="section-card">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon orange">
                   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
                   </svg>
                 </div>
-                <h3>Người thuê chưa thanh toán ({{ unpaidPayments().length }})</h3>
+                <div>
+                  <h3>Thanh toán tháng {{ paymentViewMonth() }}/{{ paymentViewYear() }}</h3>
+                  <p class="muted">
+                    {{ hostActiveLeaseContracts().length }} phòng trong hợp đồng ·
+                    {{ hostAllUnpaidPeriods().length }} kỳ chưa xác nhận
+                  </p>
+                </div>
+              </div>
+              <div class="payment-month-picker">
+                <label for="hostPaymentMonth">Chọn tháng</label>
+                <select
+                  id="hostPaymentMonth"
+                  class="form-input"
+                  [ngModel]="paymentViewYear() + '-' + paymentViewMonth()"
+                  (ngModelChange)="setPaymentViewMonth(+$event.split('-')[0], +$event.split('-')[1])"
+                >
+                  @for (period of hostPaymentViewOptions(); track period.year + '-' + period.month) {
+                    <option [value]="period.year + '-' + period.month">
+                      {{ formatPaymentPeriodLabel(period.year, period.month) }}
+                    </option>
+                  }
+                </select>
               </div>
             </div>
-            @if (unpaidPayments().length > 0) {
+
+            @if (hostAllUnpaidPeriods().length > 0) {
+              <div class="payment-unpaid-alert">
+                <strong>Chưa thanh toán / chưa xác nhận:</strong>
+                <div class="payment-unpaid-chips">
+                  @for (item of hostAllUnpaidPeriods(); track item.contract.id + '-' + item.year + '-' + item.month) {
+                    <button
+                      type="button"
+                      class="payment-unpaid-chip"
+                      [class.active]="
+                        paymentViewYear() === item.year && paymentViewMonth() === item.month
+                      "
+                      (click)="setPaymentViewMonth(item.year, item.month)"
+                    >
+                      {{ formatPaymentPeriodLabel(item.year, item.month) }} —
+                      {{ item.contract.room.houseSet.name }} / {{ item.contract.room.name }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (hostPaymentsForViewMonth().length > 0) {
               <div class="payment-table-wrapper">
                 <table class="payment-table">
                   <thead>
                     <tr>
                       <th>Người thuê</th>
                       <th>Phòng</th>
-                      <th>Tháng</th>
                       <th>Số tiền</th>
                       <th>Trạng thái</th>
                       <th>Thao tác</th>
                     </tr>
                   </thead>
                   <tbody>
-                    @for (item of unpaidPayments(); track item.payment.id) {
-                      <tr>
+                    @for (item of hostPaymentsForViewMonth(); track item.contract.id) {
+                      <tr [class.payment-row-overdue]="item.overdue && item.needsPayment">
                         <td>
                           <div class="tenant-cell">
                             <strong>{{ item.contract.tenant.name }}</strong>
                             <span class="muted">{{ item.contract.tenant.phoneNumber }}</span>
                           </div>
                         </td>
-                        <td>{{ item.contract.room.name }}</td>
-                        <td>{{ item.payment.paymentMonth }}/{{ item.payment.paymentYear }}</td>
-                        <td class="amount-cell">{{ formatCurrency(item.payment.amount) }}</td>
                         <td>
-                          <span class="status-badge" [class]="getPaymentStatusClass(item.payment.status)">
-                            {{ getPaymentStatusLabel(item.payment.status) }}
-                          </span>
+                          {{ item.contract.room.houseSet.name }} — {{ item.contract.room.name }}
+                        </td>
+                        <td class="amount-cell">
+                          @if (item.payment && hasPaymentBreakdown(item.payment)) {
+                            {{ formatCurrency(item.payment.amount) }}
+                          } @else {
+                            {{
+                              formatCurrency(
+                                item.payment?.amount ?? item.contract.room.priceRoom
+                              )
+                            }}
+                          }
                         </td>
                         <td>
-                          <button class="btn-action btn-confirm" (click)="confirmPayment(item.payment.id)">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Xác nhận
-                          </button>
+                          @if (item.payment) {
+                            <span
+                              class="status-badge"
+                              [class]="getPaymentStatusClass(item.payment.status)"
+                            >
+                              {{ getPaymentStatusLabel(item.payment.status) }}
+                            </span>
+                          } @else {
+                            <span class="status-badge status-pending">Chưa ghi nhận</span>
+                          }
+                        </td>
+                        <td>
+                          <div class="payment-action-group">
+                            <button
+                              class="btn-action btn-secondary"
+                              (click)="
+                                openHostPaymentBreakdown(
+                                  item.contract,
+                                  item.payment,
+                                  paymentViewYear(),
+                                  paymentViewMonth()
+                                )
+                              "
+                            >
+                              Nhập tiền
+                            </button>
+                            @if (item.needsPayment) {
+                              @if (item.payment?.id) {
+                                <button
+                                  class="btn-action btn-confirm"
+                                  (click)="confirmPayment(item.payment!.id)"
+                                >
+                                  Xác nhận
+                                </button>
+                              } @else {
+                                <button
+                                  class="btn-action btn-confirm"
+                                  (click)="
+                                    confirmHostPaymentThisMonth(
+                                      item.contract.id,
+                                      paymentViewYear(),
+                                      paymentViewMonth()
+                                    )
+                                  "
+                                >
+                                  Xác nhận tháng này
+                                </button>
+                              }
+                            } @else {
+                              <span class="muted small">Đã xác nhận</span>
+                            }
+                          </div>
                         </td>
                       </tr>
                     }
@@ -421,10 +633,125 @@
               </div>
             } @else {
               <div class="empty-state small">
-                <p>Không có người thuê nào đang chờ xác nhận thanh toán.</p>
+                <p>Không có phòng nào trong hợp đồng cho tháng {{ paymentViewMonth() }}/{{ paymentViewYear() }}.</p>
               </div>
             }
           </div>
+
+          <div class="section-card notification-actions-card">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon blue">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    ></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3>Email nhắc thanh toán</h3>
+                  <p class="muted">
+                    Gửi ngay email nhắc người thuê đóng tiền và tổng hợp danh sách chưa thanh toán cho
+                    bạn.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="notification-actions-body">
+              <button
+                class="btn-action btn-primary-outline"
+                [disabled]="isTriggeringHostReminders()"
+                (click)="triggerHostPaymentReminderEmails()"
+              >
+                {{
+                  isTriggeringHostReminders()
+                    ? 'Đang gửi email...'
+                    : 'Gửi email nhắc đóng tiền tháng này'
+                }}
+              </button>
+              <p class="muted small schedule-hint">
+                Lịch tự động: ngày 1 (đầu tháng), ngày 25 (giữa tháng), ngày cuối tháng (tổng hợp chủ
+                trọ).
+              </p>
+            </div>
+          </div>
+
+          <!-- All unpaid history -->
+          @if (unpaidPayments().length > unpaidPaymentsThisMonth().length) {
+            <div class="section-card">
+              <div class="section-header">
+                <div class="section-title-group">
+                  <div class="section-icon orange">
+                    <svg
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <h3>Các khoản chưa xác nhận khác ({{ unpaidPayments().length }})</h3>
+                </div>
+              </div>
+              @if (unpaidPayments().length > 0) {
+                <div class="payment-table-wrapper">
+                  <table class="payment-table">
+                    <thead>
+                      <tr>
+                        <th>Người thuê</th>
+                        <th>Phòng</th>
+                        <th>Tháng</th>
+                        <th>Số tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (item of unpaidPayments(); track item.payment.id) {
+                        <tr>
+                          <td>
+                            <div class="tenant-cell">
+                              <strong>{{ item.contract.tenant.name }}</strong>
+                              <span class="muted">{{ item.contract.tenant.phoneNumber }}</span>
+                            </div>
+                          </td>
+                          <td>{{ item.contract.room.name }}</td>
+                          <td>{{ item.payment.paymentMonth }}/{{ item.payment.paymentYear }}</td>
+                          <td class="amount-cell">{{ formatCurrency(item.payment.amount) }}</td>
+                          <td>
+                            <span
+                              class="status-badge"
+                              [class]="getPaymentStatusClass(item.payment.status)"
+                            >
+                              {{ getPaymentStatusLabel(item.payment.status) }}
+                            </span>
+                          </td>
+                          <td>
+                            <button
+                              class="btn-action btn-confirm"
+                              (click)="confirmPayment(item.payment.id)"
+                            >
+                              Xác nhận
+                            </button>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </div>
+          }
 
           <!-- Payment Confirm Form -->
           <div class="section-card">
@@ -432,12 +759,19 @@
               <div class="section-title-group">
                 <div class="section-icon green">
                   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
                   </svg>
                 </div>
                 <div>
                   <h3>Xác nhận đã đóng tiền theo hợp đồng</h3>
-                  <p class="muted">Chọn đúng phòng, hợp đồng và tháng mà người thuê đã thanh toán.</p>
+                  <p class="muted">
+                    Chọn đúng phòng, hợp đồng và tháng mà người thuê đã thanh toán.
+                  </p>
                 </div>
               </div>
             </div>
@@ -475,8 +809,19 @@
               <button class="btn-action btn-confirm" (click)="confirmPaymentForSelectedPeriod()">
                 Đã đóng tháng này
               </button>
+              <button
+                class="btn-action btn-secondary"
+                [disabled]="!selectedPaymentContractId()"
+                (click)="openHostPaymentBreakdownForSelected()"
+              >
+                Nhập tiền
+              </button>
             </div>
           </div>
+
+          @if (hostPaymentQrImage()) {
+            <ng-container *ngTemplateOutlet="hostQrUploadCard"></ng-container>
+          }
 
           <!-- Section: All Contracts List (Host) -->
           <div class="section-card">
@@ -484,16 +829,24 @@
               <div class="section-title-group">
                 <div class="section-icon purple">
                   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    ></path>
                   </svg>
                 </div>
                 <h3>Danh sách hợp đồng ({{ contracts().length }})</h3>
               </div>
               <button class="btn-action btn-primary-outline" (click)="goToManageHouse()">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  ></path>
                 </svg>
                 Quản lý nhà trọ
               </button>
@@ -502,9 +855,20 @@
             @if (contracts().length === 0) {
               <div class="empty-state">
                 <div class="empty-icon-wrap">
-                  <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" opacity="0.4">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  <svg
+                    width="64"
+                    height="64"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    opacity="0.4"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    ></path>
                   </svg>
                 </div>
                 <p>Chưa có hợp đồng nào</p>
@@ -512,77 +876,186 @@
             } @else {
               <div class="contracts-grid">
                 @for (contract of contracts(); track contract.id) {
-                  <div class="contract-card" [class]="'border-' + getContractStatusClass(contract.status)">
+                  <div
+                    class="contract-card"
+                    [class]="'border-' + getContractStatusClass(contract.status)"
+                  >
                     <div class="contract-card-header">
-                      <span class="contract-type-badge">{{ getContractTypeLabel(contract.contractType) }}</span>
+                      <span class="contract-type-badge">{{
+                        getContractTypeLabel(contract.contractType)
+                      }}</span>
                       <span class="status-badge" [class]="getContractStatusClass(contract.status)">
                         {{ getContractStatusLabel(contract.status) }}
                       </span>
                     </div>
                     <div class="contract-card-body">
                       <div class="contract-detail-row">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        <svg
+                          width="18"
+                          height="18"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          ></path>
                         </svg>
                         <span>{{ contract.tenant.name }}</span>
                       </div>
                       <div class="contract-detail-row">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        <svg
+                          width="18"
+                          height="18"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                          ></path>
                         </svg>
                         <span>{{ contract.room.houseSet.name }} — {{ contract.room.name }}</span>
                       </div>
                       <div class="contract-detail-row">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        <svg
+                          width="18"
+                          height="18"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          ></path>
                         </svg>
-                        <span>{{ formatDate(contract.beginTime) }} — {{ formatDate(contract.endTime) }}</span>
+                        <span
+                          >{{ formatDate(contract.beginTime) }} —
+                          {{ formatDate(contract.endTime) }}</span
+                        >
                       </div>
                       <div class="contract-detail-row">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <svg
+                          width="18"
+                          height="18"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          ></path>
                         </svg>
                         <span>Tiền cọc: {{ formatCurrency(contract.depositAmount) }}</span>
                       </div>
                       <div class="contract-detail-row">
-                        <span class="price-highlight">Giá phòng: {{ formatCurrency(contract.room.priceRoom) }}/tháng</span>
+                        <span class="price-highlight"
+                          >Giá phòng: {{ formatCurrency(contract.room.priceRoom) }}/tháng</span
+                        >
                       </div>
                       @if (contract.room.houseSet.owner?.paymentQrImageShow) {
                         <div class="payment-qr-box">
                           <span>QR thanh toán:</span>
-                          <img [src]="contract.room.houseSet.owner?.paymentQrImageShow" alt="QR thanh toán chủ nhà" />
+                          <img
+                            [src]="contract.room.houseSet.owner?.paymentQrImageShow"
+                            alt="QR thanh toán chủ nhà"
+                          />
                         </div>
                       }
                     </div>
                     <div class="contract-card-actions">
                       <button class="btn-action btn-view" (click)="viewDocument(contract)">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        <svg
+                          width="14"
+                          height="14"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          ></path>
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          ></path>
                         </svg>
-                        Xem HĐ
+                        {{ getViewContractLabel(contract) }}
                       </button>
-                      @if (contract.status === 'COMPLETED') {
+                      @if (contract.status === 'COMPLETED' && contract.contractType === 'LEASE') {
                         <button class="btn-action btn-renew" (click)="openRenewModal(contract.id)">
-                          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                          <svg
+                            width="14"
+                            height="14"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            ></path>
                           </svg>
                           Gia hạn
                         </button>
-                        <button class="btn-action btn-secondary" (click)="openTempFormModal(contract, 'TEMP_RESIDENCE')">Tạo đơn tạm trú</button>
-                        <button class="btn-action btn-secondary" (click)="openTempFormModal(contract, 'TEMP_ABSENCE')">Tạo đơn tạm vắng</button>
+                        <button
+                          class="btn-action btn-secondary"
+                          (click)="openTempFormModal(contract, 'TEMP_RESIDENCE')"
+                        >
+                          Tạo đơn tạm trú
+                        </button>
+                        <button
+                          class="btn-action btn-secondary"
+                          (click)="openTempFormModal(contract, 'TEMP_ABSENCE')"
+                        >
+                          Tạo đơn tạm vắng
+                        </button>
                       }
                       @if (canConfirm(contract)) {
-                        <button class="btn-action btn-danger-outline" (click)="rejectContract(contract.id)">✕ Từ chối</button>
-                        <button class="btn-action btn-confirm" (click)="approveContract(contract.id)">Xác nhận</button>
+                        <button
+                          class="btn-action btn-danger-outline"
+                          (click)="rejectContract(contract.id)"
+                        >
+                          ✕ Từ chối
+                        </button>
+                        <button
+                          class="btn-action btn-confirm"
+                          (click)="approveContract(contract.id)"
+                        >
+                          Xác nhận
+                        </button>
                       }
                       @if (canSign(contract)) {
-                        <button class="btn-action btn-confirm" (click)="openSignModal(contract)">In PDF & ký số</button>
+                        <button class="btn-action btn-confirm" (click)="openSignModal(contract)">
+                          Ký luôn
+                        </button>
+                      }
+                      @if (canDeleteDraft(contract)) {
+                        <button
+                          class="btn-action btn-danger-outline"
+                          (click)="deleteDraftContract(contract)"
+                        >
+                          Xóa bản nháp
+                        </button>
                       }
                     </div>
                   </div>
@@ -594,13 +1067,491 @@
 
         <!-- ==================== ROOMER DASHBOARD ==================== -->
         @if (isRoomer()) {
+          @if (hasActiveRental() && myActiveContract(); as activeContract) {
+            <!-- Active lease summary at top -->
+            <div class="rental-hero">
+              <div class="rental-hero-content">
+                <div class="rental-status-bar">
+                  <span class="status-badge status-active">Đang thuê — còn hiệu lực</span>
+                  @if (isExpiringSoon()) {
+                    <span class="status-badge status-overdue animate-pulse"
+                      >Còn {{ remainingMonths() }} tháng</span
+                    >
+                  }
+                </div>
+                <h2 class="rental-title">
+                  @if (myActiveLeaseContracts().length > 1) {
+                    Đang thuê {{ myActiveLeaseContracts().length }} phòng trọ
+                  } @else {
+                    {{ activeContract.room.houseSet.name }}
+                  }
+                </h2>
+                @if (myActiveLeaseContracts().length === 1) {
+                  <p class="rental-room">Phòng {{ activeContract.room.name }}</p>
+                  <p class="rental-address">{{ activeContract.room.houseSet.address }}</p>
+                } @else {
+                  <p class="rental-room">
+                    {{ tenantAllUnpaidPeriods().length }} kỳ chưa thanh toán trong hợp đồng
+                  </p>
+                }
+                <div class="rental-date-row">
+                  <span
+                    >Bắt đầu:
+                    <strong>{{ formatDate(activeContract.beginTime || '') }}</strong></span
+                  >
+                  <span
+                    >Kết thúc:
+                    <strong>{{ formatDate(activeContract.endTime || '') }}</strong></span
+                  >
+                  <span
+                    >Còn lại: <strong>{{ remainingMonths() }} tháng</strong></span
+                  >
+                </div>
+              </div>
+              <div class="rental-hero-stats">
+                @if (myActiveLeaseContracts().length > 1) {
+                  <div class="rental-stat">
+                    <span class="rental-stat-value">{{ myActiveLeaseContracts().length }}</span>
+                    <span class="rental-stat-label">Phòng đang thuê</span>
+                  </div>
+                  <div class="rental-stat">
+                    <span class="rental-stat-value">{{
+                      formatCurrency(tenantTotalDueThisMonth())
+                    }}</span>
+                    <span class="rental-stat-label">Tổng cần thanh toán</span>
+                  </div>
+                  <div class="rental-stat">
+                    <span class="rental-stat-value">{{
+                      tenantAllUnpaidPeriods().length
+                    }}</span>
+                    <span class="rental-stat-label">Kỳ chưa thanh toán</span>
+                  </div>
+                } @else {
+                  <div class="rental-stat">
+                    <span class="rental-stat-value">{{
+                      formatCurrency(activeContract.room.priceRoom)
+                    }}</span>
+                    <span class="rental-stat-label">Tiền phòng/tháng</span>
+                  </div>
+                  <div class="rental-stat">
+                    <span class="rental-stat-value">{{
+                      formatCurrency(tenantAverageMonthlyTotal())
+                    }}</span>
+                    <span class="rental-stat-label">
+                      @if (tenantCalculatedMonthsCount() > 0) {
+                        TB {{ tenantCalculatedMonthsCount() }} tháng đã tính
+                      } @else {
+                        Ước tính tổng/tháng
+                      }
+                    </span>
+                  </div>
+                  <div class="rental-stat">
+                    <span class="rental-stat-value">{{ contractProgress() }}%</span>
+                    <span class="rental-stat-label">Tiến độ HĐ</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- @if (tenantPaymentReminders().length > 0) {
+              <div class="reminder-grid">
+                @for (reminder of tenantPaymentReminders(); track reminder.id) {
+                  <button
+                    type="button"
+                    class="reminder-card"
+                    [class.urgent]="reminder.urgent"
+                    (click)="
+                      reminder.id === 'expiry'
+                        ? openRenewModal(myActiveContract()!.id)
+                        : openPaymentQrModal(reminder.type)
+                    "
+                  >
+                    <strong>{{ reminder.title }}</strong>
+                    <span>{{ reminder.detail }}</span>
+                    @if (reminder.id !== 'expiry') {
+                      <em>Nhấn để xem QR chuyển khoản</em>
+                    } @else {
+                      <em>Nhấn để gia hạn hợp đồng</em>
+                    }
+                  </button>
+                }
+              </div>
+            } -->
+
+            <div class="section-card">
+              <div class="section-header">
+                <div class="section-title-group">
+                  <div class="section-icon blue">
+                    <svg
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <h3>Thời hạn hợp đồng</h3>
+                </div>
+                <button class="btn-action btn-view" (click)="viewDocument(activeContract)">
+                  {{ getViewContractLabel(activeContract) }}
+                </button>
+              </div>
+              <div class="contract-timeline">
+                <div class="timeline-bar">
+                  <div class="timeline-progress" [style.width.%]="contractProgress()"></div>
+                  <div class="timeline-marker timeline-start">
+                    <span>{{ formatDate(activeContract.beginTime || '') }}</span>
+                  </div>
+                  <div class="timeline-marker timeline-now" [style.left.%]="contractProgress()">
+                    <span>Hôm nay</span>
+                  </div>
+                  <div class="timeline-marker timeline-end">
+                    <span>{{ formatDate(activeContract.endTime || '') }}</span>
+                  </div>
+                </div>
+              </div>
+              @if (isExpiringSoon()) {
+                <div class="expiry-actions">
+                  <div class="expiry-message">
+                    Hợp đồng sắp hết hạn — bạn muốn gia hạn hay tìm phòng mới?
+                  </div>
+                  <div class="expiry-btns">
+                    <button
+                      class="btn-action btn-renew"
+                      (click)="openRenewModal(activeContract.id)"
+                    >
+                      Gia hạn hợp đồng
+                    </button>
+                    <button class="btn-action btn-secondary" (click)="goToSearchRoom()">
+                      Tìm phòng mới
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="section-card">
+              <div class="section-header">
+                <div class="section-title-group">
+                  <div class="section-icon orange">
+                    <svg
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3>Thanh toán tháng {{ paymentViewMonth() }}/{{ paymentViewYear() }}</h3>
+                    <p class="muted">
+                      {{ myActiveLeaseContracts().length }} phòng trong hợp đồng ·
+                      {{ tenantAllUnpaidPeriods().length }} kỳ chưa thanh toán
+                    </p>
+                  </div>
+                </div>
+                <div class="payment-month-picker">
+                  <label for="tenantPaymentMonth">Chọn tháng</label>
+                  <select
+                    id="tenantPaymentMonth"
+                    class="form-input"
+                    [ngModel]="paymentViewYear() + '-' + paymentViewMonth()"
+                    (ngModelChange)="setPaymentViewMonth(+$event.split('-')[0], +$event.split('-')[1])"
+                  >
+                    @for (period of tenantPaymentViewOptions(); track period.year + '-' + period.month) {
+                      <option [value]="period.year + '-' + period.month">
+                        {{ formatPaymentPeriodLabel(period.year, period.month) }}
+                      </option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              @if (tenantAllUnpaidPeriods().length > 0) {
+                <div class="payment-unpaid-alert">
+                  <strong>Tháng chưa thanh toán:</strong>
+                  <div class="payment-unpaid-chips">
+                    @for (item of tenantAllUnpaidPeriods(); track item.contract.id + '-' + item.year + '-' + item.month) {
+                      <button
+                        type="button"
+                        class="payment-unpaid-chip"
+                        [class.active]="
+                          paymentViewYear() === item.year && paymentViewMonth() === item.month
+                        "
+                        (click)="setPaymentViewMonth(item.year, item.month)"
+                      >
+                        {{ formatPaymentPeriodLabel(item.year, item.month) }} —
+                        {{ item.contract.room.houseSet.name }} / {{ item.contract.room.name }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (tenantPaymentsForViewMonth().length > 0) {
+                <div class="payment-table-wrapper">
+                  <table class="payment-table">
+                    <thead>
+                      <tr>
+                        <th>Nhà trọ / Phòng</th>
+                        <th>Số tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (item of tenantPaymentsForViewMonth(); track item.contract.id) {
+                        <tr [class.payment-row-overdue]="item.overdue && item.needsPayment">
+                          <td>
+                            <div class="tenant-cell">
+                              <strong>{{ item.contract.room.houseSet.name }}</strong>
+                              <span class="muted">Phòng {{ item.contract.room.name }}</span>
+                            </div>
+                          </td>
+                          <td class="amount-cell">
+                            {{ formatCurrency(getContractMonthTotal(item.contract, item.payment)) }}
+                          </td>
+                          <td>
+                            @if (item.payment) {
+                              <span
+                                class="status-badge"
+                                [class]="getPaymentStatusClass(item.payment.status)"
+                              >
+                                {{ getPaymentStatusLabel(item.payment.status) }}
+                              </span>
+                            } @else {
+                              <span class="status-badge status-pending">Chưa ghi nhận</span>
+                            }
+                          </td>
+                          <td>
+                            @if (item.needsPayment) {
+                              <button
+                                class="btn-action btn-confirm"
+                                (click)="
+                                  openPaymentQrModal(
+                                    'all',
+                                    item.contract,
+                                    paymentViewYear(),
+                                    paymentViewMonth()
+                                  )
+                                "
+                              >
+                                Thanh toán ngay
+                              </button>
+                            } @else {
+                              <span class="muted small">Đã thanh toán</span>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              } @else {
+                <div class="empty-state small">
+                  <p>Không có phòng nào trong hợp đồng cho tháng {{ paymentViewMonth() }}/{{ paymentViewYear() }}.</p>
+                </div>
+              }
+
+              @if (myActiveLeaseContracts().length === 1) {
+              <div class="utility-breakdown">
+                @if (hasPaymentBreakdown(myCurrentMonthPayment())) {
+                  <div>
+                    <span>Tiền phòng</span
+                    ><strong>{{ formatCurrency(myCurrentMonthPayment()?.rentAmount) }}</strong>
+                  </div>
+                  @if ((myCurrentMonthPayment()?.electricityAmount ?? 0) > 0) {
+                    <div>
+                      <span
+                        >Điện ({{ myCurrentMonthPayment()?.electricityUnits }} kWh ×
+                        {{ formatCurrency(activeContract.room.priceElectricity) }})</span
+                      ><strong>{{ formatCurrency(myCurrentMonthPayment()?.electricityAmount) }}</strong>
+                    </div>
+                  }
+                  @if ((myCurrentMonthPayment()?.waterAmount ?? 0) > 0) {
+                    <div>
+                      <span>Nước</span
+                      ><strong>{{ formatCurrency(myCurrentMonthPayment()?.waterAmount) }}</strong>
+                    </div>
+                  }
+                  @if ((myCurrentMonthPayment()?.internetAmount ?? 0) > 0) {
+                    <div>
+                      <span>Internet</span
+                      ><strong>{{ formatCurrency(myCurrentMonthPayment()?.internetAmount) }}</strong>
+                    </div>
+                  }
+                  @if ((myCurrentMonthPayment()?.washingMachineAmount ?? 0) > 0) {
+                    <div>
+                      <span>Máy giặt</span
+                      ><strong>{{
+                        formatCurrency(myCurrentMonthPayment()?.washingMachineAmount)
+                      }}</strong>
+                    </div>
+                  }
+                  @if ((myCurrentMonthPayment()?.generalCleaningAmount ?? 0) > 0) {
+                    <div>
+                      <span>Vệ sinh chung</span
+                      ><strong>{{
+                        formatCurrency(myCurrentMonthPayment()?.generalCleaningAmount)
+                      }}</strong>
+                    </div>
+                  }
+                  @if ((myCurrentMonthPayment()?.generalElectricityAmount ?? 0) > 0) {
+                    <div>
+                      <span>Điện khu vực chung</span
+                      ><strong>{{
+                        formatCurrency(myCurrentMonthPayment()?.generalElectricityAmount)
+                      }}</strong>
+                    </div>
+                  }
+                  <div class="total-row">
+                    <span>Tổng tháng {{ paymentViewMonth() }}/{{ paymentViewYear() }}</span
+                    ><strong>{{ formatCurrency(myCurrentMonthPayment()?.amount) }}</strong>
+                  </div>
+                  @if (myCurrentMonthPayment()?.filledByRole) {
+                    <p class="muted small">
+                      Đã nhập bởi:
+                      {{
+                        myCurrentMonthPayment()?.filledByRole === 'HOST' ? 'Chủ trọ' : 'Người thuê'
+                      }}
+                    </p>
+                  }
+                } @else {
+                  <div>
+                    <span>Tiền phòng</span
+                    ><strong>{{ formatCurrency(activeContract.room.priceRoom) }}</strong>
+                  </div>
+                  <div>
+                    <span>Điện</span
+                    ><strong
+                      >{{ formatCurrency(activeContract.room.priceElectricity) }}/kWh</strong
+                    >
+                  </div>
+                  <div>
+                    <span>Nước</span
+                    ><strong>{{ formatCurrency(activeContract.room.priceWater) }}/khối</strong>
+                  </div>
+                  <div>
+                    <span>Phí cố định (net, vệ sinh...)</span
+                    ><strong>~{{ formatCurrency(tenantFixedUtilityFees()) }}</strong>
+                  </div>
+                  <div class="total-row">
+                    <span>Tổng tháng {{ paymentViewMonth() }}/{{ paymentViewYear() }}</span
+                    ><strong>{{ formatCurrency(tenantCurrentMonthTotal()) }}</strong>
+                  </div>
+                  <p class="muted small">Bấm "Thanh toán ngay" để nhập chỉ số điện nước.</p>
+                }
+              </div>
+              @if (activeContract.payment.length) {
+                <div class="payment-table-wrapper">
+                  <table class="payment-table">
+                    <thead>
+                      <tr>
+                        <th>Tháng</th>
+                        <th>Số tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày xác nhận</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (payment of activeContract.payment; track payment.id) {
+                        <tr>
+                          <td>{{ payment.paymentMonth }}/{{ payment.paymentYear }}</td>
+                          <td class="amount-cell">{{ formatCurrency(payment.amount) }}</td>
+                          <td>
+                            <span
+                              class="status-badge"
+                              [class]="getPaymentStatusClass(payment.status)"
+                            >
+                              {{ getPaymentStatusLabel(payment.status) }}
+                            </span>
+                          </td>
+                          <td>{{ payment.confirmedAt ? formatDate(payment.confirmedAt) : '—' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              }
+            </div>
+          } @else {
+            <div class="no-rental-hero">
+              <div class="no-rental-icon">🏠</div>
+              <h2>Bạn chưa có hợp đồng thuê đang hiệu lực</h2>
+              <p>Tìm phòng trọ phù hợp và ký hợp đồng để theo dõi thanh toán tại đây.</p>
+              <button class="btn-action btn-confirm" (click)="goToSearchRoom()">
+                Tìm phòng trọ
+              </button>
+            </div>
+          }
+
+          <div class="section-card notification-actions-card">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon blue">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    ></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3>Gợi ý phòng trọ qua email</h3>
+                  <p class="muted">
+                    Nhận danh sách phòng trọ mới phù hợp (gần khu vực bạn đang ở hoặc theo tiêu chí tìm
+                    kiếm).
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="notification-actions-body">
+              <button
+                class="btn-action btn-primary-outline"
+                [disabled]="isTriggeringRoomSuggestions()"
+                (click)="triggerRoomSuggestionEmail()"
+              >
+                {{
+                  isTriggeringRoomSuggestions()
+                    ? 'Đang gửi email...'
+                    : 'Nhận email gợi ý phòng trọ mới'
+                }}
+              </button>
+              <p class="muted small schedule-hint">
+                Lịch tự động: 10:00 sáng thứ Ba hàng tuần. Nhắc HĐ sắp hết hạn: 08:00 thứ Hai hàng
+                tuần.
+              </p>
+            </div>
+          </div>
+
           <div class="section-card">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon blue">
                   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    ></path>
                   </svg>
                 </div>
                 <h3>Hợp đồng của tôi ({{ contracts().length }})</h3>
@@ -608,35 +1559,68 @@
             </div>
             <div class="contracts-grid">
               @for (contract of contracts(); track contract.id) {
-                <div class="contract-card" [class]="'border-' + getContractStatusClass(contract.status)">
+                <div
+                  class="contract-card"
+                  [class]="'border-' + getContractStatusClass(contract.status)"
+                >
                   <div class="contract-card-header">
-                    <span class="contract-type-badge">{{ getContractTypeLabel(contract.contractType) }}</span>
+                    <span class="contract-type-badge">{{
+                      getContractTypeLabel(contract.contractType)
+                    }}</span>
                     <span class="status-badge" [class]="getContractStatusClass(contract.status)">
                       {{ getContractStatusLabel(contract.status) }}
                     </span>
                   </div>
                   <div class="contract-card-body">
                     <div class="contract-detail-row">
-                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                      <svg
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                        ></path>
                       </svg>
                       <span>{{ contract.room.houseSet.name }} — {{ contract.room.name }}</span>
                     </div>
                     <div class="contract-detail-row">
-                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                      <svg
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        ></path>
                       </svg>
-                      <span>{{ formatDate(contract.beginTime) }} — {{ formatDate(contract.endTime) }}</span>
+                      <span
+                        >{{ formatDate(contract.beginTime) }} —
+                        {{ formatDate(contract.endTime) }}</span
+                      >
                     </div>
                     <div class="contract-detail-row">
-                      <span class="price-highlight">Giá phòng: {{ formatCurrency(contract.room.priceRoom) }}/tháng</span>
+                      <span class="price-highlight"
+                        >Giá phòng: {{ formatCurrency(contract.room.priceRoom) }}/tháng</span
+                      >
                     </div>
                     @if (contract.room.houseSet.owner?.paymentQrImageShow) {
                       <div class="payment-qr-box">
                         <span>QR chuyển khoản chủ nhà:</span>
-                        <img [src]="contract.room.houseSet.owner?.paymentQrImageShow" alt="QR thanh toán chủ nhà" />
+                        <img
+                          [src]="contract.room.houseSet.owner?.paymentQrImageShow"
+                          alt="QR thanh toán chủ nhà"
+                        />
                       </div>
                     }
                     @if (contract.terms) {
@@ -646,17 +1630,46 @@
                     }
                   </div>
                   <div class="contract-card-actions">
-                    <button class="btn-action btn-view" (click)="viewDocument(contract)">Xem HĐ</button>
+                    <button class="btn-action btn-view" (click)="viewDocument(contract)">
+                      {{ getViewContractLabel(contract) }}
+                    </button>
                     @if (canConfirm(contract)) {
-                      <button class="btn-action btn-danger-outline" (click)="rejectContract(contract.id)">Từ chối</button>
-                      <button class="btn-action btn-confirm" (click)="approveContract(contract.id)">Xác nhận</button>
+                      <button
+                        class="btn-action btn-danger-outline"
+                        (click)="rejectContract(contract.id)"
+                      >
+                        Từ chối
+                      </button>
+                      <button class="btn-action btn-confirm" (click)="approveContract(contract.id)">
+                        Xác nhận
+                      </button>
                     }
                     @if (canSign(contract)) {
-                      <button class="btn-action btn-confirm" (click)="openSignModal(contract)">In PDF & ký số</button>
+                      <button class="btn-action btn-confirm" (click)="openSignModal(contract)">
+                        Ký luôn
+                      </button>
                     }
-                    @if (contract.status === 'COMPLETED') {
-                      <button class="btn-action btn-secondary" (click)="openTempFormModal(contract, 'TEMP_RESIDENCE')">Tạo đơn tạm trú</button>
-                      <button class="btn-action btn-secondary" (click)="openTempFormModal(contract, 'TEMP_ABSENCE')">Tạo đơn tạm vắng</button>
+                    @if (contract.status === 'COMPLETED' && contract.contractType === 'LEASE') {
+                      <button
+                        class="btn-action btn-secondary"
+                        (click)="openTempFormModal(contract, 'TEMP_RESIDENCE')"
+                      >
+                        Tạo đơn tạm trú
+                      </button>
+                      <button
+                        class="btn-action btn-secondary"
+                        (click)="openTempFormModal(contract, 'TEMP_ABSENCE')"
+                      >
+                        Tạo đơn tạm vắng
+                      </button>
+                    }
+                    @if (canDeleteDraft(contract)) {
+                      <button
+                        class="btn-action btn-danger-outline"
+                        (click)="deleteDraftContract(contract)"
+                      >
+                        Xóa bản nháp
+                      </button>
                     }
                   </div>
                 </div>
@@ -664,233 +1677,57 @@
             </div>
           </div>
 
-          @if (hasActiveRental()) {
-            <!-- Active Rental Info -->
-            <div class="rental-hero">
-              <div class="rental-hero-content">
-                <div class="rental-status-bar">
-                  <span class="status-badge status-active">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    Đang thuê
-                  </span>
-                  @if (isExpiringSoon()) {
-                    <span class="status-badge status-overdue animate-pulse">
-                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                      </svg>
-                      Còn {{ remainingMonths() }} tháng
-                    </span>
-                  }
-                </div>
-                <h2 class="rental-title">{{ myActiveContract()?.room?.houseSet?.name }}</h2>
-                <p class="rental-room">{{ myActiveContract()?.room?.name }}</p>
-                <p class="rental-address">
-                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  </svg>
-                  {{ myActiveContract()?.room?.houseSet?.address }}
-                </p>
-              </div>
-              <div class="rental-hero-stats">
-                <div class="rental-stat">
-                  <span class="rental-stat-value">{{ formatCurrency(myActiveContract()?.room?.priceRoom) }}</span>
-                  <span class="rental-stat-label">Tiền phòng/tháng</span>
-                </div>
-                <div class="rental-stat">
-                  <span class="rental-stat-value">{{ formatCurrency(myActiveContract()?.depositAmount) }}</span>
-                  <span class="rental-stat-label">Tiền cọc</span>
-                </div>
-                <div class="rental-stat">
-                  <span class="rental-stat-value">{{ remainingMonths() }} tháng</span>
-                  <span class="rental-stat-label">Còn lại</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Contract Timeline -->
+          @if (expiredContracts().length > 0) {
             <div class="section-card">
               <div class="section-header">
                 <div class="section-title-group">
-                  <div class="section-icon blue">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  <div class="section-icon gray">
+                    <svg
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
                     </svg>
                   </div>
-                  <h3>Thời hạn hợp đồng</h3>
-                </div>
-                <button class="btn-action btn-view" (click)="viewDocument(myActiveContract()!)">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                  </svg>
-                  Xem hợp đồng
-                </button>
-              </div>
-
-              <div class="contract-timeline">
-                <div class="timeline-bar">
-                  <div class="timeline-progress" [style.width.%]="contractProgress()"></div>
-                  <div class="timeline-marker timeline-start">
-                    <span>{{ formatDate(myActiveContract()?.beginTime || '') }}</span>
-                  </div>
-                  <div class="timeline-marker timeline-now" [style.left.%]="contractProgress()">
-                    <span>Hôm nay</span>
-                  </div>
-                  <div class="timeline-marker timeline-end">
-                    <span>{{ formatDate(myActiveContract()?.endTime || '') }}</span>
-                  </div>
+                  <h3>Hợp đồng đã kết thúc ({{ expiredContracts().length }})</h3>
                 </div>
               </div>
-
-              @if (isExpiringSoon()) {
-                <div class="expiry-actions">
-                  <div class="expiry-message">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                    </svg>
-                    Hợp đồng sắp hết hạn! Bạn muốn gia hạn hay tìm phòng mới?
-                  </div>
-                  <div class="expiry-btns">
-                    <button class="btn-action btn-renew" (click)="openRenewModal(myActiveContract()!.id)">
-                      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                      </svg>
-                      Gia hạn hợp đồng
-                    </button>
-                    <button class="btn-action btn-secondary" (click)="goToSearchRoom()">
-                      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                      </svg>
-                      Tìm phòng mới
-                    </button>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <!-- Payment History -->
-            <div class="section-card">
-              <div class="section-header">
-                <div class="section-title-group">
-                  <div class="section-icon orange">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                  </div>
-                  <h3>Lịch sử thanh toán</h3>
-                </div>
-              </div>
-
-              @if (myActiveContract()?.payment && myActiveContract()!.payment.length > 0) {
-                <div class="payment-table-wrapper">
-                  <table class="payment-table">
-                    <thead>
-                      <tr>
-                        <th>Tháng</th>
-                        <th>Số tiền</th>
-                        <th>Trạng thái</th>
-                        <th>Ngày thông báo</th>
-                        <th>Ngày xác nhận</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (payment of myActiveContract()!.payment; track payment.id) {
-                        <tr>
-                          <td>{{ payment.paymentMonth }}/{{ payment.paymentYear }}</td>
-                          <td class="amount-cell">{{ formatCurrency(payment.amount) }}</td>
-                          <td>
-                            <span class="status-badge" [class]="getPaymentStatusClass(payment.status)">
-                              {{ getPaymentStatusLabel(payment.status) }}
-                            </span>
-                          </td>
-                          <td>{{ payment.notifiedAt ? formatDate(payment.notifiedAt) : '—' }}</td>
-                          <td>{{ payment.confirmedAt ? formatDate(payment.confirmedAt) : '—' }}</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              } @else {
-                <div class="empty-state small">
-                  <p>Chưa có lịch sử thanh toán</p>
-                </div>
-              }
-            </div>
-
-            <!-- Contract History (expired ones) -->
-            @if (expiredContracts().length > 0) {
-              <div class="section-card">
-                <div class="section-header">
-                  <div class="section-title-group">
-                    <div class="section-icon gray">
-                      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                      </svg>
+              <div class="contracts-grid">
+                @for (contract of expiredContracts(); track contract.id) {
+                  <div class="contract-card contract-expired">
+                    <div class="contract-card-header">
+                      <span class="contract-type-badge">{{
+                        getContractTypeLabel(contract.contractType)
+                      }}</span>
+                      <span class="status-badge status-expired">Đã hết hạn</span>
                     </div>
-                    <h3>Hợp đồng đã kết thúc ({{ expiredContracts().length }})</h3>
-                  </div>
-                </div>
-                <div class="contracts-grid">
-                  @for (contract of expiredContracts(); track contract.id) {
-                    <div class="contract-card contract-expired">
-                      <div class="contract-card-header">
-                        <span class="contract-type-badge">{{ getContractTypeLabel(contract.contractType) }}</span>
-                        <span class="status-badge status-expired">Đã hết hạn</span>
+                    <div class="contract-card-body">
+                      <div class="contract-detail-row">
+                        <span>{{ contract.room.houseSet.name }} — {{ contract.room.name }}</span>
                       </div>
-                      <div class="contract-card-body">
-                        <div class="contract-detail-row">
-                          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                          </svg>
-                          <span>{{ contract.room.houseSet.name }} — {{ contract.room.name }}</span>
-                        </div>
-                        <div class="contract-detail-row">
-                          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                          </svg>
-                          <span>{{ formatDate(contract.beginTime) }} — {{ formatDate(contract.endTime) }}</span>
-                        </div>
-                      </div>
-                      <div class="contract-card-actions">
-                        <button class="btn-action btn-view" (click)="viewDocument(contract)">Xem HĐ</button>
+                      <div class="contract-detail-row">
+                        <span
+                          >{{ formatDate(contract.beginTime) }} —
+                          {{ formatDate(contract.endTime) }}</span
+                        >
                       </div>
                     </div>
-                  }
-                </div>
+                    <div class="contract-card-actions">
+                      <button class="btn-action btn-view" (click)="viewDocument(contract)">
+                        {{ getViewContractLabel(contract) }}
+                      </button>
+                    </div>
+                  </div>
+                }
               </div>
-            }
-          } @else {
-            <!-- No Rental - Redirect to Search -->
-            <div class="no-rental-hero">
-              <div class="no-rental-icon">
-                <svg width="80" height="80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-              </div>
-              <h2>Bạn chưa có phòng trọ</h2>
-              <p>Hãy tìm phòng trọ phù hợp với nhu cầu của bạn ngay bây giờ!</p>
-              <button class="btn-primary-large" (click)="goToSearchRoom()">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-                Tìm phòng trọ ngay
-              </button>
-              @if (expiredContracts().length > 0) {
-                <div class="past-contracts-note">
-                  <p>Bạn có {{ expiredContracts().length }} hợp đồng đã kết thúc trước đó.</p>
-                </div>
-              }
             </div>
           }
         }
@@ -903,8 +1740,12 @@
             <div class="section-title-group">
               <div class="section-icon yellow">
                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                  ></path>
                 </svg>
               </div>
               <div>
@@ -917,37 +1758,74 @@
           @if (isRoomer()) {
             <div class="review-box">
               <h3>✍️ Viết đánh giá của bạn</h3>
-              <p class="hint">Đánh giá của bạn sẽ giúp cộng đồng TroFinder có cái nhìn chân thực nhất.</p>
+              <p class="hint">
+                Chỉ đánh giá được phòng trọ bạn đã thuê khi hợp đồng thuê ở trạng thái
+                <strong>Hoàn thành</strong>.
+              </p>
 
-              <form [formGroup]="reviewForm" (ngSubmit)="submitReview()" class="modern-form">
-                <mat-form-field appearance="outline" class="full-width custom-mat" style="width: 100%">
-                  <mat-label>Chọn phòng bạn đã thuê</mat-label>
-                  <mat-select formControlName="room_id">
-                    @for (c of profile()?.contracts; track c.id) {
-                      <mat-option [value]="c.room?.id">{{ c.room?.name }} - {{ c.room?.houseSet?.name || c.room?.house?.name }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
+              @if (reviewableContracts().length) {
+                <form [formGroup]="reviewForm" (ngSubmit)="submitReview()" class="modern-form">
+                  <mat-form-field
+                    appearance="outline"
+                    class="full-width custom-mat"
+                    style="width: 100%"
+                  >
+                    <mat-label>Chọn phòng bạn đã thuê</mat-label>
+                    <mat-select formControlName="room_id">
+                      @for (c of reviewableContracts(); track c.id) {
+                        <mat-option [value]="c.room.id"
+                          >{{ c.room.name }} - {{ c.room.houseSet.name }}</mat-option
+                        >
+                      }
+                    </mat-select>
+                  </mat-form-field>
 
-                <mat-form-field appearance="outline" class="full-width custom-mat" style="width: 100%">
-                  <mat-label>Chất lượng phòng (1-5 Sao)</mat-label>
-                  <input matInput type="number" formControlName="stars" min="1" max="5" aria-label="Số sao đánh giá" placeholder="Ví dụ: 5" />
-                </mat-form-field>
+                  <mat-form-field
+                    appearance="outline"
+                    class="full-width custom-mat"
+                    style="width: 100%"
+                  >
+                    <mat-label>Chất lượng phòng (1-5 Sao)</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      formControlName="stars"
+                      min="1"
+                      max="5"
+                      aria-label="Số sao đánh giá"
+                      placeholder="Ví dụ: 5"
+                    />
+                  </mat-form-field>
 
-                <mat-form-field appearance="outline" class="full-width custom-mat" style="width: 100%">
-                  <mat-label>Chi tiết trải nghiệm của bạn</mat-label>
-                  <textarea matInput rows="4" formControlName="content" placeholder="Phòng thoáng mát, chủ nhà thân thiện, điện nước giá nhà nước..."></textarea>
-                </mat-form-field>
+                  <mat-form-field
+                    appearance="outline"
+                    class="full-width custom-mat"
+                    style="width: 100%"
+                  >
+                    <mat-label>Chi tiết trải nghiệm của bạn</mat-label>
+                    <textarea
+                      matInput
+                      rows="4"
+                      formControlName="content"
+                      placeholder="Phòng thoáng mát, chủ nhà thân thiện, điện nước giá nhà nước..."
+                    ></textarea>
+                  </mat-form-field>
 
-                <div class="form-actions-row">
-                  <label class="custom-checkbox">
-                    <input type="checkbox" formControlName="anonymous" />
-                    <span class="checkmark"></span>
-                    Đánh giá ẩn danh (Giấu tên của bạn)
-                  </label>
-                  <button type="submit" class="btn-action btn-confirm">Gửi đánh giá</button>
-                </div>
-              </form>
+                  <div class="form-actions-row">
+                    <label class="custom-checkbox">
+                      <input type="checkbox" formControlName="anonymous" />
+                      <span class="checkmark"></span>
+                      Đánh giá ẩn danh (Giấu tên của bạn)
+                    </label>
+                    <button type="submit" class="btn-action btn-confirm">Gửi đánh giá</button>
+                  </div>
+                </form>
+              } @else {
+                <p class="empty-state small">
+                  Bạn chưa có hợp đồng thuê trọ nào ở trạng thái Hoàn thành để đánh giá, hoặc đã
+                  đánh giá hết các phòng đủ điều kiện.
+                </p>
+              }
             </div>
 
             <div class="review-list">
@@ -1011,100 +1889,207 @@
 
       <!-- ==================== TAB OCR ==================== -->
       @if (activeTab() === 'ocr' && isHost()) {
-        <section class="section-card fade-in">
+        <section class="section-card fade-in host-contract-section">
           <div class="section-header">
             <div class="section-title-group">
               <div class="section-icon green">
                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  ></path>
                 </svg>
               </div>
               <div>
-                <h3>AI Tạo Hợp Đồng Tự Động</h3>
+                <h3>Tạo hợp đồng cho người thuê</h3>
                 <p class="muted">
-                  Để sinh hợp đồng tự động, tài khoản của bạn phải xác minh danh tính. Sau đó, Hệ thống sẽ
-                  đọc ảnh CCCD của khách thuê và điền dữ liệu tạo hợp đồng.
+                  Điền thông tin, xem trước PDF, ký số hoặc gửi hợp đồng cho người thuê xác nhận.
                 </p>
               </div>
             </div>
           </div>
 
           @if (profile()?.ocrIdentity || profile()?.user?.isOcr) {
-            <form [formGroup]="contractForm" (ngSubmit)="submitContract()" class="modern-form ocr-form">
-              <div class="form-grid-2">
-                <mat-form-field appearance="outline" class="custom-mat">
-                  <mat-label>Chọn phòng cho thuê</mat-label>
-                  <mat-select formControlName="room_id">
-                    @for (room of getHostRooms(); track room.id) {
-                      <mat-option [value]="room.id">{{ room.name }} — {{ room.houseName }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
+            @if (isContractModalLoading()) {
+              <div class="contract-inline-loading">
+                <div class="loading-spinner"></div>
+                <p>Đang xử lý hợp đồng...</p>
+              </div>
+            }
 
-                <mat-form-field appearance="outline" class="custom-mat">
-                  <mat-label>Tài khoản khách thuê (Username)</mat-label>
-                  <input matInput formControlName="tenant_username" placeholder="VD: nguyenvana123" />
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="custom-mat">
-                  <mat-label>Loại hợp đồng / Giấy tờ</mat-label>
-                  <mat-select formControlName="contract_type">
-                    @for (t of contractTypes; track t.value) {
-                      <mat-option [value]="t.value">{{ t.label }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="custom-mat">
-                  <mat-label>Tiền cọc (VNĐ)</mat-label>
-                  <input matInput type="number" formControlName="deposit_amount" aria-label="Tiền cọc" placeholder="Ví dụ: 2000000" />
-                </mat-form-field>
+            <form
+              [formGroup]="contractForm"
+              (ngSubmit)="submitHostContractDraft()"
+              class="contract-form-layout host-contract-form"
+            >
+              <div class="host-contract-form-header">
+                <p>
+                  Phòng:
+                  <strong>{{ getSelectedHostRoomLabel() }}</strong>
+                </p>
               </div>
 
-              <div class="form-grid-2" style="margin-top: 1rem">
-                <mat-form-field appearance="outline" class="custom-mat">
-                  <mat-label>Ngày bắt đầu</mat-label>
-                  <input matInput type="datetime-local" formControlName="begin_time" aria-label="Ngày bắt đầu" />
-                </mat-form-field>
+              <div class="modal-body-scroll">
+                <div class="form-grid-2">
+                  <mat-form-field appearance="outline" class="custom-mat">
+                    <mat-label>Chọn phòng cho thuê</mat-label>
+                    <mat-select formControlName="room_id">
+                      @for (room of getHostRooms(); track room.id) {
+                        <mat-option [value]="room.id"
+                          >{{ room.name }} — {{ room.houseName }}</mat-option
+                        >
+                      }
+                    </mat-select>
+                  </mat-form-field>
 
-                <mat-form-field appearance="outline" class="custom-mat">
-                  <mat-label>Ngày kết thúc</mat-label>
-                  <input matInput type="datetime-local" formControlName="end_time" aria-label="Ngày kết thúc" />
-                </mat-form-field>
+                  <mat-form-field appearance="outline" class="custom-mat">
+                    <mat-label>Tài khoản khách thuê (Username)</mat-label>
+                    <input
+                      matInput
+                      formControlName="tenant_username"
+                      placeholder="VD: nguyenvana123"
+                    />
+                  </mat-form-field>
+                </div>
+
+                <div class="form-grid-2">
+                  <mat-form-field appearance="outline" class="custom-mat date-field">
+                    <mat-label>Thời gian bắt đầu thuê</mat-label>
+                    <input
+                      #hostBeginInput
+                      matInput
+                      type="text"
+                      placeholder="dd/mm/yyyy"
+                      (focus)="hostBeginInput.type = 'date'; hostBeginInput.showPicker()"
+                      (blur)="!hostBeginInput.value ? (hostBeginInput.type = 'text') : null"
+                      formControlName="begin_time"
+                      aria-label="Thời gian bắt đầu thuê"
+                    />
+                    <span
+                      matSuffix
+                      class="calendar-icon"
+                      (click)="hostBeginInput.type = 'date'; hostBeginInput.showPicker()"
+                    >
+                      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        ></path>
+                      </svg>
+                    </span>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="custom-mat date-field">
+                    <mat-label>Thời gian kết thúc</mat-label>
+                    <input
+                      #hostEndInput
+                      matInput
+                      type="text"
+                      placeholder="dd/mm/yyyy"
+                      (focus)="hostEndInput.type = 'date'; hostEndInput.showPicker()"
+                      (blur)="!hostEndInput.value ? (hostEndInput.type = 'text') : null"
+                      formControlName="end_time"
+                      aria-label="Thời gian kết thúc"
+                    />
+                    <span
+                      matSuffix
+                      class="calendar-icon"
+                      (click)="hostEndInput.type = 'date'; hostEndInput.showPicker()"
+                    >
+                      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        ></path>
+                      </svg>
+                    </span>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-grid-2">
+                  <mat-form-field appearance="outline" class="custom-mat">
+                    <mat-label>Loại hợp đồng</mat-label>
+                    <mat-select formControlName="contract_type">
+                      @for (t of contractTypes; track t.value) {
+                        <mat-option [value]="t.value">{{ t.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="custom-mat">
+                    <mat-label>Đề xuất tiền cọc (VNĐ)</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      formControlName="deposit_amount"
+                      mask="separator.0"
+                      thousandSeparator=","
+                      aria-label="Đề xuất tiền cọc"
+                    />
+                  </mat-form-field>
+                </div>
+
+                <div class="full-width-container">
+                  <mat-form-field appearance="outline" class="custom-mat full-width terms-field">
+                    <mat-label>Điều khoản thuê phòng đề xuất</mat-label>
+                    <textarea
+                      matInput
+                      rows="5"
+                      formControlName="terms"
+                      placeholder="VD: thanh toán trước ngày 05 hàng tháng, giữ gìn vệ sinh chung, không tự ý chuyển nhượng phòng..."
+                    ></textarea>
+                  </mat-form-field>
+                </div>
               </div>
 
-              <mat-form-field appearance="outline" class="full-width custom-mat" style="width: 100%; margin-top: 1rem">
-                <mat-label>Kênh gửi thông báo đóng tiền tự động</mat-label>
-                <mat-select formControlName="notify_channel">
-                  <mat-option value="EMAIL">Gửi qua Email</mat-option>
-                  <mat-option value="TELEGRAM">Nhắn tin qua Telegram Bot</mat-option>
-                </mat-select>
-              </mat-form-field>
+              <div class="modal-footer-sticky split-buttons host-contract-actions">
+                <button
+                  type="button"
+                  class="btn-preview-outline"
+                  (click)="
+                    hasPreviewedContract ? viewHostContractPreviewAgain() : previewHostContractPdf()
+                  "
+                  [disabled]="contractForm.invalid || isPreviewing || isContractModalLoading()"
+                >
+                  @if (isPreviewing) {
+                    Đang tạo PDF...
+                  } @else if (hasPreviewedContract) {
+                    Xem lại PDF
+                  } @else {
+                    Xem trước hợp đồng
+                  }
+                </button>
 
-              <mat-form-field appearance="outline" class="full-width custom-mat" style="width: 100%; margin-top: 1rem">
-                <mat-label>Điều khoản thuê phòng đề xuất</mat-label>
-                <textarea matInput rows="5" formControlName="terms" placeholder="VD: thanh toán trước ngày 05 hàng tháng, không tự ý chuyển nhượng phòng..."></textarea>
-              </mat-form-field>
+                <button
+                  type="button"
+                  class="btn-preview-outline sign-now"
+                  (click)="openHostSignFromPreview()"
+                  [disabled]="!hasPreviewedContract || isContractModalLoading()"
+                >
+                  Ký luôn
+                </button>
 
-              <div class="ocr-upload-block">
-                <div class="ocr-header">
-                  <div class="icon-shield">📸</div>
-                  <h3>Tải lên CCCD khách thuê</h3>
-                  <p>Hỗ trợ ảnh định dạng JPG, PNG mặt trước thẻ Căn Cước</p>
-                </div>
-
-                <label class="custom-file-upload fancy-dropzone">
-                  <input type="file" accept="image/*" (change)="onContractCccdSelected($event)" hidden />
-                  <div class="upload-content">
-                    <span class="upload-title">{{ contractCccdFileName() || 'Nhấn để đính kèm ảnh CCCD' }}</span>
-                    <span class="upload-subtitle">Hệ thống AI sẽ tự động đọc text sau khi bấm Tạo hợp đồng</span>
-                  </div>
-                </label>
-
-                <div class="action-center">
-                  <button type="submit" class="btn-action btn-confirm btn-lg">Gửi hợp đồng cho bên thuê</button>
-                </div>
+                <button
+                  type="submit"
+                  class="btn-submit-glow"
+                  [disabled]="!hasPreviewedContract || isContractModalLoading()"
+                >
+                  <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                    ></path>
+                  </svg>
+                  Gửi hợp đồng cho người thuê
+                </button>
               </div>
             </form>
           } @else {
@@ -1113,14 +2098,208 @@
               <div class="alert-content">
                 <h4>Tài khoản chưa được xác minh danh tính</h4>
                 <p>
-                  Vì lý do bảo mật và tính pháp lý của hợp đồng, bạn cần tải lên mặt trước Thẻ Căn
-                  cước công dân (CCCD) để hệ thống TroFinder xác thực trước khi sử dụng tính năng này.
+                  Vì lý do bảo mật và tính pháp lý của hợp đồng, bạn cần xác thực danh tính trước khi
+                  tạo hợp đồng cho người thuê.
                 </p>
+                <button class="btn-goto-verify" (click)="goToProfileToVerify()">
+                  Đi đến trang Xác minh ngay ➔
+                </button>
               </div>
             </div>
           }
         </section>
       }
+    </div>
+  </div>
+}
+
+<!-- ==================== PAYMENT QR MODAL (Tenant / Host) ==================== -->
+@if (showPaymentQrModal() && paymentModalContract()) {
+  <div class="modal-overlay" (click)="closePaymentQrModal()">
+    <div class="modal-container payment-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>
+          @if (isHostPaymentModal()) {
+            Nhập tiền tháng {{ paymentModalMonth() }}/{{ paymentModalYear() }} —
+            {{ paymentModalContract()?.room?.houseSet?.name }} / {{ paymentModalContract()?.room?.name }}
+          } @else {
+            {{ getPaymentModalTitle() }} — {{ paymentModalMonth() }}/{{ paymentModalYear() }}
+          }
+        </h3>
+        <button class="modal-close" (click)="closePaymentQrModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        @if (!isHostPaymentModal()) {
+          <p class="muted">
+            Nhập chỉ số điện nước, hệ thống tự tính theo giá phòng. Chuyển khoản theo QR rồi xác nhận.
+          </p>
+        } @else {
+          <p class="muted">
+            Nhập chỉ số điện nước cho người thuê. Chỉ cần một bên nhập — bên còn lại có thể chỉnh sửa.
+          </p>
+        }
+        @if (paymentModalHasSavedBreakdown()) {
+          <p class="muted small">
+            Đã tải bảng tiền đã lưu tháng {{ paymentModalMonth() }}/{{ paymentModalYear() }}.
+          </p>
+        }
+
+        <div class="payment-breakdown-form">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="elecUnits">Số điện (kWh)</label>
+              <input
+                id="elecUnits"
+                class="form-input"
+                type="number"
+                min="0"
+                step="0.1"
+                [ngModel]="paymentElectricityUnits()"
+                (ngModelChange)="paymentElectricityUnits.set($event)"
+              />
+              <small class="muted"
+                >× {{ formatCurrency(paymentModalContract()?.room?.priceElectricity) }}/kWh</small
+              >
+            </div>
+            @if (isWaterPerPerson(paymentModalContract()?.room)) {
+              <div class="form-group">
+                <label for="occupantCount">Số người ở phòng</label>
+                <input
+                  id="occupantCount"
+                  class="form-input"
+                  type="number"
+                  min="1"
+                  [ngModel]="paymentOccupantCount()"
+                  (ngModelChange)="paymentOccupantCount.set($event)"
+                />
+                <small class="muted"
+                  >Nước {{ formatCurrency(paymentModalContract()?.room?.priceWater) }}/người</small
+                >
+              </div>
+            } @else {
+              <div class="form-group">
+                <label for="waterUnits">Số nước (m³)</label>
+                <input
+                  id="waterUnits"
+                  class="form-input"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  [ngModel]="paymentWaterUnits()"
+                  (ngModelChange)="paymentWaterUnits.set($event)"
+                />
+                <small class="muted"
+                  >× {{ formatCurrency(paymentModalContract()?.room?.priceWater) }}/m³</small
+                >
+              </div>
+            }
+          </div>
+          @if (!isWaterPerPerson(paymentModalContract()?.room)) {
+            <div class="form-group">
+              <label for="occupantCountShared">Số người (internet, giặt, phí chung)</label>
+              <input
+                id="occupantCountShared"
+                class="form-input"
+                type="number"
+                min="1"
+                [ngModel]="paymentOccupantCount()"
+                (ngModelChange)="paymentOccupantCount.set($event)"
+              />
+            </div>
+          }
+        </div>
+
+        @if (paymentModalBreakdown(); as breakdown) {
+          <div class="utility-breakdown compact">
+            <div>
+              <span>Tiền phòng</span><strong>{{ formatCurrency(breakdown.rentAmount) }}</strong>
+            </div>
+            @if (breakdown.electricityAmount > 0) {
+              <div>
+                <span>Điện</span><strong>{{ formatCurrency(breakdown.electricityAmount) }}</strong>
+              </div>
+            }
+            @if (breakdown.waterAmount > 0) {
+              <div>
+                <span>Nước</span><strong>{{ formatCurrency(breakdown.waterAmount) }}</strong>
+              </div>
+            }
+            @if (breakdown.internetAmount > 0) {
+              <div>
+                <span>Internet</span><strong>{{ formatCurrency(breakdown.internetAmount) }}</strong>
+              </div>
+            }
+            @if (breakdown.washingMachineAmount > 0) {
+              <div>
+                <span>Máy giặt</span
+                ><strong>{{ formatCurrency(breakdown.washingMachineAmount) }}</strong>
+              </div>
+            }
+            @if (breakdown.generalCleaningAmount > 0) {
+              <div>
+                <span>Vệ sinh chung</span
+                ><strong>{{ formatCurrency(breakdown.generalCleaningAmount) }}</strong>
+              </div>
+            }
+            @if (breakdown.generalElectricityAmount > 0) {
+              <div>
+                <span>Điện khu vực chung</span
+                ><strong>{{ formatCurrency(breakdown.generalElectricityAmount) }}</strong>
+              </div>
+            }
+            <div class="total-row">
+              <span>Tổng cần thanh toán</span
+              ><strong>{{ formatCurrency(breakdown.totalAmount) }}</strong>
+            </div>
+          </div>
+        }
+
+        @if (!isHostPaymentModal()) {
+          @if (paymentModalContract()?.room?.houseSet?.owner?.paymentQrImageShow) {
+            <div class="payment-qr-box modal-qr">
+              <img
+                [src]="paymentModalContract()?.room?.houseSet?.owner?.paymentQrImageShow"
+                alt="QR chủ trọ"
+              />
+              <span>{{ paymentModalContract()?.room?.houseSet?.owner?.name }}</span>
+            </div>
+          } @else {
+            <div class="empty-state small">
+              Chủ trọ chưa tải QR thanh toán. Vui lòng liên hệ trực tiếp.
+            </div>
+          }
+        }
+        <div class="form-group">
+          <label for="paymentNote">Ghi chú (tùy chọn)</label>
+          <textarea
+            id="paymentNote"
+            class="form-input"
+            rows="2"
+            placeholder="VD: Đã chuyển tiền phòng + điện nước tháng này"
+            [ngModel]="paymentModalNote()"
+            (ngModelChange)="paymentModalNote.set($event)"
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action btn-secondary" (click)="closePaymentQrModal()">Đóng</button>
+        <button
+          class="btn-action btn-primary-outline"
+          [disabled]="isSavingBreakdown()"
+          (click)="savePaymentBreakdownOnly()"
+        >
+          {{ isSavingBreakdown() ? 'Đang lưu...' : 'Lưu bảng tiền' }}
+        </button>
+        @if (!isHostPaymentModal()) {
+          <button
+            class="btn-action btn-confirm"
+            [disabled]="isNotifyingPayment()"
+            (click)="confirmTenantPaid()"
+          >
+            {{ isNotifyingPayment() ? 'Đang gửi...' : 'Đã chuyển khoản — Xác nhận' }}
+          </button>
+        }
+      </div>
     </div>
   </div>
 }
@@ -1132,32 +2311,59 @@
       <div class="modal-header">
         <h3>
           <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            ></path>
           </svg>
           Gia hạn hợp đồng
         </h3>
         <button class="modal-close" (click)="closeRenewModal()">
           <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
           </svg>
         </button>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <label for="renewEndTime">Ngày kết thúc mới <span class="required">*</span></label>
-          <input type="date" id="renewEndTime" class="form-input" [ngModel]="renewNewEndTime()" (ngModelChange)="renewNewEndTime.set($event)" />
+          <input
+            type="date"
+            id="renewEndTime"
+            class="form-input"
+            [ngModel]="renewNewEndTime()"
+            (ngModelChange)="renewNewEndTime.set($event)"
+          />
         </div>
         <div class="form-group">
           <label for="renewDeposit">Tiền cọc mới (tùy chọn)</label>
-          <input type="number" id="renewDeposit" class="form-input" placeholder="Nhập số tiền cọc" [ngModel]="renewDepositAmount()" (ngModelChange)="renewDepositAmount.set($event)" />
+          <input
+            type="number"
+            id="renewDeposit"
+            class="form-input"
+            placeholder="Nhập số tiền cọc"
+            [ngModel]="renewDepositAmount()"
+            (ngModelChange)="renewDepositAmount.set($event)"
+          />
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn-action btn-secondary" (click)="closeRenewModal()">Hủy</button>
         <button class="btn-action btn-renew" (click)="submitRenew()">
           <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            ></path>
           </svg>
           Xác nhận gia hạn
         </button>
@@ -1168,29 +2374,76 @@
 
 <!-- ==================== DOCUMENT VIEWER MODAL ==================== -->
 @if (showDocumentViewer()) {
-  <div class="modal-overlay" (click)="closeDocumentViewer()">
+  <div class="modal-overlay document-viewer-overlay">
     <div class="modal-container modal-large" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>
           <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            ></path>
           </svg>
-          Nội dung hợp đồng
+          @if (documentViewMode() === 'pdf') {
+            Hợp đồng PDF
+          } @else {
+            Nội dung hợp đồng
+          }
         </h3>
         <div class="modal-actions-inline">
-          <button class="btn-action btn-confirm" (click)="printDocument()">In / lưu PDF</button>
-          <button class="btn-action btn-secondary" (click)="downloadDocumentHtml()">Tải bản in</button>
+          @if (documentViewMode() === 'pdf' && documentPdfUrl()) {
+            <button class="btn-action btn-confirm" (click)="printDocument()">In PDF</button>
+          } @else if (documentViewMode() === 'html') {
+            <button class="btn-action btn-confirm" (click)="printDocument()">In / lưu PDF</button>
+            <button class="btn-action btn-secondary" (click)="downloadDocumentHtml()">
+              Tải bản in
+            </button>
+          }
           <button class="modal-close" (click)="closeDocumentViewer()">
             <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
             </svg>
           </button>
         </div>
       </div>
       <div class="modal-body document-body">
-        <div class="document-content" [innerHTML]="documentContent()"></div>
+        @if (documentLoading()) {
+          <div class="document-loading">
+            <div class="spinner"></div>
+            <p>Đang tải hợp đồng PDF...</p>
+          </div>
+        } @else if (documentViewMode() === 'pdf' && documentPdfUrl()) {
+          <iframe [src]="documentPdfUrl()" class="document-pdf-frame" title="Hợp đồng PDF"></iframe>
+        } @else {
+          <div class="document-content" [innerHTML]="documentContent()"></div>
+        }
       </div>
+      @if (viewingContract(); as contract) {
+        @if (canConfirm(contract) || canSign(contract)) {
+          <div class="modal-footer document-viewer-footer">
+            @if (canConfirm(contract)) {
+              <button class="btn-action btn-danger-outline" (click)="rejectFromDocumentViewer()">
+                Từ chối
+              </button>
+              <button class="btn-action btn-secondary" (click)="approveFromDocumentViewer()">
+                Xác nhận
+              </button>
+            }
+            @if (canSign(contract)) {
+              <button class="btn-action btn-confirm" (click)="signFromDocumentViewer()">
+                Ký luôn
+              </button>
+            }
+          </div>
+        }
+      }
     </div>
   </div>
 }
@@ -1201,31 +2454,55 @@
     <div class="modal-container" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>
-          {{ tempFormType() === 'TEMP_RESIDENCE' ? 'Tạo đơn tạm trú CT01' : 'Tạo phiếu tạm vắng CT03' }}
+          {{
+            tempFormType() === 'TEMP_RESIDENCE' ? 'Tạo đơn tạm trú CT01' : 'Tạo phiếu tạm vắng CT03'
+          }}
         </h3>
         <button class="modal-close" (click)="closeTempFormModal()">×</button>
       </div>
       <div class="modal-body">
         <p class="muted">
-          Đơn sẽ lấy thông tin người thuê, chủ nhà, phòng trọ từ hợp đồng và đi qua luồng xác nhận/ký số hiện có.
+          Đơn sẽ lấy thông tin người thuê, chủ nhà, phòng trọ từ hợp đồng và đi qua luồng xác
+          nhận/ký số hiện có.
         </p>
         <div class="form-group">
           <label>Từ ngày</label>
-          <input type="date" class="form-input" [ngModel]="tempFormFromTime()" (ngModelChange)="tempFormFromTime.set($event)" />
+          <input
+            type="date"
+            class="form-input"
+            [ngModel]="tempFormFromTime()"
+            (ngModelChange)="tempFormFromTime.set($event)"
+          />
         </div>
         <div class="form-group">
           <label>Đến ngày</label>
-          <input type="date" class="form-input" [ngModel]="tempFormToTime()" (ngModelChange)="tempFormToTime.set($event)" />
+          <input
+            type="date"
+            class="form-input"
+            [ngModel]="tempFormToTime()"
+            (ngModelChange)="tempFormToTime.set($event)"
+          />
         </div>
         @if (tempFormType() === 'TEMP_ABSENCE') {
           <div class="form-group">
             <label>Nơi đến/địa chỉ liên hệ khi tạm vắng</label>
-            <input class="form-input" [ngModel]="tempFormDestinationAddress()" (ngModelChange)="tempFormDestinationAddress.set($event)" />
+            <input
+              class="form-input"
+              [ngModel]="tempFormDestinationAddress()"
+              (ngModelChange)="tempFormDestinationAddress.set($event)"
+            />
           </div>
         }
         <div class="form-group">
-          <label>{{ tempFormType() === 'TEMP_RESIDENCE' ? 'Nội dung đề nghị' : 'Lý do tạm vắng' }}</label>
-          <textarea class="form-input" rows="4" [ngModel]="tempFormReason()" (ngModelChange)="tempFormReason.set($event)"></textarea>
+          <label>{{
+            tempFormType() === 'TEMP_RESIDENCE' ? 'Nội dung đề nghị' : 'Lý do tạm vắng'
+          }}</label>
+          <textarea
+            class="form-input"
+            rows="4"
+            [ngModel]="tempFormReason()"
+            (ngModelChange)="tempFormReason.set($event)"
+          ></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -1238,8 +2515,99 @@
 
 <app-contract-sign-modal
   [open]="showSignModal()"
-  [contract]="signingContract()"
+  [contract]="draftContract() ?? signingContract()"
   [username]="defaultSignUsername()"
+  [pdfUrl]="draftSignPdfBlobUrl"
   (closed)="closeSignModal()"
   (signed)="onSigned()"
 />
+
+@if (showContractPdfPreviewModal() && previewPdfUrl) {
+  <div class="modal-overlay contract-modal-locked pdf-preview-overlay">
+    <div class="modal-container contract-pdf-preview-modal" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeContractPdfPreviewModal()">✕</button>
+      <div class="modal-header">
+        <h3>Xem trước hợp đồng PDF</h3>
+      </div>
+      <iframe
+        [src]="previewPdfUrl"
+        class="contract-pdf-preview-frame"
+        title="Xem trước hợp đồng"
+      ></iframe>
+      <div class="modal-footer split-buttons">
+        @if (draftContractId) {
+          <button
+            type="button"
+            class="btn-action btn-danger-outline"
+            (click)="deleteHostDraftContract()"
+            [disabled]="isContractModalLoading()"
+          >
+            Xóa bản nháp
+          </button>
+        }
+        <button type="button" class="btn-action btn-secondary" (click)="closeContractPdfPreviewModal()">
+          Tiếp tục
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showWorkflowListModal()) {
+  <div class="modal-overlay workflow-list-overlay" (click)="$event.stopPropagation()">
+    <div class="modal-container modal-large workflow-list-modal">
+      <div class="modal-header">
+        <h3>{{ workflowListTitle() }}</h3>
+        <button class="modal-close" (click)="closeWorkflowList()">×</button>
+      </div>
+      <div class="modal-body">
+        @if (workflowListContracts().length === 0) {
+          <div class="empty-state compact">
+            <p>Không có hợp đồng trong mục này.</p>
+          </div>
+        } @else {
+          <div class="workflow-list">
+            @for (contract of workflowListContracts(); track contract.id) {
+              <div class="workflow-list-item">
+                <div class="workflow-list-main">
+                  <strong>{{ contract.room.houseSet.name }} — {{ contract.room.name }}</strong>
+                  <span class="muted">
+                    @if (isHost()) {
+                      {{ contract.tenant.name }}
+                    } @else {
+                      Chủ nhà: {{ contract.room.houseSet.owner?.name || '—' }}
+                    }
+                  </span>
+                  <span class="status-badge" [class]="getContractStatusClass(contract.status)">
+                    {{ getContractStatusLabel(contract.status) }}
+                  </span>
+                </div>
+                <div class="workflow-list-actions">
+                  <button class="btn-action btn-view" (click)="viewDocument(contract)">
+                    {{ getViewContractLabel(contract) }}
+                  </button>
+                  @if (canConfirm(contract)) {
+                    <button class="btn-action btn-confirm" (click)="approveContract(contract.id)">
+                      Xác nhận
+                    </button>
+                    <button
+                      class="btn-action btn-danger-outline"
+                      (click)="rejectContract(contract.id)"
+                    >
+                      Từ chối
+                    </button>
+                  }
+                  @if (canSign(contract)) {
+                    <button class="btn-action btn-confirm" (click)="openSignModal(contract)">
+                      Ký luôn
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

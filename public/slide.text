@@ -1,0 +1,396 @@
+================================================================================
+TROFINDER — NỘI DUNG SLIDE & THUYẾT TRÌNH PHẢN BIỆN (15 PHÚT)
+Sinh viên: Hoàng Thế Anh | GVHD: ThS. Vũ Đức Vượng
+Đề tài: Hệ thống tìm kiếm và quản lý nhà trọ trực tuyến
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+A. GỢI Ý CẤU TRÚC — CÓ HỢP LÝ KHÔNG?
+────────────────────────────────────────────────────────────────────────────────
+
+3 đề mục bạn đề xuất (Bài toán → Phương án → Kết quả) là ĐÚNG HƯỚNG cho phản biện 15 phút.
+
+Đề xuất bổ sung / điều chỉnh:
+
+  GIỮ (bắt buộc):
+  • Bài toán + hiện trạng (1–2 slide)
+  • Phương án: kiến trúc + luồng nghiệp vụ chính (2 slide)
+  • Kết quả + hạn chế ngắn (1 slide)
+  • Demo có kịch bản rõ (5–6 phút)
+
+  THÊM NHẸ (1 slide, không giảng dài):
+  • Kiến trúc tổng quan FE/BE — hội đồng thường hỏi "em làm bằng gì?"
+  • 3–4 đóng góp nổi bật (gộp, không tách 5 chương như báo cáo)
+
+  BỎ / KHÔNG ĐƯA VÀO SLIDE PHẢN BIỆN:
+  • Use case phân rã, ERD chi tiết, bảng so sánh công nghệ dài
+  • Kiểm thử, triển khai Nginx/VPS chi tiết
+  • Lời cảm ơn, mục lục báo cáo
+  • Hướng phát triển dài (chỉ 1 câu khi kết)
+
+PHÂN BỔ THỜI GIAN GỢI Ý (15 phút):
+  • Thuyết trình: 8–9 phút (~7 slide nội dung)
+  • Demo trực tiếp: 5–6 phút
+  • (Hội đồng hỏi đáp: ngoài 15 phút này)
+
+Tổng slide đề xuất: 8 slide (kể cả trang bìa).
+
+
+================================================================================
+B. NỘI DUNG TỪNG SLIDE
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 1 — TRANG BÌA
+────────────────────────────────────────────────────────────────────────────────
+
+Tiêu đề:
+  HỆ THỐNG TÌM KIẾM VÀ QUẢN LÝ NHÀ TRỌ TRỰC TUYẾN
+  (TroFinder)
+
+Phụ đề:
+  Đồ án tốt nghiệp — Chương trình Khoa học Máy tính
+
+Thông tin:
+  • Sinh viên: Hoàng Thế Anh — anh.ht204508@sis.hust.edu.vn
+  • GVHD: ThS. Vũ Đức Vượng
+  • ĐHBK Hà Nội — 2026
+
+[ẢNH GỢI Ý: Logo ĐHBK + logo/ảnh giao diện trang chủ TroFinder (screenshot nhỏ góc phải)]
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 2 — BÀI TOÁN & BỐI CẢNH
+────────────────────────────────────────────────────────────────────────────────
+
+Tiêu đề slide: 1. BÀI TOÁN ĐẶT RA
+
+Nội dung (bullet ngắn):
+
+  Bối cảnh
+  • Nhu cầu thuê phòng trọ tăng cao tại đô thị (sinh viên, lao động)
+  • Thị trường chủ yếu qua MXH / website rao vặt → thông tin phân tán
+
+  Khó khăn hiện tại
+  • Người thuê: tin giả, ảnh không đúng, khó kiểm chứng chủ trọ
+  • Chủ trọ: quản lý thủ công (sổ sách, Zalo), hợp đồng & thu tiền rời rạc
+  • Quy trình bị phân mảnh: tìm phòng → chat ngoài → ký giấy → không theo dõi sau thuê
+
+  Bài toán của đồ án
+  → Xây dựng nền tảng web KHÉP KÍN: từ tìm phòng đến hợp đồng, thanh toán, vận hành sau thuê
+
+[ẢNH GỢI Ý: Sơ đồ đơn giản 3 ô "Tìm phòng | Chat/HĐ | Quản lý" nối rời (hiện trạng) 
+  so với 1 vòng tròn liền mạch (TroFinder) — tự vẽ hoặc lấy ý từ Hình 2.8 báo cáo]
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 3 — MỤC TIÊU & PHẠM VI
+────────────────────────────────────────────────────────────────────────────────
+
+Tiêu đề slide: Mục tiêu & phạm vi
+
+Nội dung:
+
+  Mục tiêu
+  • Số hóa toàn bộ vòng đời thuê trọ trên một website
+  • Phục vụ: người thuê, chủ trọ (quy mô vừa & nhỏ), quản trị viên
+
+  Khác biệt so với "bảng tin" rao vặt
+  • Có xác thực (SSO, 2FA), định danh OCR
+  • Có chat, hợp đồng điện tử, ký số, thanh toán theo tháng, nhắc việc tự động
+
+  Phạm vi đồ án
+  • Ứng dụng web (Angular + Spring Boot)
+  • Chưa có app mobile; thanh toán qua QR + xác nhận thủ công (chưa cổng ngân hàng)
+
+[ẢNH GỢI Ý: Bảng 6.1 rút gọn 4 cột: MXH | Rao vặt | TroFinder — chỉ 5–6 dòng tính năng then chốt]
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 4 — KIẾN TRÚC & CÔNG NGHỆ (NGẮN)
+────────────────────────────────────────────────────────────────────────────────
+
+Tiêu đề slide: 2. PHƯƠNG ÁN THỰC HIỆN — Kiến trúc hệ thống
+
+Nội dung:
+
+  Kiến trúc Client–Server, FE/BE tách biệt
+  ┌─────────────┐     REST API      ┌──────────────────┐
+  │ Angular SPA │ ◄──────────────► │ Spring Boot API  │
+  └─────────────┘                   └────────┬─────────┘
+                                             │
+                    ┌────────────────────────┼────────────────────────┐
+                    ▼                        ▼                        ▼
+                 MySQL                   MinIO              OCR / Email / WS
+
+  Công nghệ chính
+  • FE: Angular, TypeScript, Leaflet (OpenStreetMap)
+  • BE: Java 17, Spring Boot, Spring Security (JWT), JPA
+  • DB & file: MySQL, MinIO
+  • Real-time: WebSocket/STOMP (chat)
+  • OCR: VNeID QR + OCR.Space + DeepSeek OCR
+
+[ẢNH GỢI Ý: Hình 4.1 hoặc 4.2 trong báo cáo (biểu đồ gói BE/FE) HOẶC sơ đồ 5 khối từ Bảng 4.1]
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 5 — LUỒNG NGHIỆP VỤ CHÍNH
+────────────────────────────────────────────────────────────────────────────────
+
+Tiêu đề slide: Quy trình nghiệp vụ khép kín
+
+Nội dung (1 dòng flow):
+
+  Tìm & lọc phòng (bản đồ)
+    → Xem chi tiết / lưu phòng / chat chủ trọ
+    → Định danh OCR (CCCD)
+    → Tạo hợp đồng (chủ hoặc người thuê) → Xác nhận → Ký số 2 bên
+    → HĐ hoàn thành → Phòng "đã thuê"
+    → Theo dõi thanh toán tháng + QR + nhắc email/Telegram
+
+  Máy trạng thái hợp đồng (tóm tắt):
+  DRAFT → PROPOSED → COUNTERPARTY_CONFIRMED → Ký tuần tự → COMPLETED
+
+[ẢNH GỢI Ý: Hình 2.8 báo cáo (quy trình tìm phòng & ký HĐ) — ưu tiên dùng hình có sẵn]
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 6 — GIẢI PHÁP / ĐÓNG GÓP NỔI BẬT (GỘP)
+────────────────────────────────────────────────────────────────────────────────
+
+Tiêu đề slide: Các giải pháp then chốt
+
+Nội dung (4 ô, mỗi ô 2 dòng):
+
+  (1) Quy trình thuê trọ khép kín
+      Một tài khoản — nhiều vai trò; dữ liệu phòng–HĐ–thanh toán–đánh giá liên kết
+
+  (2) Hợp đồng điện tử HTML → PDF + ký số
+      Mẫu tự điền; preview; ký tuần tự; không hoàn thành khi thiếu 1 bên
+
+  (3) Định danh OCR căn cước
+      Tự trích xuất thông tin; tái sử dụng khi tạo HĐ; tăng độ tin cậy tài khoản
+
+  (4) Quản lý thanh toán & nhắc việc
+      RoomPayment theo tháng; breakdown điện/nước; QR chủ trọ;
+      cron + nút gửi email (nhắc tiền, gợi ý phòng, HĐ sắp hết hạn)
+
+  (5) Tìm phòng trực quan
+      Bộ lọc đa tiêu chí + bản đồ OSM + trạng thái phòng trống/đã thuê
+
+[ẢNH GỢI Ý: Collage 4 screenshot nhỏ — Hình 4.4 (bản đồ), 4.5 (OCR), 4.6 (HĐ), dashboard thanh toán]
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 7 — KẾT QUẢ ĐẠT ĐƯỢC
+────────────────────────────────────────────────────────────────────────────────
+
+Tiêu đề slide: 3. KẾT QUẢ
+
+Nội dung:
+
+  Sản phẩm hoàn thiện
+  • Website TroFinder: tìm phòng, quản lý nhà trọ, dashboard hợp đồng, chat, admin RBAC
+  • API REST đầy đủ; triển khai thử nghiệm (domain trofinder.io.vn, HTTPS)
+
+  Đã hiện thực theo báo cáo
+  • Đăng ký/đăng nhập (OTP, 2FA, SSO Google/Facebook)
+  • Tìm kiếm + lọc + bản đồ + lưu phòng + đánh giá có điều kiện
+  • Chat WebSocket; HĐ điện tử + ký số; OCR 3 nguồn
+  • Thanh toán tháng, QR, breakdown, nhắc tự động & thủ công
+
+  Kiểm thử
+  • Kiểm thử thủ công các luồng: tìm phòng, OCR, HĐ, thanh toán, nhắc việc
+
+[ẢNH GỢI Ý: 1 screenshot tổng quan dashboard chủ trọ + 1 dashboard người thuê]
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 8 — HẠN CHẾ & KẾT LUẬN
+────────────────────────────────────────────────────────────────────────────────
+
+Tiêu đề slide: Hạn chế & kết luận
+
+Nội dung:
+
+  Hạn chế (nói thẳng — hội đồng hay hỏi)
+  • Ký số: môi trường dev/demo; cần CA hợp lệ cho thương mại
+  • OCR phụ thuộc chất lượng ảnh; OCR service GPU chưa deploy production
+  • Thanh toán: QR + xác nhận thủ công, chưa đối soát ngân hàng tự động
+  • Chưa kiểm thử tải lớn / chưa app mobile
+
+  Kết luận (1 câu)
+  → Đồ án đã xây dựng thành công nền tảng số hóa quy trình thuê trọ khép kín,
+     vượt mô hình "đăng tin" truyền thống.
+
+  (Cuối slide — chữ nhỏ)
+  Xin trình bày demo hệ thống.
+
+[ẢNH: không bắt buộc — hoặc icon "Demo" / mũi tên sang phần live demo]
+
+
+================================================================================
+C. KỊCH BẢN THUYẾT TRÌNH (8–9 PHÚT) + DEMO (5–6 PHÚT)
+================================================================================
+
+Lưu ý khi nói:
+  • Nói chậm, nhấn 3 ý: bài toán phân mảnh → giải pháp khép kín → đã làm được gì
+  • Không đọc slide; slide chỉ là neo nhớ
+  • Chuẩn bị sẵn tài khoản demo: 1 chủ trọ + 1 người thuê (đã OCR, có phòng, có HĐ)
+
+
+─── PHẦN 1: MỞ ĐẦU (Slide 1) — ~30 giây ───
+
+"Kính thưa Hội đồng, em là Hoàng Thế Anh, xin trình bày đồ án Hệ thống tìm kiếm
+và quản lý nhà trọ trực tuyến — thương hiệu TroFinder, hướng dẫn bởi thầy Vũ Đức Vượng.
+
+Trong 15 phút, em tập trung ba phần: bài toán, phương án thực hiện và kết quả,
+sau đó demo nhanh các luồng chính trên hệ thống đã triển khai."
+
+
+─── PHẦN 2: BÀI TOÁN (Slide 2–3) — ~2,5 phút ───
+
+[Slide 2]
+"Thị trường phòng trọ hiện nay chủ yếu qua Facebook, Zalo hay website rao vặt.
+Các kênh này giải quyết được đăng tin, nhưng không giải quyết được phần sau giao dịch.
+
+Người thuê khó kiểm chứng thông tin; chủ trọ vẫn quản lý bằng sổ sách, Excel.
+Quy trình bị cắt thành nhiều bước rời: tìm ở web, nhắn ở Zalo, ký giấy, thu tiền
+không có hệ thống theo dõi.
+
+Bài toán của em là xây một nền tảng web gom toàn bộ vòng đời thuê trọ trên cùng
+một hệ thống, có dữ liệu và trạng thái rõ ràng."
+
+[Slide 3]
+"Mục tiêu không phải làm thêm một trang đăng tin, mà là số hóa quy trình từ tìm phòng,
+trao đổi, ký hợp đồng đến theo dõi thanh toán sau khi thuê.
+
+Phạm vi đồ án là website cho người thuê và chủ trọ quy mô nhỏ–vừa. Em chưa làm
+app mobile và chưa tích hợp cổng thanh toán tự động — phần thanh toán dùng QR
+và chủ trọ xác nhận, phù hợp thực tế nhà trọ hiện nay."
+
+
+─── PHẦN 3: PHƯƠNG ÁN THỰC HIỆN (Slide 4–6) — ~4 phút ───
+
+[Slide 4]
+"Về phương án kỹ thuật, em chọn kiến trúc Client–Server: Angular phía giao diện,
+Spring Boot phía API, MySQL lưu dữ liệu quan hệ, MinIO lưu ảnh và file.
+
+Tách FE/BE giúp mở rộng sau này, ví dụ thêm app mobile mà không viết lại nghiệp vụ.
+Các tích hợp đặc thù gồm WebSocket cho chat, OCR cho căn cước, và email/Telegram
+cho nhắc việc theo lịch."
+
+[Slide 5]
+"Luồng nghiệp vụ em thiết kế khép kín như sau: người thuê tìm phòng trên bản đồ,
+xem chi tiết, chat với chủ trọ. Khi thống nhất, một trong hai bên khởi tạo hợp đồng
+điện tử; bên còn lại xác nhận điều khoản; hai bên ký số tuần tự.
+
+Em mô hình hóa hợp đồng bằng máy trạng thái — chỉ khi đủ hai chữ ký mới COMPLETED
+và phòng tự chuyển sang đã cho thuê. Sau đó hệ thống theo dõi thanh toán từng tháng."
+
+[Slide 6]
+"Bốn đóng góp em muốn nhấn mạnh:
+
+Thứ nhất, quy trình khép kín — không dừng ở đăng tin.
+
+Thứ hai, hợp đồng sinh từ mẫu HTML, tự điền dữ liệu phòng và người dùng, xem trước
+và in PDF trước khi ký.
+
+Thứ ba, OCR căn cước — em tích hợp ba hướng: quét QR VNeID, OCR.Space và DeepSeek,
+giảm nhập tay khi làm hợp đồng.
+
+Thứ tư, quản lý vận hành: thanh toán theo tháng, nhập breakdown điện nước, QR chuyển khoản,
+và các tác vụ nền nhắc đóng tiền, nhắc hợp đồng sắp hết hạn, gợi ý phòng qua email."
+
+
+─── PHẦN 4: KẾT QUẢ (Slide 7–8) — ~1,5 phút ───
+
+[Slide 7]
+"Kết quả, em đã xây dựng thành công website TroFinder với đầy đủ phân hệ: tìm phòng,
+quản lý nhà trọ, dashboard hợp đồng cho cả chủ và người thuê, chat, quản trị phân quyền.
+
+Hệ thống đã triển khai thử nghiệm với HTTPS. Em kiểm thử thủ công các luồng nghiệp vụ
+cốt lõi theo bảng kiểm thử trong báo cáo."
+
+[Slide 8]
+"Em cũng thừa nhận một số hạn chế: ký số mới ở mức tích hợp kỹ thuật; thanh toán chưa
+tự động đối soát ngân hàng; OCR và GPU service cần triển khai production tốt hơn.
+
+Tóm lại, đồ án đạt mục tiêu xây nền tảng số hóa thuê trọ khép kín. Em xin phép chuyển
+sang demo trực tiếp."
+
+
+─── PHẦN 5: DEMO (5–6 PHÚT) — KHÔNG CẦN SLIDE ───
+
+Kịch bản demo (theo thứ tự, ~1 phút/mục):
+
+  DEMO 1 — Tìm phòng (người thuê / khách)
+  • Mở trang chủ → lọc giá, diện tích → xem pin trên bản đồ
+  • Mở chi tiết phòng → lưu phòng
+  [ẢNH: chụp sẵn Hình 4.4 nếu mạng demo lỗi]
+
+  DEMO 2 — Chat (5–10 giây, nếu thiếu thời gian thì bỏ)
+  • Từ phòng → nhắn tin chủ trọ → hiện tin real-time
+
+  DEMO 3 — OCR (30 giây)
+  • Trang cá nhân → upload CCCD → hiện trường tự điền
+  [ẢNH dự phòng: Hình 4.5]
+
+  DEMO 4 — Hợp đồng (1,5–2 phút) — TRỌNG TÂM
+  • Chủ trọ hoặc người thuê: tạo HĐ → preview PDF/HTML → gửi
+  • Bên kia: xác nhận → ký (modal ký số)
+  • Hiện trạng thái COMPLETED trên dashboard
+  [ẢNH dự phòng: Hình 4.6]
+
+  DEMO 5 — Thanh toán & nhắc việc (1,5 phút)
+  • Chủ trọ: upload QR thanh toán
+  • Người thuê: mở modal thanh toán → nhập điện/nước → breakdown
+  • Chủ trọ: xác nhận đã đóng tháng / xem danh sách chưa thanh toán
+  • (Tuỳ chọn) bấm "Gửi email nhắc đóng tiền" — nói là có lịch cron tự động
+
+  DEMO 6 — Admin (20 giây, nếu còn thời gian)
+  • Màn quản trị user/role — nhấn RBAC động
+
+Mẹo demo:
+  • Đăng nhập sẵn 2 tab trình duyệt (chủ trọ + người thuê)
+  • Chuẩn bị 1 HĐ ở trạng thái "chờ ký" để không mất thời gian điền form
+  • Nếu OCR/live chậm → nói "em demo bằng tài khoản đã định danh" + show screenshot
+
+
+================================================================================
+D. CÂU HỎI HỘI ĐỒNG CÓ THỂ GẶP — GỢI Ý TRẢ LỜI NGẮN
+================================================================================
+
+Q: Khác gì Facebook/Zalo cho thuê phòng?
+A: TroFinder gom sau giao dịch: HĐ điện tử, ký số, thanh toán tháng, nhắc hạn — MXH không có.
+
+Q: Hợp đồng điện tử có giá trị pháp lý không?
+A: Đồ án tập trung số hóa quy trình & lưu vết; ký số tích hợp kỹ thuật, cần CA được cấp phép
+   cho giá trị pháp lý đầy đủ thương mại.
+
+Q: OCR sai thì sao?
+A: Người dùng rà soát trước khi xác nhận; chất lượng ảnh ảnh hưởng lớn — hạn chế đã nêu trong báo cáo.
+
+Q: Thanh toán có tự động không?
+A: Chưa — QR + chủ trọ xác nhận; hướng phát triển là API ngân hàng/cổng thanh toán.
+
+Q: Vì sao chọn Angular + Spring Boot?
+A: Angular phù hợp form phức tạp & SPA; Spring Boot mạnh về bảo mật, JPA, nghiệp vụ HĐ/transaction.
+
+Q: Chat dùng gì?
+A: WebSocket/STOMP — tin nhắn real-time, lưu lịch sử DB.
+
+
+================================================================================
+E. CHECKLIST TRƯỚC PHẢN BIỆN
+================================================================================
+
+[ ] Slide 8 trang (bìa + 6 nội dung + kết)
+[ ] Ảnh minh họa: bản đồ, OCR, HĐ, dashboard (từ báo cáo Hình 4.4–4.8)
+[ ] Tài khoản demo + dữ liệu mẫu (phòng, HĐ, thanh toán tháng hiện tại)
+[ ] Rehearsal: thuyết trình 8 phút + demo 6 phút
+[ ] Backup: video quay màn hình 2–3 phút nếu mạng/server lỗi
+
+================================================================================
+HẾT
+================================================================================

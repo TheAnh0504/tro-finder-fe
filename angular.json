@@ -34,7 +34,8 @@
             "allowedCommonJsDependencies": [
               "leaflet",
               "@stomp/stompjs",
-              "sockjs-client"
+              "sockjs-client",
+              "pdfjs-dist"
             ],
             "security": {
               "allowedHosts": []
@@ -77,7 +78,10 @@
               "buildTarget": "tro-finder-fe:build:production"
             },
             "development": {
-              "buildTarget": "tro-finder-fe:build:development"
+              "buildTarget": "tro-finder-fe:build:development",
+              "prebundle": {
+                "exclude": ["pdfjs-dist"]
+              }
             }
           },
           "defaultConfiguration": "development",

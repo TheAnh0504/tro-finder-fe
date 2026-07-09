@@ -304,11 +304,16 @@ export class SignIn implements OnInit, OnDestroy {
           phoneNumber: res.phoneNumber,
           urlImage: res.urlImage,
           isOcr: res.isOcr,
+          isRent: res.isRent,
           searchPreferences: res.searchPreferences,
         };
         this.tokenService.setTokens(res.access_token, res.listPermission, currentUser);
         if (currentUser.role === 'Người thuê trọ') {
-          this.router.navigate(['/home']);
+          if (currentUser.isRent) {
+            this.router.navigate(['/contract-dashboard']);
+          } else {
+            this.router.navigate(['/home']);
+          }
         } else if (currentUser.role === 'Chủ nhà trọ') {
           this.router.navigate(['/manager-house']);
         } else if (currentUser.role === 'Chủ trọ & Người thuê') {
