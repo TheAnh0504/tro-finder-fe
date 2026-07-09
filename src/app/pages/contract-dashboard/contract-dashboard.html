@@ -350,76 +350,88 @@
           </div>
 
           <ng-template #hostQrUploadCard>
-          <!-- QR Upload -->
-          <div class="section-card qr-upload-card">
-            <div class="section-header">
-              <div class="section-title-group">
-                <div class="section-icon blue">
-                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
-                    ></path>
-                  </svg>
+            <!-- QR Upload -->
+            <div class="section-card qr-upload-card">
+              <div class="section-header">
+                <div class="section-title-group">
+                  <div class="section-icon blue">
+                    <svg
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3>QR thanh toán của chủ nhà</h3>
+                    <p class="muted">
+                      Người thuê sẽ thấy QR này trong tab Hợp đồng để chuyển khoản tiền phòng.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3>QR thanh toán của chủ nhà</h3>
-                  <p class="muted">
-                    Người thuê sẽ thấy QR này trong tab Hợp đồng để chuyển khoản tiền phòng.
-                  </p>
+              </div>
+              <div class="qr-upload-body">
+                @if (hostPaymentQrImageShow()) {
+                  <div class="qr-upload-preview">
+                    <img [src]="hostPaymentQrImageShow()!" alt="QR thanh toán chủ nhà" />
+                    <div class="qr-upload-status">
+                      <span class="status-badge status-active">Đã tải QR</span>
+                      <span class="muted small">Người thuê sẽ thấy mã này khi thanh toán</span>
+                    </div>
+                  </div>
+                } @else if (hostPaymentQrImage()) {
+                  <div class="qr-upload-preview">
+                    <div class="qr-upload-placeholder">Đang tải QR...</div>
+                    <div class="qr-upload-status">
+                      <span class="status-badge status-active">Đã tải QR</span>
+                    </div>
+                  </div>
+                }
+                <div class="qr-upload-row">
+                  <label class="btn-action btn-primary-outline" for="paymentQrFile">
+                    <svg
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                      ></path>
+                    </svg>
+                    {{ hostPaymentQrImage() ? 'Tải lại QR' : 'Tải lên QR' }}
+                  </label>
+                  <input
+                    id="paymentQrFile"
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    [disabled]="isUploadingPaymentQr()"
+                    (change)="onPaymentQrSelected($event)"
+                  />
+                  @if (!hostPaymentQrImage()) {
+                    <span class="muted file-name-text">{{
+                      paymentQrFileName() || 'Chưa chọn file QR'
+                    }}</span>
+                  }
+                  @if (isUploadingPaymentQr()) {
+                    <span class="muted small">Đang tải lên...</span>
+                  }
                 </div>
               </div>
             </div>
-            <div class="qr-upload-body">
-              @if (hostPaymentQrImageShow()) {
-                <div class="qr-upload-preview">
-                  <img [src]="hostPaymentQrImageShow()!" alt="QR thanh toán chủ nhà" />
-                  <div class="qr-upload-status">
-                    <span class="status-badge status-active">Đã tải QR</span>
-                    <span class="muted small">Người thuê sẽ thấy mã này khi thanh toán</span>
-                  </div>
-                </div>
-              } @else if (hostPaymentQrImage()) {
-                <div class="qr-upload-preview">
-                  <div class="qr-upload-placeholder">Đang tải QR...</div>
-                  <div class="qr-upload-status">
-                    <span class="status-badge status-active">Đã tải QR</span>
-                  </div>
-                </div>
-              }
-              <div class="qr-upload-row">
-                <label class="btn-action btn-primary-outline" for="paymentQrFile">
-                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                    ></path>
-                  </svg>
-                  {{ hostPaymentQrImage() ? 'Tải lại QR' : 'Tải lên QR' }}
-                </label>
-                <input
-                  id="paymentQrFile"
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  [disabled]="isUploadingPaymentQr()"
-                  (change)="onPaymentQrSelected($event)"
-                />
-                @if (!hostPaymentQrImage()) {
-                  <span class="muted file-name-text">{{
-                    paymentQrFileName() || 'Chưa chọn file QR'
-                  }}</span>
-                }
-                @if (isUploadingPaymentQr()) {
-                  <span class="muted small">Đang tải lên...</span>
-                }
-              </div>
-            </div>
-          </div>
           </ng-template>
 
           @if (!hostPaymentQrImage()) {
@@ -500,19 +512,42 @@
                 </div>
               </div>
               <div class="payment-month-picker">
-                <label for="hostPaymentMonth">Chọn tháng</label>
-                <select
-                  id="hostPaymentMonth"
-                  class="form-input"
-                  [ngModel]="paymentViewYear() + '-' + paymentViewMonth()"
-                  (ngModelChange)="setPaymentViewMonth(+$event.split('-')[0], +$event.split('-')[1])"
-                >
-                  @for (period of hostPaymentViewOptions(); track period.year + '-' + period.month) {
-                    <option [value]="period.year + '-' + period.month">
-                      {{ formatPaymentPeriodLabel(period.year, period.month) }}
-                    </option>
-                  }
-                </select>
+                <label for="hostPaymentMonth">Tháng thanh toán</label>
+                <div class="select-wrapper">
+                  <select
+                    id="hostPaymentMonth"
+                    class="form-input custom-select"
+                    [ngModel]="paymentViewYear() + '-' + paymentViewMonth()"
+                    (ngModelChange)="
+                      setPaymentViewMonth(+$event.split('-')[0], +$event.split('-')[1])
+                    "
+                  >
+                    @for (
+                      period of hostPaymentViewOptions();
+                      track period.year + '-' + period.month
+                    ) {
+                      <option [value]="period.year + '-' + period.month">
+                        {{ formatPaymentPeriodLabel(period.year, period.month) }}
+                      </option>
+                    }
+                  </select>
+                  <div class="dropdown-icon">
+                    <svg
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.5"
+                        d="M19 9l-7 7-7-7"
+                      ></path>
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -520,7 +555,10 @@
               <div class="payment-unpaid-alert">
                 <strong>Chưa thanh toán / chưa xác nhận:</strong>
                 <div class="payment-unpaid-chips">
-                  @for (item of hostAllUnpaidPeriods(); track item.contract.id + '-' + item.year + '-' + item.month) {
+                  @for (
+                    item of hostAllUnpaidPeriods();
+                    track item.contract.id + '-' + item.year + '-' + item.month
+                  ) {
                     <button
                       type="button"
                       class="payment-unpaid-chip"
@@ -566,9 +604,7 @@
                             {{ formatCurrency(item.payment.amount) }}
                           } @else {
                             {{
-                              formatCurrency(
-                                item.payment?.amount ?? item.contract.room.priceRoom
-                              )
+                              formatCurrency(item.payment?.amount ?? item.contract.room.priceRoom)
                             }}
                           }
                         </td>
@@ -633,7 +669,11 @@
               </div>
             } @else {
               <div class="empty-state small">
-                <p>Không có phòng nào trong hợp đồng cho tháng {{ paymentViewMonth() }}/{{ paymentViewYear() }}.</p>
+                <p>
+                  Không có phòng nào trong hợp đồng cho tháng {{ paymentViewMonth() }}/{{
+                    paymentViewYear()
+                  }}.
+                </p>
               </div>
             }
           </div>
@@ -654,8 +694,8 @@
                 <div>
                   <h3>Email nhắc thanh toán</h3>
                   <p class="muted">
-                    Gửi ngay email nhắc người thuê đóng tiền và tổng hợp danh sách chưa thanh toán cho
-                    bạn.
+                    Gửi ngay email nhắc người thuê đóng tiền và tổng hợp danh sách chưa thanh toán
+                    cho bạn.
                   </p>
                 </div>
               </div>
@@ -673,8 +713,8 @@
                 }}
               </button>
               <p class="muted small schedule-hint">
-                Lịch tự động: ngày 1 (đầu tháng), ngày 25 (giữa tháng), ngày cuối tháng (tổng hợp chủ
-                trọ).
+                Lịch tự động: ngày 1 (đầu tháng), ngày 25 (giữa tháng), ngày cuối tháng (tổng hợp
+                chủ trọ).
               </p>
             </div>
           </div>
@@ -754,7 +794,7 @@
           }
 
           <!-- Payment Confirm Form -->
-          <div class="section-card">
+          <!-- <div class="section-card">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon green">
@@ -817,7 +857,7 @@
                 Nhập tiền
               </button>
             </div>
-          </div>
+          </div> -->
 
           @if (hostPaymentQrImage()) {
             <ng-container *ngTemplateOutlet="hostQrUploadCard"></ng-container>
@@ -1100,8 +1140,7 @@
                     <strong>{{ formatDate(activeContract.beginTime || '') }}</strong></span
                   >
                   <span
-                    >Kết thúc:
-                    <strong>{{ formatDate(activeContract.endTime || '') }}</strong></span
+                    >Kết thúc: <strong>{{ formatDate(activeContract.endTime || '') }}</strong></span
                   >
                   <span
                     >Còn lại: <strong>{{ remainingMonths() }} tháng</strong></span
@@ -1121,9 +1160,7 @@
                     <span class="rental-stat-label">Tổng cần thanh toán</span>
                   </div>
                   <div class="rental-stat">
-                    <span class="rental-stat-value">{{
-                      tenantAllUnpaidPeriods().length
-                    }}</span>
+                    <span class="rental-stat-value">{{ tenantAllUnpaidPeriods().length }}</span>
                     <span class="rental-stat-label">Kỳ chưa thanh toán</span>
                   </div>
                 } @else {
@@ -1265,19 +1302,42 @@
                   </div>
                 </div>
                 <div class="payment-month-picker">
-                  <label for="tenantPaymentMonth">Chọn tháng</label>
-                  <select
-                    id="tenantPaymentMonth"
-                    class="form-input"
-                    [ngModel]="paymentViewYear() + '-' + paymentViewMonth()"
-                    (ngModelChange)="setPaymentViewMonth(+$event.split('-')[0], +$event.split('-')[1])"
-                  >
-                    @for (period of tenantPaymentViewOptions(); track period.year + '-' + period.month) {
-                      <option [value]="period.year + '-' + period.month">
-                        {{ formatPaymentPeriodLabel(period.year, period.month) }}
-                      </option>
-                    }
-                  </select>
+                  <label for="tenantPaymentMonth">Tháng thanh toán</label>
+                  <div class="select-wrapper">
+                    <select
+                      id="tenantPaymentMonth"
+                      class="form-input custom-select"
+                      [ngModel]="paymentViewYear() + '-' + paymentViewMonth()"
+                      (ngModelChange)="
+                        setPaymentViewMonth(+$event.split('-')[0], +$event.split('-')[1])
+                      "
+                    >
+                      @for (
+                        period of tenantPaymentViewOptions();
+                        track period.year + '-' + period.month
+                      ) {
+                        <option [value]="period.year + '-' + period.month">
+                          {{ formatPaymentPeriodLabel(period.year, period.month) }}
+                        </option>
+                      }
+                    </select>
+                    <div class="dropdown-icon">
+                      <svg
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2.5"
+                          d="M19 9l-7 7-7-7"
+                        ></path>
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1285,7 +1345,10 @@
                 <div class="payment-unpaid-alert">
                   <strong>Tháng chưa thanh toán:</strong>
                   <div class="payment-unpaid-chips">
-                    @for (item of tenantAllUnpaidPeriods(); track item.contract.id + '-' + item.year + '-' + item.month) {
+                    @for (
+                      item of tenantAllUnpaidPeriods();
+                      track item.contract.id + '-' + item.year + '-' + item.month
+                    ) {
                       <button
                         type="button"
                         class="payment-unpaid-chip"
@@ -1363,130 +1426,142 @@
                 </div>
               } @else {
                 <div class="empty-state small">
-                  <p>Không có phòng nào trong hợp đồng cho tháng {{ paymentViewMonth() }}/{{ paymentViewYear() }}.</p>
+                  <p>
+                    Không có phòng nào trong hợp đồng cho tháng {{ paymentViewMonth() }}/{{
+                      paymentViewYear()
+                    }}.
+                  </p>
                 </div>
               }
 
               @if (myActiveLeaseContracts().length === 1) {
-              <div class="utility-breakdown">
-                @if (hasPaymentBreakdown(myCurrentMonthPayment())) {
-                  <div>
-                    <span>Tiền phòng</span
-                    ><strong>{{ formatCurrency(myCurrentMonthPayment()?.rentAmount) }}</strong>
-                  </div>
-                  @if ((myCurrentMonthPayment()?.electricityAmount ?? 0) > 0) {
+                <div class="utility-breakdown">
+                  @if (hasPaymentBreakdown(myCurrentMonthPayment())) {
                     <div>
-                      <span
-                        >Điện ({{ myCurrentMonthPayment()?.electricityUnits }} kWh ×
-                        {{ formatCurrency(activeContract.room.priceElectricity) }})</span
-                      ><strong>{{ formatCurrency(myCurrentMonthPayment()?.electricityAmount) }}</strong>
+                      <span>Tiền phòng</span
+                      ><strong>{{ formatCurrency(myCurrentMonthPayment()?.rentAmount) }}</strong>
                     </div>
-                  }
-                  @if ((myCurrentMonthPayment()?.waterAmount ?? 0) > 0) {
+                    @if ((myCurrentMonthPayment()?.electricityAmount ?? 0) > 0) {
+                      <div>
+                        <span
+                          >Điện ({{ myCurrentMonthPayment()?.electricityUnits }} kWh ×
+                          {{ formatCurrency(activeContract.room.priceElectricity) }})</span
+                        ><strong>{{
+                          formatCurrency(myCurrentMonthPayment()?.electricityAmount)
+                        }}</strong>
+                      </div>
+                    }
+                    @if ((myCurrentMonthPayment()?.waterAmount ?? 0) > 0) {
+                      <div>
+                        <span>Nước</span
+                        ><strong>{{ formatCurrency(myCurrentMonthPayment()?.waterAmount) }}</strong>
+                      </div>
+                    }
+                    @if ((myCurrentMonthPayment()?.internetAmount ?? 0) > 0) {
+                      <div>
+                        <span>Internet</span
+                        ><strong>{{
+                          formatCurrency(myCurrentMonthPayment()?.internetAmount)
+                        }}</strong>
+                      </div>
+                    }
+                    @if ((myCurrentMonthPayment()?.washingMachineAmount ?? 0) > 0) {
+                      <div>
+                        <span>Máy giặt</span
+                        ><strong>{{
+                          formatCurrency(myCurrentMonthPayment()?.washingMachineAmount)
+                        }}</strong>
+                      </div>
+                    }
+                    @if ((myCurrentMonthPayment()?.generalCleaningAmount ?? 0) > 0) {
+                      <div>
+                        <span>Vệ sinh chung</span
+                        ><strong>{{
+                          formatCurrency(myCurrentMonthPayment()?.generalCleaningAmount)
+                        }}</strong>
+                      </div>
+                    }
+                    @if ((myCurrentMonthPayment()?.generalElectricityAmount ?? 0) > 0) {
+                      <div>
+                        <span>Điện khu vực chung</span
+                        ><strong>{{
+                          formatCurrency(myCurrentMonthPayment()?.generalElectricityAmount)
+                        }}</strong>
+                      </div>
+                    }
+                    <div class="total-row">
+                      <span>Tổng tháng {{ paymentViewMonth() }}/{{ paymentViewYear() }}</span
+                      ><strong>{{ formatCurrency(myCurrentMonthPayment()?.amount) }}</strong>
+                    </div>
+                    @if (myCurrentMonthPayment()?.filledByRole) {
+                      <p class="muted small">
+                        Đã nhập bởi:
+                        {{
+                          myCurrentMonthPayment()?.filledByRole === 'HOST'
+                            ? 'Chủ trọ'
+                            : 'Người thuê'
+                        }}
+                      </p>
+                    }
+                  } @else {
+                    <div>
+                      <span>Tiền phòng</span
+                      ><strong>{{ formatCurrency(activeContract.room.priceRoom) }}</strong>
+                    </div>
+                    <div>
+                      <span>Điện</span
+                      ><strong
+                        >{{ formatCurrency(activeContract.room.priceElectricity) }}/kWh</strong
+                      >
+                    </div>
                     <div>
                       <span>Nước</span
-                      ><strong>{{ formatCurrency(myCurrentMonthPayment()?.waterAmount) }}</strong>
+                      ><strong>{{ formatCurrency(activeContract.room.priceWater) }}/khối</strong>
                     </div>
-                  }
-                  @if ((myCurrentMonthPayment()?.internetAmount ?? 0) > 0) {
                     <div>
-                      <span>Internet</span
-                      ><strong>{{ formatCurrency(myCurrentMonthPayment()?.internetAmount) }}</strong>
+                      <span>Phí cố định (net, vệ sinh...)</span
+                      ><strong>~{{ formatCurrency(tenantFixedUtilityFees()) }}</strong>
                     </div>
-                  }
-                  @if ((myCurrentMonthPayment()?.washingMachineAmount ?? 0) > 0) {
-                    <div>
-                      <span>Máy giặt</span
-                      ><strong>{{
-                        formatCurrency(myCurrentMonthPayment()?.washingMachineAmount)
-                      }}</strong>
+                    <div class="total-row">
+                      <span>Tổng tháng {{ paymentViewMonth() }}/{{ paymentViewYear() }}</span
+                      ><strong>{{ formatCurrency(tenantCurrentMonthTotal()) }}</strong>
                     </div>
+                    <p class="muted small">Bấm "Thanh toán ngay" để nhập chỉ số điện nước.</p>
                   }
-                  @if ((myCurrentMonthPayment()?.generalCleaningAmount ?? 0) > 0) {
-                    <div>
-                      <span>Vệ sinh chung</span
-                      ><strong>{{
-                        formatCurrency(myCurrentMonthPayment()?.generalCleaningAmount)
-                      }}</strong>
-                    </div>
-                  }
-                  @if ((myCurrentMonthPayment()?.generalElectricityAmount ?? 0) > 0) {
-                    <div>
-                      <span>Điện khu vực chung</span
-                      ><strong>{{
-                        formatCurrency(myCurrentMonthPayment()?.generalElectricityAmount)
-                      }}</strong>
-                    </div>
-                  }
-                  <div class="total-row">
-                    <span>Tổng tháng {{ paymentViewMonth() }}/{{ paymentViewYear() }}</span
-                    ><strong>{{ formatCurrency(myCurrentMonthPayment()?.amount) }}</strong>
-                  </div>
-                  @if (myCurrentMonthPayment()?.filledByRole) {
-                    <p class="muted small">
-                      Đã nhập bởi:
-                      {{
-                        myCurrentMonthPayment()?.filledByRole === 'HOST' ? 'Chủ trọ' : 'Người thuê'
-                      }}
-                    </p>
-                  }
-                } @else {
-                  <div>
-                    <span>Tiền phòng</span
-                    ><strong>{{ formatCurrency(activeContract.room.priceRoom) }}</strong>
-                  </div>
-                  <div>
-                    <span>Điện</span
-                    ><strong
-                      >{{ formatCurrency(activeContract.room.priceElectricity) }}/kWh</strong
-                    >
-                  </div>
-                  <div>
-                    <span>Nước</span
-                    ><strong>{{ formatCurrency(activeContract.room.priceWater) }}/khối</strong>
-                  </div>
-                  <div>
-                    <span>Phí cố định (net, vệ sinh...)</span
-                    ><strong>~{{ formatCurrency(tenantFixedUtilityFees()) }}</strong>
-                  </div>
-                  <div class="total-row">
-                    <span>Tổng tháng {{ paymentViewMonth() }}/{{ paymentViewYear() }}</span
-                    ><strong>{{ formatCurrency(tenantCurrentMonthTotal()) }}</strong>
-                  </div>
-                  <p class="muted small">Bấm "Thanh toán ngay" để nhập chỉ số điện nước.</p>
-                }
-              </div>
-              @if (activeContract.payment.length) {
-                <div class="payment-table-wrapper">
-                  <table class="payment-table">
-                    <thead>
-                      <tr>
-                        <th>Tháng</th>
-                        <th>Số tiền</th>
-                        <th>Trạng thái</th>
-                        <th>Ngày xác nhận</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (payment of activeContract.payment; track payment.id) {
-                        <tr>
-                          <td>{{ payment.paymentMonth }}/{{ payment.paymentYear }}</td>
-                          <td class="amount-cell">{{ formatCurrency(payment.amount) }}</td>
-                          <td>
-                            <span
-                              class="status-badge"
-                              [class]="getPaymentStatusClass(payment.status)"
-                            >
-                              {{ getPaymentStatusLabel(payment.status) }}
-                            </span>
-                          </td>
-                          <td>{{ payment.confirmedAt ? formatDate(payment.confirmedAt) : '—' }}</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
                 </div>
-              }
+                @if (activeContract.payment.length) {
+                  <div class="payment-table-wrapper">
+                    <table class="payment-table">
+                      <thead>
+                        <tr>
+                          <th>Tháng</th>
+                          <th>Số tiền</th>
+                          <th>Trạng thái</th>
+                          <th>Ngày xác nhận</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (payment of activeContract.payment; track payment.id) {
+                          <tr>
+                            <td>{{ payment.paymentMonth }}/{{ payment.paymentYear }}</td>
+                            <td class="amount-cell">{{ formatCurrency(payment.amount) }}</td>
+                            <td>
+                              <span
+                                class="status-badge"
+                                [class]="getPaymentStatusClass(payment.status)"
+                              >
+                                {{ getPaymentStatusLabel(payment.status) }}
+                              </span>
+                            </td>
+                            <td>
+                              {{ payment.confirmedAt ? formatDate(payment.confirmedAt) : '—' }}
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
               }
             </div>
           } @else {
@@ -1516,8 +1591,8 @@
                 <div>
                   <h3>Gợi ý phòng trọ qua email</h3>
                   <p class="muted">
-                    Nhận danh sách phòng trọ mới phù hợp (gần khu vực bạn đang ở hoặc theo tiêu chí tìm
-                    kiếm).
+                    Nhận danh sách phòng trọ mới phù hợp (gần khu vực bạn đang ở hoặc theo tiêu chí
+                    tìm kiếm).
                   </p>
                 </div>
               </div>
@@ -1972,7 +2047,13 @@
                       class="calendar-icon"
                       (click)="hostBeginInput.type = 'date'; hostBeginInput.showPicker()"
                     >
-                      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        width="20"
+                        height="20"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path
                           stroke-linecap="round"
                           stroke-linejoin="round"
@@ -2000,7 +2081,13 @@
                       class="calendar-icon"
                       (click)="hostEndInput.type = 'date'; hostEndInput.showPicker()"
                     >
-                      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        width="20"
+                        height="20"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path
                           stroke-linecap="round"
                           stroke-linejoin="round"
@@ -2098,8 +2185,8 @@
               <div class="alert-content">
                 <h4>Tài khoản chưa được xác minh danh tính</h4>
                 <p>
-                  Vì lý do bảo mật và tính pháp lý của hợp đồng, bạn cần xác thực danh tính trước khi
-                  tạo hợp đồng cho người thuê.
+                  Vì lý do bảo mật và tính pháp lý của hợp đồng, bạn cần xác thực danh tính trước
+                  khi tạo hợp đồng cho người thuê.
                 </p>
                 <button class="btn-goto-verify" (click)="goToProfileToVerify()">
                   Đi đến trang Xác minh ngay ➔
@@ -2121,7 +2208,8 @@
         <h3>
           @if (isHostPaymentModal()) {
             Nhập tiền tháng {{ paymentModalMonth() }}/{{ paymentModalYear() }} —
-            {{ paymentModalContract()?.room?.houseSet?.name }} / {{ paymentModalContract()?.room?.name }}
+            {{ paymentModalContract()?.room?.houseSet?.name }} /
+            {{ paymentModalContract()?.room?.name }}
           } @else {
             {{ getPaymentModalTitle() }} — {{ paymentModalMonth() }}/{{ paymentModalYear() }}
           }
@@ -2131,11 +2219,13 @@
       <div class="modal-body">
         @if (!isHostPaymentModal()) {
           <p class="muted">
-            Nhập chỉ số điện nước, hệ thống tự tính theo giá phòng. Chuyển khoản theo QR rồi xác nhận.
+            Nhập chỉ số điện nước, hệ thống tự tính theo giá phòng. Chuyển khoản theo QR rồi xác
+            nhận.
           </p>
         } @else {
           <p class="muted">
-            Nhập chỉ số điện nước cho người thuê. Chỉ cần một bên nhập — bên còn lại có thể chỉnh sửa.
+            Nhập chỉ số điện nước cho người thuê. Chỉ cần một bên nhập — bên còn lại có thể chỉnh
+            sửa.
           </p>
         }
         @if (paymentModalHasSavedBreakdown()) {
@@ -2545,7 +2635,11 @@
             Xóa bản nháp
           </button>
         }
-        <button type="button" class="btn-action btn-secondary" (click)="closeContractPdfPreviewModal()">
+        <button
+          type="button"
+          class="btn-action btn-secondary"
+          (click)="closeContractPdfPreviewModal()"
+        >
           Tiếp tục
         </button>
       </div>
