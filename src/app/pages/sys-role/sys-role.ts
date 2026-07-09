@@ -42,33 +42,53 @@ export class SysRole implements OnInit {
 
   // Danh sách các quyền hệ thống có sẵn (Hiển thị UI)
   availablePermissions = [
-    // { key: 'DEFAULT', label: 'Quyền Mặc Định' },
+    { key: 'DEFAULT', label: 'Quyền Mặc Định' },
+
+    // --- QUẢN LÝ TÀI KHOẢN ---
     { key: 'ADD_USER', label: 'Thêm tài khoản mới' },
     { key: 'UPDATE_USER', label: 'Cập nhật thông tin tài khoản' },
     { key: 'ADMIN_UPDATE_USER', label: 'Admin cập nhật thông tin tài khoản' },
     { key: 'FIND_USER', label: 'Tìm kiếm tài khoản' },
-    { key: 'GET_USER', label: 'Lây thông tin chi tiết tài khoản' },
+    { key: 'GET_USER', label: 'Lấy thông tin chi tiết tài khoản' },
     { key: 'DELETE_USER', label: 'Xóa tài khoản' },
     { key: 'LOCK_USER', label: 'Khóa tài khoản' },
     { key: 'UNLOCK_USER', label: 'Mở khóa tài khoản' },
 
+    // --- HỆ THỐNG ---
     { key: 'DATA_RECOVERY', label: 'Khôi phục tệp dữ liệu' },
 
+    // --- QUẢN LÝ NHÓM QUYỀN ---
     { key: 'ADD_ROLE', label: 'Thêm nhóm quyền mới' },
     { key: 'UPDATE_ROLE', label: 'Cập nhật nhóm quyền' },
     { key: 'FIND_ROLE', label: 'Tìm kiếm nhóm quyền' },
     { key: 'GET_ROLE', label: 'Lấy thông tin chi tiết nhóm quyền' },
     { key: 'DELETE_ROLE', label: 'Xóa nhóm quyền' },
 
-    { key: 'ADD_HOUSE', label: 'Thêm phòng trọ mới' },
+    // --- QUẢN LÝ PHÒNG TRỌ (CHỦ NHÀ) ---
+    { key: 'ADD_HOUSE', label: 'Thêm phòng/nhà trọ mới' },
     { key: 'UPDATE_HOUSE', label: 'Cập nhật thông tin phòng trọ' },
     { key: 'FIND_HOUSE', label: 'Tìm kiếm phòng trọ' },
     { key: 'GET_HOUSE', label: 'Lấy thông tin chi tiết phòng trọ' },
     { key: 'DELETE_HOUSE', label: 'Xóa phòng trọ' },
 
-    { key: 'ADD_SAVED_ROOM', label: 'Lưu lại phòng' },
+    // --- QUẢN LÝ PHÒNG YÊU THÍCH ---
+    { key: 'ADD_SAVED_ROOM', label: 'Lưu lại phòng (Yêu thích)' },
     { key: 'DELETE_SAVED_ROOM', label: 'Xóa phòng đã lưu' },
     { key: 'FIND_SAVED_ROOM', label: 'Tìm kiếm phòng đã lưu' },
+
+    // --- TƯƠNG TÁC NGƯỜI DÙNG & TIỆN ÍCH ---
+    { key: 'GET_PROFILE', label: 'Xem hồ sơ cá nhân' },
+    { key: 'FIND_REVIEW', label: 'Tìm kiếm/Xem đánh giá' },
+    { key: 'ADD_REVIEW', label: 'Thêm đánh giá mới' },
+    { key: 'OCR_CCCD', label: 'Quét tự động CCCD (OCR)' },
+
+    // --- QUẢN LÝ HỢP ĐỒNG & THANH TOÁN ---
+    { key: 'FIND_CONTRACT', label: 'Tìm kiếm danh sách hợp đồng' },
+    { key: 'ADD_CONTRACT', label: 'Tạo hợp đồng/đơn mới' },
+    { key: 'GET_CONTRACT', label: 'Xem chi tiết hợp đồng' },
+    { key: 'UPDATE_CONTRACT', label: 'Cập nhật/Xác nhận hợp đồng' },
+    { key: 'SIGN_CONTRACT', label: 'Ký số hợp đồng' },
+    { key: 'CONFIRM_PAYMENT', label: 'Xác nhận thanh toán hóa đơn' },
   ];
 
   ngOnInit() {
