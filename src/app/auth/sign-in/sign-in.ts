@@ -126,29 +126,29 @@ export class SignIn implements OnInit, OnDestroy {
   }
 
   login() {
-    this.toast.success('Mã OTP đã được gửi!', 'Thành công', {
-      timeOut: 3000,
-      progressBar: true,
-      positionClass: 'toast-top-right',
-    });
+    // this.toast.success('Mã OTP đã được gửi!', 'Thành công', {
+    //   timeOut: 3000,
+    //   progressBar: true,
+    //   positionClass: 'toast-top-right',
+    // });
 
-    this.toast.info('Mã OTP đã được gửi!', 'Thông báo', {
-      timeOut: 3000,
-      progressBar: true,
-      positionClass: 'toast-top-right',
-    });
+    // this.toast.info('Mã OTP đã được gửi!', 'Thông báo', {
+    //   timeOut: 3000,
+    //   progressBar: true,
+    //   positionClass: 'toast-top-right',
+    // });
 
-    this.toast.warning('Mã OTP đã được gửi!', 'Chú ý', {
-      timeOut: 3000,
-      progressBar: true,
-      positionClass: 'toast-top-right',
-    });
+    // this.toast.warning('Mã OTP đã được gửi!', 'Chú ý', {
+    //   timeOut: 3000,
+    //   progressBar: true,
+    //   positionClass: 'toast-top-right',
+    // });
 
-    this.toast.error('Mã OTP đã được gửi!', 'Lỗi', {
-      timeOut: 3000,
-      progressBar: true,
-      positionClass: 'toast-top-right',
-    });
+    // this.toast.error('Mã OTP đã được gửi!', 'Lỗi', {
+    //   timeOut: 3000,
+    //   progressBar: true,
+    //   positionClass: 'toast-top-right',
+    // });
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
