@@ -7,8 +7,8 @@ let pdfjsModule: PdfJsModule | null = null;
 async function getPdfJs(): Promise<PdfJsModule> {
   if (!pdfjsModule) {
     pdfjsModule = await import('pdfjs-dist');
-    if (!pdfjsModule.GlobalWorkerOptions.workerPort) {
-      pdfjsModule.GlobalWorkerOptions.workerPort = new Worker('/pdf.worker.mjs', { type: 'module' });
+    if (!pdfjsModule.GlobalWorkerOptions.workerSrc) {
+      pdfjsModule.GlobalWorkerOptions.workerSrc = '/pdf.worker.js';
     }
   }
   return pdfjsModule;

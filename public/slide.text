@@ -245,14 +245,17 @@ Lưu ý khi nói:
 và quản lý nhà trọ trực tuyến — thương hiệu TroFinder, hướng dẫn bởi thầy Vũ Đức Vượng.
 
 Trong 15 phút, em tập trung ba phần: bài toán, phương án thực hiện và kết quả,
-sau đó demo nhanh các luồng chính trên hệ thống đã triển khai."
+sau đó tình chiếu video demo nhanh luồng chính trên hệ thống đã triển khai."
 
 
 ─── PHẦN 2: BÀI TOÁN (Slide 2–3) — ~2,5 phút ───
 
 [Slide 2]
-"Thị trường phòng trọ hiện nay chủ yếu qua Facebook, Zalo hay website rao vặt.
-Các kênh này giải quyết được đăng tin, nhưng không giải quyết được phần sau giao dịch.
+Cùng với sự phát triển mạnh mẽ của quá trình đô thị hóa, nhu cầu học tập
+và làm việc tại các thành phố lớn ngày càng tăng cao, kéo theo sự gia tăng đột biến
+về nhu cầu tìm kiếm chỗ ở, đặc biệt là phân khúc phòng trọ cho sinh viên và người
+lao động. Thị trường phòng trọ hiện nay chủ yếu qua Facebook, Zalo hay website rao vặt.
+Các kênh này giải quyết được đăng tin cơ bản, nhưng không giải quyết được phần sau giao dịch.
 
 Người thuê khó kiểm chứng thông tin; chủ trọ vẫn quản lý bằng sổ sách, Excel.
 Quy trình bị cắt thành nhiều bước rời: tìm ở web, nhắn ở Zalo, ký giấy, thu tiền
@@ -281,6 +284,10 @@ Các tích hợp đặc thù gồm WebSocket cho chat, OCR cho căn cước, và
 cho nhắc việc theo lịch."
 
 [Slide 5]
+Tiếp theo là use-case tổng quát của hệ thống tìm kiếm và quản lý nhà trọ trực tuyến TroFinder.
+
+
+[Slide 6]
 "Luồng nghiệp vụ em thiết kế khép kín như sau: người thuê tìm phòng trên bản đồ,
 xem chi tiết, chat với chủ trọ. Khi thống nhất, một trong hai bên khởi tạo hợp đồng
 điện tử; bên còn lại xác nhận điều khoản; hai bên ký số tuần tự.
@@ -288,109 +295,22 @@ xem chi tiết, chat với chủ trọ. Khi thống nhất, một trong hai bên
 Em mô hình hóa hợp đồng bằng máy trạng thái — chỉ khi đủ hai chữ ký mới COMPLETED
 và phòng tự chuyển sang đã cho thuê. Sau đó hệ thống theo dõi thanh toán từng tháng."
 
-[Slide 6]
-"Bốn đóng góp em muốn nhấn mạnh:
+Để làm rõ hơn luồng nghiệp vụ chính thì em xin phép được trình bày video demo.
 
-Thứ nhất, quy trình khép kín — không dừng ở đăng tin.
-
-Thứ hai, hợp đồng sinh từ mẫu HTML, tự điền dữ liệu phòng và người dùng, xem trước
-và in PDF trước khi ký.
-
-Thứ ba, OCR căn cước — em tích hợp ba hướng: quét QR VNeID, OCR.Space và DeepSeek,
-giảm nhập tay khi làm hợp đồng.
-
-Thứ tư, quản lý vận hành: thanh toán theo tháng, nhập breakdown điện nước, QR chuyển khoản,
-và các tác vụ nền nhắc đóng tiền, nhắc hợp đồng sắp hết hạn, gợi ý phòng qua email."
-
+[Slide 7]
+Qua đó, em muốn nhấn mạnh những đóng góp sau:
 
 ─── PHẦN 4: KẾT QUẢ (Slide 7–8) — ~1,5 phút ───
 
-[Slide 7]
+[Slide 8]
 "Kết quả, em đã xây dựng thành công website TroFinder với đầy đủ phân hệ: tìm phòng,
 quản lý nhà trọ, dashboard hợp đồng cho cả chủ và người thuê, chat, quản trị phân quyền.
 
 Hệ thống đã triển khai thử nghiệm với HTTPS. Em kiểm thử thủ công các luồng nghiệp vụ
 cốt lõi theo bảng kiểm thử trong báo cáo."
 
-[Slide 8]
+[Slide 9]
 "Em cũng thừa nhận một số hạn chế: ký số mới ở mức tích hợp kỹ thuật; thanh toán chưa
 tự động đối soát ngân hàng; OCR và GPU service cần triển khai production tốt hơn.
 
-Tóm lại, đồ án đạt mục tiêu xây nền tảng số hóa thuê trọ khép kín. Em xin phép chuyển
-sang demo trực tiếp."
-
-
-─── PHẦN 5: DEMO (5–6 PHÚT) — KHÔNG CẦN SLIDE ───
-
-Kịch bản demo (theo thứ tự, ~1 phút/mục):
-
-  DEMO 1 — Tìm phòng (người thuê / khách)
-  • Mở trang chủ → lọc giá, diện tích → xem pin trên bản đồ
-  • Mở chi tiết phòng → lưu phòng
-  [ẢNH: chụp sẵn Hình 4.4 nếu mạng demo lỗi]
-
-  DEMO 2 — Chat (5–10 giây, nếu thiếu thời gian thì bỏ)
-  • Từ phòng → nhắn tin chủ trọ → hiện tin real-time
-
-  DEMO 3 — OCR (30 giây)
-  • Trang cá nhân → upload CCCD → hiện trường tự điền
-  [ẢNH dự phòng: Hình 4.5]
-
-  DEMO 4 — Hợp đồng (1,5–2 phút) — TRỌNG TÂM
-  • Chủ trọ hoặc người thuê: tạo HĐ → preview PDF/HTML → gửi
-  • Bên kia: xác nhận → ký (modal ký số)
-  • Hiện trạng thái COMPLETED trên dashboard
-  [ẢNH dự phòng: Hình 4.6]
-
-  DEMO 5 — Thanh toán & nhắc việc (1,5 phút)
-  • Chủ trọ: upload QR thanh toán
-  • Người thuê: mở modal thanh toán → nhập điện/nước → breakdown
-  • Chủ trọ: xác nhận đã đóng tháng / xem danh sách chưa thanh toán
-  • (Tuỳ chọn) bấm "Gửi email nhắc đóng tiền" — nói là có lịch cron tự động
-
-  DEMO 6 — Admin (20 giây, nếu còn thời gian)
-  • Màn quản trị user/role — nhấn RBAC động
-
-Mẹo demo:
-  • Đăng nhập sẵn 2 tab trình duyệt (chủ trọ + người thuê)
-  • Chuẩn bị 1 HĐ ở trạng thái "chờ ký" để không mất thời gian điền form
-  • Nếu OCR/live chậm → nói "em demo bằng tài khoản đã định danh" + show screenshot
-
-
-================================================================================
-D. CÂU HỎI HỘI ĐỒNG CÓ THỂ GẶP — GỢI Ý TRẢ LỜI NGẮN
-================================================================================
-
-Q: Khác gì Facebook/Zalo cho thuê phòng?
-A: TroFinder gom sau giao dịch: HĐ điện tử, ký số, thanh toán tháng, nhắc hạn — MXH không có.
-
-Q: Hợp đồng điện tử có giá trị pháp lý không?
-A: Đồ án tập trung số hóa quy trình & lưu vết; ký số tích hợp kỹ thuật, cần CA được cấp phép
-   cho giá trị pháp lý đầy đủ thương mại.
-
-Q: OCR sai thì sao?
-A: Người dùng rà soát trước khi xác nhận; chất lượng ảnh ảnh hưởng lớn — hạn chế đã nêu trong báo cáo.
-
-Q: Thanh toán có tự động không?
-A: Chưa — QR + chủ trọ xác nhận; hướng phát triển là API ngân hàng/cổng thanh toán.
-
-Q: Vì sao chọn Angular + Spring Boot?
-A: Angular phù hợp form phức tạp & SPA; Spring Boot mạnh về bảo mật, JPA, nghiệp vụ HĐ/transaction.
-
-Q: Chat dùng gì?
-A: WebSocket/STOMP — tin nhắn real-time, lưu lịch sử DB.
-
-
-================================================================================
-E. CHECKLIST TRƯỚC PHẢN BIỆN
-================================================================================
-
-[ ] Slide 8 trang (bìa + 6 nội dung + kết)
-[ ] Ảnh minh họa: bản đồ, OCR, HĐ, dashboard (từ báo cáo Hình 4.4–4.8)
-[ ] Tài khoản demo + dữ liệu mẫu (phòng, HĐ, thanh toán tháng hiện tại)
-[ ] Rehearsal: thuyết trình 8 phút + demo 6 phút
-[ ] Backup: video quay màn hình 2–3 phút nếu mạng/server lỗi
-
-================================================================================
-HẾT
-================================================================================
+Tóm lại, đồ án đạt mục tiêu xây nền tảng số hóa thuê trọ khép kín

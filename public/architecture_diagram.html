@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sơ đồ Kiến trúc TroFinder</title>
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --bg-color: #f4f7f6;
+        --frontend: #3b82f6; /* Blue */
+        --backend: #10b981; /* Green */
+        --database: #f59e0b; /* Orange */
+        --storage: #0ea5e9; /* Light Blue */
+        --ocr: #8b5cf6; /* Purple */
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
+        --line-color: #94a3b8;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-dark);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .header {
+        text-align: center;
+        margin: 40px 0 20px 0;
+      }
+
+      .header h1 {
+        font-weight: 800;
+        font-size: 2rem;
+        color: #111827;
+        margin: 0 0 10px 0;
+      }
+
+      .header p {
+        color: var(--text-light);
+        font-size: 1.1rem;
+        margin: 0;
+      }
+
+      /* Diagram Container */
+      .diagram-container {
+        position: relative;
+        width: 100%;
+        max-width: 1200px;
+        padding: 40px 20px;
+        box-sizing: border-box;
+        display: grid;
+        grid-template-columns: 1fr 1.2fr 1fr;
+        gap: 60px;
+        align-items: center;
+      }
+
+      /* SVG Layer for Lines */
+      .svg-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      path {
+        fill: none;
+        stroke: var(--line-color);
+        stroke-width: 3;
+        stroke-dasharray: 6 4;
+        animation: dash 30s linear infinite;
+      }
+
+      @keyframes dash {
+        to {
+          stroke-dashoffset: -1000;
+        }
+      }
+
+      /* Connection Labels */
+      .conn-label {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+        white-space: nowrap;
+      }
+
+      .conn-label i {
+        margin-right: 4px;
+        color: var(--text-light);
+      }
+
+      /* Đẩy nhãn FE-BE lên cao để không che chữ ở block Backend */
+      #label-fe-be {
+        margin-top: -35px;
+      }
+
+      /* Node Cards */
+      .node {
+        background: white;
+        border-radius: 16px;
+        box-shadow:
+          0 10px 25px -5px rgba(0, 0, 0, 0.1),
+          0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        border-top: 6px solid;
+        padding: 24px;
+        position: relative;
+        z-index: 2;
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      .node:hover {
+        transform: translateY(-5px);
+        box-shadow:
+          0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+
+      .node-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f3f4f6;
+      }
+
+      .icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        flex-shrink: 0;
+      }
+
+      .node-title h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+      }
+
+      .node-title p {
+        margin: 4px 0 0 0;
+        font-size: 0.85rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+      }
+
+      .node-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .node-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+
+      .node-list li i {
+        margin-top: 3px;
+        font-size: 0.9rem;
+      }
+
+      /* Specific Node Colors */
+      #frontend {
+        border-top-color: var(--frontend);
+      }
+      #frontend .icon-box {
+        background: linear-gradient(135deg, #60a5fa, var(--frontend));
+      }
+      #frontend .node-list li i {
+        color: var(--frontend);
+      }
+
+      #backend {
+        border-top-color: var(--backend);
+      }
+      #backend .icon-box {
+        background: linear-gradient(135deg, #34d399, var(--backend));
+      }
+      #backend .node-list li i {
+        color: var(--backend);
+      }
+
+      #database {
+        border-top-color: var(--database);
+      }
+      #database .icon-box {
+        background: linear-gradient(135deg, #fbbf24, var(--database));
+      }
+      #database .node-list li i {
+        color: var(--database);
+      }
+
+      #storage {
+        border-top-color: var(--storage);
+      }
+      #storage .icon-box {
+        background: linear-gradient(135deg, #38bdf8, var(--storage));
+      }
+      #storage .node-list li i {
+        color: var(--storage);
+      }
+
+      #ocr {
+        border-top-color: var(--ocr);
+      }
+      #ocr .icon-box {
+        background: linear-gradient(135deg, #a78bfa, var(--ocr));
+      }
+      #ocr .node-list li i {
+        color: var(--ocr);
+      }
+
+      /* Grid Placement */
+      .col-left {
+        grid-column: 1;
+      }
+      .col-center {
+        grid-column: 2;
+      }
+      .col-right {
+        grid-column: 3;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+      }
+
+      /* Marker for arrows */
+      #arrow {
+        fill: var(--line-color);
+      }
+
+      @media (max-width: 992px) {
+        .diagram-container {
+          grid-template-columns: 1fr;
+          gap: 50px;
+        }
+        .col-right {
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+        .col-right .node {
+          flex: 1 1 300px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Kiến trúc Hệ thống TroFinder</h1>
+      <p>Mô hình Client-Server, Frontend/Backend tách biệt</p>
+    </div>
+
+    <div class="diagram-container" id="diagram-container">
+      <!-- SVG Layer for drawing connecting lines -->
+      <svg class="svg-layer" id="svg-layer">
+        <defs>
+          <marker
+            id="arrow"
+            viewBox="0 0 10 10"
+            refX="9"
+            refY="5"
+            markerWidth="6"
+            markerHeight="6"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 0 L 10 5 L 0 10 z" />
+          </marker>
+        </defs>
+        <!-- Paths -->
+        <path id="path-fe-be" marker-end="url(#arrow)" marker-start="url(#arrow)"></path>
+        <path id="path-be-db" marker-end="url(#arrow)"></path>
+        <path id="path-be-storage" marker-end="url(#arrow)"></path>
+        <path id="path-be-ocr" marker-end="url(#arrow)"></path>
+      </svg>
+
+      <!-- Labels for paths -->
+      <div id="label-fe-be" class="conn-label">
+        <i class="fa-solid fa-network-wired"></i> REST API / WebSocket (STOMP)
+      </div>
+      <div id="label-be-db" class="conn-label"><i class="fa-solid fa-database"></i> JPA / SQL</div>
+      <div id="label-be-storage" class="conn-label">
+        <i class="fa-solid fa-cloud-arrow-up"></i> S3 Protocol
+      </div>
+      <div id="label-be-ocr" class="conn-label"><i class="fa-solid fa-link"></i> External API</div>
+
+      <!-- FRONTEND NODE -->
+      <div class="col-left">
+        <div class="node" id="frontend">
+          <div class="node-header">
+            <div class="icon-box">
+              <i class="fa-solid fa-laptop-code"></i>
+            </div>
+            <div class="node-title">
+              <h3>Client</h3>
+              <p>Frontend</p>
+            </div>
+          </div>
+          <ul class="node-list">
+            <li>
+              <i class="fa-brands fa-angular"></i> <strong>Angular</strong> (Framework UI chính)
+            </li>
+            <li>
+              <i class="fa-brands fa-js"></i> <strong>TypeScript</strong> (Ngôn ngữ phát triển)
+            </li>
+            <li>
+              <i class="fa-solid fa-map-location-dot"></i> <strong>Leaflet</strong> (Hiển thị bản đồ
+              OpenStreetMap)
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- BACKEND NODE -->
+      <div class="col-center">
+        <div class="node" id="backend">
+          <div class="node-header">
+            <div class="icon-box">
+              <i class="fa-solid fa-server"></i>
+            </div>
+            <div class="node-title">
+              <h3>Server</h3>
+              <p>Backend / Core Logic</p>
+            </div>
+          </div>
+          <ul class="node-list">
+            <li>
+              <i class="fa-brands fa-java"></i> <strong>Java 17 & Spring Boot</strong> (Core
+              Backend)
+            </li>
+            <li>
+              <i class="fa-solid fa-shield-halved"></i> <strong>Spring Security</strong> (Xác thực
+              với JWT)
+            </li>
+            <li>
+              <i class="fa-solid fa-layer-group"></i> <strong>JPA / Hibernate</strong> (Truy xuất dữ
+              liệu)
+            </li>
+            <li>
+              <i class="fa-solid fa-comments"></i> <strong>WebSocket / STOMP</strong> (Chat
+              Real-time)
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- DATABASE & EXTERNAL NODES -->
+      <div class="col-right">
+        <!-- Database -->
+        <div class="node" id="database">
+          <div class="node-header">
+            <div class="icon-box">
+              <i class="fa-solid fa-database"></i>
+            </div>
+            <div class="node-title">
+              <h3>Database</h3>
+              <p>Relational Data</p>
+            </div>
+          </div>
+          <ul class="node-list">
+            <li>
+              <i class="fa-solid fa-table-list"></i> <strong>MySQL</strong> (Lưu trữ dữ liệu có cấu
+              trúc)
+            </li>
+          </ul>
+        </div>
+
+        <!-- Storage -->
+        <div class="node" id="storage">
+          <div class="node-header">
+            <div class="icon-box">
+              <i class="fa-regular fa-folder-open"></i>
+            </div>
+            <div class="node-title">
+              <h3>File Storage</h3>
+              <p>Object Storage</p>
+            </div>
+          </div>
+          <ul class="node-list">
+            <li>
+              <i class="fa-solid fa-cubes"></i> <strong>MinIO</strong> (Lưu trữ ảnh, file hợp đồng,
+              tài liệu)
+            </li>
+          </ul>
+        </div>
+
+        <!-- OCR / External -->
+        <div class="node" id="ocr">
+          <div class="node-header">
+            <div class="icon-box">
+              <i class="fa-solid fa-microchip"></i>
+            </div>
+            <div class="node-title">
+              <h3>OCR Services</h3>
+              <p>AI / Optical Character Recognition</p>
+            </div>
+          </div>
+          <ul class="node-list">
+            <li><i class="fa-solid fa-qrcode"></i> <strong>VNeID QR</strong> (Quét mã QR CCCD)</li>
+            <li>
+              <i class="fa-solid fa-file-contract"></i> <strong>OCR.Space</strong> (Trích xuất văn
+              bản)
+            </li>
+            <li>
+              <i class="fa-solid fa-brain"></i> <strong>DeepSeek OCR</strong> (Nhận diện & xử lý
+              thông minh)
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function drawLines() {
+        const containerRect = document.getElementById('diagram-container').getBoundingClientRect();
+        const isMobile = window.innerWidth <= 992;
+
+        function connect(
+          startId,
+          endId,
+          pathId,
+          labelId,
+          anchorStart = 'right',
+          anchorEnd = 'left',
+          adjustCurve = 0,
+        ) {
+          const el1 = document.getElementById(startId);
+          const el2 = document.getElementById(endId);
+          const path = document.getElementById(pathId);
+          const label = document.getElementById(labelId);
+
+          const r1 = el1.getBoundingClientRect();
+          const r2 = el2.getBoundingClientRect();
+
+          let x1, y1, x2, y2;
+
+          // Start Point
+          if (anchorStart === 'right') {
+            x1 = r1.right - containerRect.left;
+            y1 = r1.top + r1.height / 2 - containerRect.top;
+          } else if (anchorStart === 'bottom') {
+            x1 = r1.left + r1.width / 2 - containerRect.left;
+            y1 = r1.bottom - containerRect.top;
+          }
+
+          // End Point
+          if (anchorEnd === 'left') {
+            x2 = r2.left - containerRect.left;
+            y2 = r2.top + r2.height / 2 - containerRect.top;
+          } else if (anchorEnd === 'top') {
+            x2 = r2.left + r2.width / 2 - containerRect.left;
+            y2 = r2.top - containerRect.top;
+          } else if (anchorEnd === 'bottom') {
+            x2 = r2.left + r2.width / 2 - containerRect.left;
+            y2 = r2.bottom - containerRect.top;
+          }
+
+          let d = '';
+          if (isMobile) {
+            // Vertical flow for mobile
+            const midY = y1 + (y2 - y1) / 2;
+            d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
+          } else {
+            // Horizontal flow for desktop
+            const curveOffset = Math.abs(x2 - x1) / 2 + adjustCurve;
+            d = `M ${x1} ${y1} C ${x1 + curveOffset} ${y1}, ${x2 - curveOffset} ${y2}, ${x2} ${y2}`;
+          }
+
+          path.setAttribute('d', d);
+
+          // Position label at the center of the path
+          label.style.left = `${(x1 + x2) / 2}px`;
+          label.style.top = `${(y1 + y2) / 2}px`;
+        }
+
+        if (!isMobile) {
+          // Desktop connections
+          connect('frontend', 'backend', 'path-fe-be', 'label-fe-be', 'right', 'left');
+          connect('backend', 'database', 'path-be-db', 'label-be-db', 'right', 'left', 50);
+          connect('backend', 'storage', 'path-be-storage', 'label-be-storage', 'right', 'left');
+          connect('backend', 'ocr', 'path-be-ocr', 'label-be-ocr', 'right', 'left', 50);
+        } else {
+          // Mobile connections (Stacking)
+          connect('frontend', 'backend', 'path-fe-be', 'label-fe-be', 'bottom', 'top');
+          connect('backend', 'database', 'path-be-db', 'label-be-db', 'bottom', 'top');
+          connect('backend', 'storage', 'path-be-storage', 'label-be-storage', 'bottom', 'top');
+          connect('backend', 'ocr', 'path-be-ocr', 'label-be-ocr', 'bottom', 'top');
+        }
+      }
+
+      // Draw initially and on resize
+      window.addEventListener('load', drawLines);
+      window.addEventListener('resize', drawLines);
+    </script>
+  </body>
+</html>
